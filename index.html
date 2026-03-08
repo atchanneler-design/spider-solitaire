@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spider Solitaire Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a5c38">
+  <meta name="description" content="AIコーチ搭載のスパイダーソリティア。1・2・4スート対応、今日の問題、Undo機能付き。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Spider">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green:       #1a5c38;
+      --green-light: #236b44;
+      --green-dark:  #0f3a22;
+      --gold:        #c9a84c;
+      --gold-light:  #e8c96a;
+      --cream:       #f5f0e8;
+    }
+
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh;
+      font-family: 'DM Mono', monospace;
+      color: var(--cream);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page { position: relative; z-index: 1; }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+    }
+
+    .logo span { color: var(--cream); font-size: 0.9em; }
+
+    header nav a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    header nav a:hover { opacity: 1; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 48px;
+    }
+
+    .hero-icon {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 24px;
+      border-radius: 22px;
+      border: 2px solid rgba(201,168,76,0.5);
+      overflow: hidden;
+    }
+
+    .hero-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 8vw, 3rem);
+      color: var(--gold-light);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--cream);
+      opacity: 0.85;
+      max-width: 400px;
+      margin: 0 auto 36px;
+    }
+
+    .btn-play {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--gold);
+      color: var(--green-dark);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 8px;
+      letter-spacing: 0.05em;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+    }
+
+    .btn-play:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 48px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .features h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .feature-card .icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .feature-card h3 {
+      font-size: 0.85rem;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.75rem;
+      color: var(--cream);
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+
+    /* SUITS */
+    .suits-section {
+      padding: 0 24px 48px;
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .suits-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    .suit-cards {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .suit-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 10px;
+      padding: 16px 12px;
+      flex: 1;
+    }
+
+    .suit-card .suits { font-size: 1.3rem; margin-bottom: 8px; }
+    .suit-card .level { font-size: 0.7rem; color: var(--gold); margin-bottom: 4px; }
+    .suit-card .label { font-size: 0.75rem; color: var(--cream); opacity: 0.7; }
+
+    /* CTA BOTTOM */
+    .cta-bottom {
+      text-align: center;
+      padding: 16px 24px 64px;
+    }
+
+    .cta-bottom p {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      margin-top: 16px;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.25);
+      border-top: 1px solid rgba(201,168,76,0.2);
+      font-size: 0.75rem;
+      color: var(--cream);
+      opacity: 0.6;
+    }
+
+    footer a {
+      color: var(--gold);
+      text-decoration: none;
+      opacity: 0.8;
+    }
+
+    footer a:hover { opacity: 1; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(201,168,76,0.15);
+      margin: 0 24px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav><a href="privacy.html">プライバシーポリシー</a></nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-icon">
+      <img src="icon.svg" alt="Spider Solitaire Pro">
+    </div>
+    <h1>Spider<br>Solitaire Pro</h1>
+    <p>AIコーチ搭載のスパイダーソリティア。<br>
+       毎日全員が同じ盤面に挑戦する「今日の問題」で腕を競おう。</p>
+    <a href="spider-solitaire.html" class="btn-play">今すぐプレイ</a>
+  </section>
+
+  <hr class="divider">
+
+  <!-- FEATURES -->
+  <section class="features">
+    <h2>特徴</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">🤖</div>
+        <h3>AIコーチ</h3>
+        <p>最善手の提案・局面解説・巻き戻しアドバイス</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📅</div>
+        <h3>今日の問題</h3>
+        <p>毎日同じ盤面に全員が挑戦。SNSでスコアをシェア</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">↩️</div>
+        <h3>無制限Undo</h3>
+        <p>何手でも巻き戻せる。クリア後の振り返りにも対応</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">💡</div>
+        <h3>ヒント機能</h3>
+        <p>移動元・移動先をハイライト表示でサポート</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SUITS -->
+  <section class="suits-section">
+    <h2>3つの難易度</h2>
+    <div class="suit-cards">
+      <div class="suit-card">
+        <div class="suits">♠</div>
+        <div class="level">EASY</div>
+        <div class="label">1スート</div>
+      </div>
+      <div class="suit-card">
+        <div class="suits">♠♥</div>
+        <div class="level">NORMAL</div>
+        <div class="label">2スート</div>
+      </div>
+      <div class="suit-card">
+        <div class="suits">♠♥♦♣</div>
+        <div class="level">HARD</div>
+        <div class="label">4スート</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- CTA BOTTOM -->
+  <section class="cta-bottom">
+    <a href="spider-solitaire.html" class="btn-play">ゲームをはじめる</a>
+    <p>ブラウザで動作 · インストール不要 · 無料</p>
+  </section>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="privacy.html">プライバシーポリシー</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

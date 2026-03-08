@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー - Spider Solitaire Pro</title>
+  <meta name="theme-color" content="#1a5c38">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green:       #1a5c38;
+      --green-light: #236b44;
+      --green-dark:  #0f3a22;
+      --gold:        #c9a84c;
+      --gold-light:  #e8c96a;
+      --cream:       #f5f0e8;
+    }
+
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh;
+      font-family: 'DM Mono', monospace;
+      color: var(--cream);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--gold-light);
+    }
+
+    .logo span { color: var(--cream); font-size: 0.9em; }
+
+    header nav a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    header nav a:hover { opacity: 1; }
+
+    main {
+      padding: 40px 24px 64px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .updated {
+      font-size: 0.75rem;
+      opacity: 0.5;
+      margin-bottom: 40px;
+    }
+
+    section {
+      margin-bottom: 36px;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+    }
+
+    p, li {
+      font-size: 0.875rem;
+      line-height: 1.9;
+      color: var(--cream);
+      opacity: 0.85;
+    }
+
+    ul {
+      padding-left: 1.4em;
+      margin-top: 8px;
+    }
+
+    li { margin-bottom: 4px; }
+
+    a {
+      color: var(--gold-light);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .note {
+      background: rgba(0,0,0,0.2);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      opacity: 0.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.25);
+      border-top: 1px solid rgba(201,168,76,0.2);
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav><a href="index.html">← トップへ</a></nav>
+  </header>
+
+  <main>
+    <h1>プライバシーポリシー</h1>
+    <p class="updated">最終更新日：2026年3月9日</p>
+
+    <section>
+      <h2>1. はじめに</h2>
+      <p>Spider Solitaire Pro（以下「本アプリ」）は、個人が開発・提供するブラウザゲームです。本ポリシーは、本アプリにおける情報の取り扱いについて説明します。</p>
+    </section>
+
+    <section>
+      <h2>2. 収集する情報</h2>
+      <p>本アプリは、サーバーへの個人情報の送信・収集を一切行いません。</p>
+      <p>以下の情報はお使いのデバイス上のみに保存されます（localStorage）：</p>
+      <ul>
+        <li>ゲームのスコア・手数・クリアタイム</li>
+        <li>難易度別のクリア回数</li>
+        <li>今日の問題のクリア済みフラグ</li>
+      </ul>
+      <div class="note">これらのデータは外部へ送信されることなく、ブラウザのデータを削除することでいつでも消去できます。</div>
+    </section>
+
+    <section>
+      <h2>3. Google Fonts の使用</h2>
+      <p>本アプリはテキスト表示のために Google Fonts（Playfair Display・DM Mono）を使用しています。フォントの読み込み時に Google のサーバーへのリクエストが発生し、IPアドレス等の情報がGoogleに送信される場合があります。</p>
+      <p>Google のプライバシーポリシーについては <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">こちら</a> をご確認ください。</p>
+      <div class="note">オフラインでプレイする場合（PWAとしてインストール済みの場合）、キャッシュされたフォントを使用するためGoogleへのリクエストは発生しません。</div>
+    </section>
+
+    <section>
+      <h2>4. Service Worker・キャッシュ</h2>
+      <p>本アプリはオフライン対応のためにService Workerを使用し、以下のファイルをデバイス上にキャッシュします：</p>
+      <ul>
+        <li>ゲームのHTMLファイル</li>
+        <li>アイコン・マニフェストファイル</li>
+        <li>Google Fontsのフォントファイル（初回アクセス後）</li>
+      </ul>
+      <p>キャッシュはブラウザのストレージ設定から削除できます。</p>
+    </section>
+
+    <section>
+      <h2>5. 第三者への情報提供</h2>
+      <p>本アプリは第三者への個人情報の提供を行いません。</p>
+    </section>
+
+    <section>
+      <h2>6. SNSシェア機能</h2>
+      <p>「今日の問題」クリア後にSNSシェアテキストを生成する機能があります。シェアの実行はユーザーの任意であり、本アプリが自動的に投稿することはありません。シェアされた情報の取り扱いは各SNSのプライバシーポリシーに準じます。</p>
+    </section>
+
+    <section>
+      <h2>7. お問い合わせ</h2>
+      <p>本ポリシーに関するご質問は、GitHubリポジトリの Issues よりお問い合わせください。</p>
+      <p><a href="https://github.com/atchanneler-design/spider-solitaire" target="_blank" rel="noopener">github.com/atchanneler-design/spider-solitaire</a></p>
+    </section>
+
+    <section>
+      <h2>8. 改定</h2>
+      <p>本ポリシーは必要に応じて改定することがあります。重要な変更がある場合は本ページ上部の更新日を変更します。</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="index.html">トップページ</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
