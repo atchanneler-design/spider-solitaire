@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spider Solitaire Pro</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a5c38">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spider">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --green: #1a5c38;
+    --green-light: #236b44;
+    --green-dark: #0f3a22;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --cream: #f5f0e8;
+    --card-bg: #fdf8f0;
+    --card-shadow: rgba(0,0,0,0.4);
+    --red: #b83232;
+    --black: #1a1a1a;
+    --hint: #4a9eff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+    min-height: 100vh;
+    font-family: 'DM Mono', monospace;
+    user-select: none;
+    overflow-x: hidden;
+  }
+
+  /* felt texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    color: rgba(245,240,232,0.8);
+    font-size: 0.75rem;
+  }
+
+  .stat-item { display: flex; flex-direction: column; align-items: center; }
+  .stat-value { color: var(--gold-light); font-size: 1rem; font-weight: 500; }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .difficulty-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .diff-label {
+    font-size: 0.65rem;
+    color: rgba(245,240,232,0.4);
+    letter-spacing: 1px;
+    margin-right: 2px;
+  }
+  .diff-btn {
+    padding: 5px 10px;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: transparent;
+    color: rgba(245,240,232,0.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .diff-btn:hover { border-color: rgba(201,168,76,0.6); color: #e8c96a; }
+  .diff-btn.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.2);
+    color: #e8c96a;
+    font-weight: bold;
+  }
+
+  .btn {
+    padding: 6px 14px;
+    border: 1px solid rgba(201,168,76,0.4);
+    background: rgba(201,168,76,0.15);
+    color: var(--gold-light);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+
+  .btn:hover { background: rgba(201,168,76,0.3); border-color: var(--gold); }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: rgba(201,168,76,0.35); border-color: var(--gold); }
+  .btn.danger { border-color: rgba(184,50,50,0.6); color: #e88; background: rgba(184,50,50,0.15); }
+  .btn.danger:hover { background: rgba(184,50,50,0.3); }
+
+  /* GAME AREA */
+  #game-area {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 6px;
+    gap: 8px;
+  }
+
+  /* TOP ROW: foundations */
+  .top-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 4px;
+    margin-bottom: 4px;
+  }
+
+  .foundation-slot {
+    width: 68px;
+    height: 100px;
+    border: 2px dashed rgba(201,168,76,0.35);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.15);
+    font-size: 1.4rem;
+    color: rgba(201,168,76,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .foundation-slot.filled {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+  }
+
+  .foundation-count {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 0.65rem;
+    color: var(--gold);
+    opacity: 0.8;
+  }
+
+  /* COLUMNS */
+  .columns {
+    display: flex;
+    gap: clamp(2px, 0.8vw, 5px);
+    justify-content: center;
+    padding: 0 2px;
+  }
+
+  .column {
+    flex: 1;
+    min-width: 0;
+    max-width: 72px;
+    min-height: 120px;
+    position: relative;
+    border-radius: 6px;
+  }
+
+  .column-slot {
+    width: 100%;
+    height: 100px;
+    border: 2px dashed rgba(255,255,255,0.12);
+    border-radius: 6px;
+    position: absolute;
+    top: 0;
+  }
+
+  /* CARD -------------------------------------------------------- */
+  .card {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    background: #fff;
+    border-radius: 7px;
+    border: 1px solid #bbb;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.28);
+    cursor: pointer;
+    transition: box-shadow 0.1s, transform 0.1s;
+    overflow: hidden;
+  }
+  .card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.38); }
+
+  .card.face-down {
+    background: repeating-linear-gradient(
+      45deg, #1a5c38 0px, #1a5c38 5px, #1e6840 5px, #1e6840 10px
+    );
+    border-color: rgba(201,168,76,0.4);
+    cursor: default;
+  }
+  .card.selected {
+    box-shadow: 0 0 0 3px var(--hint), 0 4px 16px rgba(74,158,255,0.4);
+    transform: translateY(-4px);
+  }
+  .card.hint-card {
+    box-shadow: 0 0 0 3px var(--gold), 0 4px 16px rgba(201,168,76,0.5);
+    animation: pulse-hint 0.9s ease-in-out infinite;
+  }
+  @keyframes pulse-hint {
+    0%,100% { box-shadow: 0 0 0 2px var(--gold), 0 4px 14px rgba(201,168,76,0.3); transform: translateY(0); }
+    50%     { box-shadow: 0 0 0 4px var(--gold-light), 0 8px 22px rgba(201,168,76,0.6); transform: translateY(-3px); }
+  }
+  .card.valid-target {
+    box-shadow: 0 0 0 3px rgba(74,158,255,0.95), 0 4px 14px rgba(74,158,255,0.3);
+    animation: pulse-target 1s ease-in-out infinite;
+  }
+  .column-slot.valid-target-empty {
+    border-color: rgba(74,158,255,0.9) !important;
+    background: rgba(74,158,255,0.08);
+    animation: pulse-target 1s ease-in-out infinite;
+  }
+  @keyframes pulse-target {
+    0%,100% { box-shadow: 0 0 0 3px rgba(74,158,255,0.7), 0 3px 10px rgba(74,158,255,0.2); }
+    50%     { box-shadow: 0 0 0 5px rgba(74,158,255,1.0), 0 6px 18px rgba(74,158,255,0.5); }
+  }
+
+  /* 上部ストリップ：重なっても常に見える帯 */
+  .card-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    gap: 1px;
+    overflow: hidden;
+  }
+  .card-top-rank {
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -1.5px;
+    flex-shrink: 0;
+  }
+  .card-top-rank.rank-10 {
+    font-size: 0.85rem;
+    letter-spacing: -1px;
+  }
+  .card-top-suit {
+    font-size: 1.1rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  /* 最前面カード専用：中央に大きなスーツ */
+  .card-center-suit {
+    display: none;
+  }
+  .card.card-front .card-center-suit {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -38%);
+    font-size: 3.2rem;
+    line-height: 1;
+    opacity: 0.92;
+  }
+  .card.card-front .card-top-rank { font-size: 1.25rem; letter-spacing: -1.5px; }
+  .card.card-front .card-top-rank.rank-10 { font-size: 0.85rem; letter-spacing: -1px; }
+  .card.card-front .card-top-suit { font-size: 1.2rem; }
+
+  .red   { color: #cc1111; }
+  .black { color: #111111; }
+
+  /* STOCK */
+  .stock-area {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 4px;
+    margin-top: 8px;
+  }
+
+  .stock-pile {
+    width: 68px;
+    height: 100px;
+    border-radius: 6px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .stock-card {
+    position: absolute;
+    width: 68px;
+    height: 100px;
+    background: repeating-linear-gradient(
+      135deg,
+      #1a5c38,
+      #1a5c38 4px,
+      #1e6840 4px,
+      #1e6840 8px
+    );
+    border-radius: 6px;
+    border: 1px solid rgba(201,168,76,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    transition: transform 0.1s;
+  }
+
+  .stock-card:hover { transform: translateY(-2px); }
+
+  .stock-count {
+    position: absolute;
+    bottom: -18px;
+    width: 100%;
+    text-align: center;
+    color: rgba(245,240,232,0.6);
+    font-size: 0.65rem;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal {
+    background: linear-gradient(145deg, #1e2d1e, #0f1a0f);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+
+  .modal p {
+    color: rgba(245,240,232,0.7);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal .btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* AD MODAL */
+  .ad-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    color: rgba(245,240,232,0.5);
+    font-size: 0.75rem;
+  }
+
+  .ad-timer {
+    font-size: 1.8rem;
+    color: var(--gold);
+    font-weight: 700;
+    margin: 8px 0;
+  }
+
+  /* AIコーチ ハイライト */
+  .card.coach-hint {
+    box-shadow: 0 0 0 3px #ffd84d, 0 4px 18px rgba(255,216,77,0.5);
+    animation: coach-pulse 1s ease-in-out infinite;
+    z-index: 50 !important;
+  }
+  .card.coach-target {
+    box-shadow: 0 0 0 3px #4ade80, 0 4px 14px rgba(74,222,128,0.4);
+    animation: coach-pulse-green 1s ease-in-out infinite;
+  }
+  .column-slot.coach-target-empty {
+    border-color: #4ade80 !important;
+    background: rgba(74,222,128,0.1);
+    animation: coach-pulse-green 1s ease-in-out infinite;
+  }
+  @keyframes coach-pulse {
+    0%,100% { box-shadow: 0 0 0 3px #ffd84d, 0 4px 14px rgba(255,216,77,0.4); }
+    50%      { box-shadow: 0 0 0 5px #ffe566, 0 6px 22px rgba(255,216,77,0.7); }
+  }
+  @keyframes coach-pulse-green {
+    0%,100% { box-shadow: 0 0 0 3px #4ade80, 0 4px 14px rgba(74,222,128,0.3); }
+    50%      { box-shadow: 0 0 0 5px #6ef0a0, 0 6px 22px rgba(74,222,128,0.6); }
+  }
+
+  /* AI COACH BAR -------------------------------------------- */
+  #ai-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, #0d1a0d, #080f08);
+    border-top: 1px solid rgba(201,168,76,0.3);
+    z-index: 150;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* クイックボタン行 */
+  #ai-quick-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  #ai-quick-row::-webkit-scrollbar { display: none; }
+
+  #ai-label {
+    font-size: 0.65rem;
+    color: var(--gold);
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-quick {
+    padding: 5px 11px;
+    border: 1px solid rgba(201,168,76,0.35);
+    background: rgba(201,168,76,0.08);
+    color: rgba(245,240,232,0.75);
+    font-size: 0.68rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .ai-quick:hover, .ai-quick:active {
+    background: rgba(201,168,76,0.25);
+    color: var(--cream);
+  }
+
+  /* アドバイス表示エリア（タップ後に展開） */
+  #ai-advice-box {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    border-top: 0px solid rgba(201,168,76,0.15);
+  }
+  #ai-advice-box.open {
+    max-height: 160px;
+    border-top-width: 1px;
+  }
+
+  #ai-advice-inner {
+    padding: 10px 14px 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    overflow-y: auto;
+    max-height: 160px;
+  }
+
+  #ai-advice-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  #ai-advice-text {
+    font-size: 0.73rem;
+    line-height: 1.6;
+    color: var(--cream);
+    flex: 1;
+  }
+
+  #ai-advice-close {
+    background: none;
+    border: none;
+    color: rgba(245,240,232,0.4);
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    padding: 0 2px;
+    line-height: 1;
+  }
+  #ai-advice-close:hover { color: var(--cream); }
+
+  /* ゲームエリアに下部バー分のパディング */
+  #app { padding-bottom: 44px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 55px;
+    left: 50%;
+    transform: translateX(-50%) translateY(40px);
+    background: rgba(15,58,34,0.95);
+    border: 1px solid var(--gold);
+    color: var(--cream);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 200;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* WIN */
+  .win-stars {
+    font-size: 2.5rem;
+    margin: 10px 0;
+    animation: spin-once 0.6s ease;
+  }
+
+  @keyframes spin-once {
+    from { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+    to { transform: rotate(0) scale(1); opacity: 1; }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 16px 0;
+    text-align: left;
+  }
+
+  .stats-grid .s-label {
+    color: rgba(245,240,232,0.5);
+    font-size: 0.7rem;
+  }
+
+  .stats-grid .s-val {
+    color: var(--gold-light);
+    font-size: 0.9rem;
+  }
+
+  /* DEAL ANIMATION - 山札から飛んでくる */
+  .card.dealing {
+    animation: deal-fly 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  @keyframes deal-fly {
+    0%   { opacity: 0.9; transform: translateX(var(--deal-dx)) translateY(var(--deal-dy)) scale(0.75) rotate(var(--deal-rot)); z-index: 999; }
+    70%  { opacity: 1; transform: translateX(0) translateY(-6px) scale(1.04) rotate(0.5deg); }
+    100% { opacity: 1; transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .title { font-size: 1rem; }
+    .stats { gap: 10px; }
+    header { padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="title">♠ SPIDER SOLITAIRE</div>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-value" id="stat-moves">0</span>
+        <span>手数</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="stat-time">0:00</span>
+        <span>経過</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="stat-score">500</span>
+        <span>スコア</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="stat-cleared">0/8</span>
+        <span>完成</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn primary" onclick="confirmNewGame()">新しいゲーム</button>
+    <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()">📅 今日の問題</button>
+    <button class="btn" onclick="undoMove()">↩ 戻す</button>
+    <div class="difficulty-selector">
+      <span class="diff-label">難易度</span>
+      <button class="diff-btn" id="diff-1" onclick="setDifficulty(1)">1♠</button>
+      <button class="diff-btn" id="diff-2" onclick="setDifficulty(2)">2♠</button>
+      <button class="diff-btn active" id="diff-4" onclick="setDifficulty(4)">4♠</button>
+    </div>
+  </div>
+
+  <div id="game-area">
+    <div class="top-row" id="foundations"></div>
+    <div class="columns" id="columns"></div>
+    <div class="stock-area" id="stock-area"></div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- AI COACH BAR -->
+<div id="ai-bar">
+  <div id="ai-quick-row">
+    <span id="ai-label">🤖 コーチ</span>
+    <button class="ai-quick" onclick="askAi('ここからどうすべき？')">次の手は？</button>
+    <button class="ai-quick" onclick="askAi('まだクリアできる？')">クリアできる？</button>
+    <button class="ai-quick" onclick="askAi('どこまで戻すべき？')">何手戻す？</button>
+    <button class="ai-quick" onclick="askAi('今の局面を解説して')">局面を解説</button>
+  </div>
+  <div id="ai-advice-box">
+    <div id="ai-advice-inner">
+      <span id="ai-advice-icon">🤖</span>
+      <span id="ai-advice-text"></span>
+      <button id="ai-advice-close" onclick="closeAdvice()">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA & STATE
+// ============================================================
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RANK_VAL = Object.fromEntries(RANKS.map((r,i) => [r, i+1]));
+
+let currentDifficulty = 4; // デフォルト4スート
+
+let state = {
+  columns: [],      // 10 columns, each array of {rank, suit, faceUp}
+  foundations: [],  // 8 completed sets
+  stock: [],        // remaining deal piles
+  history: [],      // for undo & review
+  moves: 0,
+  score: 1000,
+  startTime: null,
+  timerInterval: null,
+  hintUsed: 0,
+  adUsed: 0,
+  cleared: 0,
+  gameOver: false,
+  difficulty: 4,
+};
+
+let selected = null;      // {colIdx, cardIdx}
+let hintCards = [];       // [fromKey] only — hint shows source card only
+let validTargets = [];    // list of "ci-ki" keys for valid drop targets
+
+// ============================================================
+// TODAY'S CHALLENGE
+// ============================================================
+function getTodayDateString() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTodaySeed() {
+  // 日付文字列を数値に変換してシードに使う
+  const dateStr = getTodayDateString();
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = (hash * 31 + dateStr.charCodeAt(i)) & 0xffffffff;
+  }
+  return Math.abs(hash);
+}
+
+function startTodayChallenge() {
+  if (state.moves > 0 && !state.gameOver) {
+    showModal(`
+      <h2>📅 今日の問題</h2>
+      <p style="margin-bottom:20px">今日 <strong style="color:var(--gold-light)">${getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')}</strong> の特別盤面です。<br>
+      現在のゲームを中断して始めますか？</p>
+      <div class="btn-group">
+        <button class="btn primary" onclick="launchTodayChallenge()">始める</button>
+        <button class="btn" onclick="hideModal()">キャンセル</button>
+      </div>
+    `);
+  } else {
+    launchTodayChallenge();
+  }
+}
+
+function launchTodayChallenge() {
+  hideModal();
+  clearHints();
+  selected = null;
+  validTargets = [];
+
+  const seed = getTodaySeed();
+  const { columns, stock } = dealGame(seed);
+
+  clearInterval(state.timerInterval);
+  state = {
+    columns, stock,
+    foundations: [],
+    history: [],
+    moves: 0,
+    score: 1000,
+    startTime: Date.now(),
+    timerInterval: setInterval(updateTimer, 1000),
+    hintUsed: 0,
+    adUsed: 0,
+    cleared: 0,
+    gameOver: false,
+    isToday: true,
+    difficulty: currentDifficulty,
+  };
+
+  render();
+  updateStats();
+  updateTodayBadge();
+  showToast(`📅 ${getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')} の問題スタート！`);
+}
+
+function updateTodayBadge() {
+  // 今日の問題プレイ中はボタンを光らせる
+  const btn = document.querySelector('.toolbar .btn:nth-child(2)');
+  if (btn) {
+    btn.style.background = state.isToday
+      ? 'rgba(255,200,50,0.35)'
+      : 'rgba(255,200,50,0.15)';
+  }
+}
+
+function buildShareText(moves, timeStr, score, hintUsed, adUsed) {
+  const date = getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3');
+  const hintEmoji  = hintUsed  === 0 ? '💡✅' : `💡×${hintUsed}`;
+  const adEmoji    = adUsed    === 0 ? '📺✅' : `📺×${adUsed}`;
+  // スコアをグラフ表示（10段階）
+  const bar = Math.round(Math.min(score, 1000) / 100);
+  const gauge = '█'.repeat(bar) + '░'.repeat(10 - bar);
+
+  return `♠ Spider Solitaire 今日の問題 ${date}
+━━━━━━━━━━━━━━
+🏆 スコア  ${score}点
+⏱ タイム  ${timeStr}
+🃏 手数   ${moves}手
+${hintEmoji}  ${adEmoji}
+━━━━━━━━━━━━━━
+[${gauge}]
+#SpiderSolitaire #今日の問題`;
+}
+
+// ============================================================
+// PROBLEM SET  (pre-seeded solvable games using known seeds)
+// ============================================================
+const PROBLEM_SEEDS = [
+  42, 137, 256, 891, 1024, 2048, 3141, 5678, 9999, 11111,
+  22222, 33333, 44444, 55555, 66666, 77777, 88888, 99999, 12345, 54321,
+];
+
+let currentProblemIdx = 0;
+
+function seededRandom(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0x100000000;
+  };
+}
+
+function generateDeck(suitCount) {
+  // suitCount: 1〜4。常に104枚になるよう調整
+  // 例: 1スート → ♠のみ × 8周 = 104枚
+  //     2スート → ♠♥ × 4周 = 104枚
+  //     4スート → ♠♥♦♣ × 2周 = 104枚
+  const n = suitCount || currentDifficulty;
+  const usedSuits = SUITS.slice(0, n);
+  const totalCards = 104;
+  const repeats = totalCards / (n * 13); // 何周するか
+  const deck = [];
+  for (let rep = 0; rep < repeats; rep++)
+    for (let s = 0; s < n; s++)
+      for (let r = 0; r < 13; r++)
+        deck.push({ rank: RANKS[r], suit: usedSuits[s], faceUp: false });
+  return deck;
+}
+
+function shuffleDeck(deck, rng) {
+  const d = [...deck];
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+
+function dealGame(seed) {
+  const rng = seededRandom(seed);
+  // 難易度に応じたデッキ（常に104枚）
+  const deck = generateDeck();
+  const shuffled = shuffleDeck(deck, rng);
+
+  const columns = Array.from({ length: 10 }, () => []);
+  // deal 54 cards: first 4 cols get 6, rest get 5
+  let idx = 0;
+  for (let c = 0; c < 10; c++) {
+    const count = c < 4 ? 6 : 5;
+    for (let i = 0; i < count; i++) {
+      columns[c].push({ ...shuffled[idx++], faceUp: false });
+    }
+    // top card face up
+    columns[c][columns[c].length - 1].faceUp = true;
+  }
+
+  // remaining 50 cards → 5 stock piles of 10
+  const stock = [];
+  for (let i = 0; i < 5; i++) {
+    stock.push(shuffled.slice(idx + i * 10, idx + i * 10 + 10));
+  }
+
+  return { columns, stock };
+}
+
+// ============================================================
+// GAME INIT
+// ============================================================
+function setDifficulty(n) {
+  currentDifficulty = n;
+  [1, 2, 4].forEach(i => {
+    const btn = document.getElementById(`diff-${i}`);
+    if (btn) btn.classList.toggle('active', i === n);
+  });
+  newGame();
+}
+
+function confirmNewGame() {
+  // ゲーム開始直後（3手未満）はそのままスタート
+  if (state.moves < 3 && !state.gameOver) {
+    newGame();
+    return;
+  }
+  if (state.gameOver) {
+    newGame();
+    return;
+  }
+  showModal(`
+    <h2>⚠️ やり直しますか？</h2>
+    <p style="margin-bottom:24px">現在のゲームの進行は失われます。<br>本当に最初からやり直しますか？</p>
+    <div class="btn-group">
+      <button class="btn danger" onclick="newGame()">はい、やり直す</button>
+      <button class="btn primary" onclick="hideModal()">いいえ、続ける</button>
+    </div>
+  `);
+}
+
+function newGame(problemIdx = null) {
+  clearHints();
+  selected = null;
+  if (problemIdx === null) {
+    currentProblemIdx = (currentProblemIdx + 1) % PROBLEM_SEEDS.length;
+  } else {
+    currentProblemIdx = problemIdx;
+  }
+
+  const seed = PROBLEM_SEEDS[currentProblemIdx];
+  const { columns, stock } = dealGame(seed);
+
+  clearInterval(state.timerInterval);
+  state = {
+    columns,
+    stock,
+    foundations: [],
+    history: [],
+    moves: 0,
+    score: 1000,
+    startTime: Date.now(),
+    timerInterval: setInterval(updateTimer, 1000),
+    hintUsed: 0,
+    adUsed: 0,
+    cleared: 0,
+    gameOver: false,
+    difficulty: currentDifficulty,
+  };
+
+  hideModal();
+  render();
+  updateStats();
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function render() {
+  renderFoundations();
+  renderColumns();
+  renderStock();
+}
+
+function renderFoundations() {
+  const el = document.getElementById('foundations');
+  el.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'foundation-slot' + (i < state.foundations.length ? ' filled' : '');
+    if (i < state.foundations.length) {
+      const f = state.foundations[i];
+      slot.innerHTML = `<span style="font-size:1.6rem;color:${isRed(f.suit)?'var(--red)':'var(--black)'}">${f.suit}</span><span class="foundation-count">K完成</span>`;
+    } else {
+      slot.textContent = '♤';
+    }
+    el.appendChild(slot);
+  }
+}
+
+function renderColumns() {
+  const el = document.getElementById('columns');
+  el.innerHTML = '';
+
+  const CARD_H = 100;
+  const FACE_DOWN_OFFSET = 14;
+  const FACE_UP_OFFSET = 30;
+
+  state.columns.forEach((col, ci) => {
+    const colEl = document.createElement('div');
+    colEl.className = 'column';
+
+    const slot = document.createElement('div');
+    slot.className = 'column-slot';
+    // 空列が有効ターゲットの場合は青く光らせる
+    if (selected && validTargets.includes(`${ci}-empty`)) {
+      slot.classList.add('valid-target-empty');
+    }
+    colEl.appendChild(slot);
+
+    let top = 0;
+    col.forEach((card, ki) => {
+      const isFront = (ki === col.length - 1);  // 最前面カード
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card'
+        + (!card.faceUp ? ' face-down' : '')
+        + (card.dealing   ? ' dealing'   : '')
+        + (isFront && card.faceUp ? ' card-front' : '');
+      cardEl.style.top = top + 'px';
+      cardEl.style.zIndex = ki + 1;
+
+      if (card.faceUp) {
+        const isR = isRed(card.suit);
+        const cls = isR ? 'red' : 'black';
+        cardEl.innerHTML = `
+          <div class="card-top">
+            <span class="card-top-rank ${cls}${card.rank === '10' ? ' rank-10' : ''}">${card.rank}</span>
+            <span class="card-top-suit ${cls}">${card.suit}</span>
+          </div>
+          <span class="card-center-suit ${cls}">${card.suit}</span>
+        `;
+
+        const selKey = `${ci}-${ki}`;
+        if (selected && selected.colIdx === ci && selected.cardIdx === ki) {
+          cardEl.classList.add('selected');
+        }
+        // ヒントは動かすカードだけ（fromKeyのみ）
+        if (hintCards[0] === selKey) {
+          cardEl.classList.add('hint-card');
+        }
+        // タップ後：置けるカード（トップのみ）を青く光らせる
+        if (validTargets.includes(selKey)) {
+          cardEl.classList.add('valid-target');
+        }
+
+        cardEl.addEventListener('click', () => onCardClick(ci, ki));
+      }
+
+      top += card.faceUp ? FACE_UP_OFFSET : FACE_DOWN_OFFSET;
+      colEl.appendChild(cardEl);
+    });
+
+    // total height
+    const totalH = top + CARD_H;
+    colEl.style.height = totalH + 'px';
+
+    // click on empty column
+    slot.addEventListener('click', () => {
+      if (selected) moveSelected(ci);
+    });
+
+    el.appendChild(colEl);
+  });
+}
+
+function renderStock() {
+  const el = document.getElementById('stock-area');
+  el.innerHTML = '';
+
+  const pile = document.createElement('div');
+  pile.className = 'stock-pile';
+
+  if (state.stock.length > 0) {
+    state.stock.forEach((_, i) => {
+      if (i >= Math.min(state.stock.length, 3)) return;
+      const c = document.createElement('div');
+      c.className = 'stock-card';
+      c.style.top = (i * 2) + 'px';
+      c.style.left = (i * 2) + 'px';
+      pile.appendChild(c);
+    });
+
+    const count = document.createElement('div');
+    count.className = 'stock-count';
+    count.textContent = `配る(残${state.stock.length}回)`;
+    pile.appendChild(count);
+
+    pile.addEventListener('click', dealFromStock);
+  } else {
+    pile.style.border = '2px dashed rgba(255,255,255,0.1)';
+    pile.style.borderRadius = '6px';
+    const empty = document.createElement('div');
+    empty.style.cssText = 'width:64px;height:88px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.7rem;';
+    empty.textContent = '補充なし';
+    pile.appendChild(empty);
+  }
+
+  el.appendChild(pile);
+}
+
+// ============================================================
+// CARD INTERACTIONS
+// ============================================================
+function onCardClick(ci, ki) {
+  clearHints();
+  const col = state.columns[ci];
+  const card = col[ki];
+  if (!card.faceUp) return;
+
+  if (!isValidSequence(col, ki)) {
+    showToast('その位置からは動かせません');
+    return;
+  }
+
+  if (selected === null) {
+    selected = { colIdx: ci, cardIdx: ki };
+    computeValidTargets(ci, ki);
+    render();
+  } else if (selected.colIdx === ci && selected.cardIdx === ki) {
+    selected = null;
+    validTargets = [];
+    render();
+  } else {
+    const topKi = col.length - 1;
+    if (ki === topKi) {
+      moveSelected(ci);
+    } else {
+      selected = { colIdx: ci, cardIdx: ki };
+      computeValidTargets(ci, ki);
+      render();
+    }
+  }
+}
+
+function computeValidTargets(fromCol, fromKi) {
+  validTargets = [];
+  const movingCard = state.columns[fromCol][fromKi];
+  const movingRank = RANK_VAL[movingCard.rank];
+
+  state.columns.forEach((col, ci) => {
+    if (ci === fromCol) return;
+    if (col.length === 0) {
+      validTargets.push(`${ci}-empty`);
+    } else {
+      const topCard = col[col.length - 1];
+      if (topCard.faceUp && RANK_VAL[topCard.rank] === movingRank + 1) {
+        validTargets.push(`${ci}-${col.length - 1}`);
+      }
+    }
+  });
+}
+
+function isValidSequence(col, startKi) {
+  for (let i = startKi; i < col.length - 1; i++) {
+    const cur = col[i], next = col[i + 1];
+    if (!cur.faceUp || !next.faceUp) return false;
+    if (RANK_VAL[cur.rank] !== RANK_VAL[next.rank] + 1) return false;
+    if (cur.suit !== next.suit) return false;
+  }
+  return true;
+}
+
+function moveSelected(toCol) {
+  if (!selected) return;
+  const { colIdx: fromCol, cardIdx: fromKi } = selected;
+  const toColArr = state.columns[toCol];
+  const movingCards = state.columns[fromCol].slice(fromKi);
+  const topOfTarget = toColArr[toColArr.length - 1];
+
+  // validate: top of target must be rank+1 of moving card, OR target empty
+  const movingRank = RANK_VAL[movingCards[0].rank];
+  if (topOfTarget && RANK_VAL[topOfTarget.rank] !== movingRank + 1) {
+    showToast('そこには置けません');
+    selected = null;
+    render();
+    return;
+  }
+
+  // save history
+  saveHistory('move', {
+    fromCol, fromKi, toCol,
+    toColLen: toColArr.length,
+    movedCards: movingCards.map(c => ({ ...c })),
+    prevTopFaceUp: fromKi > 0 ? state.columns[fromCol][fromKi - 1].faceUp : null,
+  });
+
+  // execute move
+  state.columns[fromCol].splice(fromKi);
+  state.columns[toCol].push(...movingCards);
+  clearCoachHighlight(); // コーチハイライトを解除
+
+  // flip new top of source
+  const srcCol = state.columns[fromCol];
+  if (srcCol.length > 0 && !srcCol[srcCol.length - 1].faceUp) {
+    srcCol[srcCol.length - 1].faceUp = true;
+  }
+
+  state.moves++;
+  state.score = Math.max(0, state.score - 1);
+  selected = null;
+  validTargets = [];
+
+  const setCompleted = checkCompletedSet(toCol);
+  updateStats();
+  render();
+}
+
+function checkCompletedSet(colIdx) {
+  const col = state.columns[colIdx];
+  if (col.length < 13) return false;
+
+  const start = col.length - 13;
+  const seq = col.slice(start);
+
+  // K(index12)→Q(11)→...→A(0) 同スーツ・全て表向き
+  if (seq[0].rank !== 'K') return false;
+  const suit = seq[0].suit;
+  for (let i = 0; i < 13; i++) {
+    if (!seq[i].faceUp) return false;
+    if (seq[i].suit !== suit) return false;
+    if (seq[i].rank !== RANKS[12 - i]) return false;
+  }
+
+  // historyに保存（undo対応）
+  saveHistory('complete', {
+    colIdx,
+    start,
+    cards: seq.map(c => ({...c})),
+    prevTopFaceUp: start > 0 ? state.columns[colIdx][start - 1].faceUp : null,
+  });
+
+  applySetComplete(colIdx, start, suit);
+  return true;
+}
+
+function animateSetComplete(colIdx, start, seq, suit) {
+  const colEl = document.querySelectorAll('.column')[colIdx];
+  const foundationEl = document.querySelector('.top-row');
+  if (!colEl || !foundationEl) {
+    applySetComplete(colIdx, start, suit);
+    return;
+  }
+
+  const fRect = foundationEl.getBoundingClientRect();
+  const destX = fRect.left + fRect.width / 2;
+  const destY = fRect.top + 40;
+
+  // render()前に全カードの位置を記録
+  const cardEls = colEl.querySelectorAll('.card');
+  const rects = [];
+  for (let i = 0; i < 13; i++) {
+    const el = cardEls[start + i];
+    rects.push(el ? el.getBoundingClientRect() : null);
+  }
+
+  // 元のカードを即座に非表示（瞬間移動して見えないよう）
+  for (let i = 0; i < 13; i++) {
+    const el = cardEls[start + i];
+    if (el) el.style.visibility = 'hidden';
+  }
+
+  // A(seqIdx=12)→2(11)→...→K(0) の順に飛ばす
+  const ORDER = [...Array(13)].map((_, i) => 12 - i);
+  const totalDuration = ORDER.length * 55 + 450;
+
+  ORDER.forEach((seqIdx, flyStep) => {
+    const rect = rects[seqIdx];
+    if (!rect) return;
+
+    setTimeout(() => {
+      const card = seq[seqIdx];
+      const isRed = card.suit === '♥' || card.suit === '♦';
+
+      const flying = document.createElement('div');
+      flying.style.cssText = `
+        position:fixed;
+        left:${rect.left}px; top:${rect.top}px;
+        width:${rect.width}px; height:${rect.height}px;
+        background:#fff; border-radius:7px;
+        border:1px solid #bbb;
+        box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        z-index:999; pointer-events:none;
+        display:flex; align-items:flex-start; padding:4px 5px;
+        font-family:'DM Mono',monospace; font-weight:800; font-size:1rem;
+        color:${isRed ? '#c0392b' : '#1a1a1a'};
+        transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+      `;
+      flying.textContent = card.rank + card.suit;
+      document.body.appendChild(flying);
+
+      const dx = destX - (rect.left + rect.width / 2);
+      const dy = destY - (rect.top + rect.height / 2);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          flying.style.transform = `translate(${dx}px,${dy}px) scale(0.55)`;
+          flying.style.opacity = '0';
+        });
+      });
+
+      setTimeout(() => flying.remove(), 450);
+    }, flyStep * 55);
+  });
+
+  // 全カードが飛び終わったら盤面を更新
+  setTimeout(() => applySetComplete(colIdx, start, suit), totalDuration);
+}
+
+function applySetComplete(colIdx, start, suit) {
+  state.columns[colIdx].splice(start, 13);
+  state.foundations.push({ suit });
+  state.cleared++;
+  state.score += 100;
+
+  const c = state.columns[colIdx];
+  if (c.length > 0 && !c[c.length - 1].faceUp) c[c.length - 1].faceUp = true;
+
+  showToast(`🎉 ${suit} 完成！ +100点`);
+  updateStats();
+  render();
+
+  if (state.foundations.length === 8) {
+    setTimeout(showWin, 500);
+  }
+}
+
+function dealFromStock() {
+  if (state.stock.length === 0) return;
+
+  const allHaveCards = state.columns.every(c => c.length > 0);
+  if (!allHaveCards) {
+    showToast('空の列があると補充できません');
+    return;
+  }
+
+  saveHistory('deal', {
+    stockIdx: state.stock.length - 1,
+    cards: state.stock[state.stock.length - 1].map(c => ({ ...c })),
+  });
+
+  const batch = state.stock.pop();
+
+  // 山札の位置を取得（アニメ起点）
+  const stockEl = document.querySelector('.stock-pile');
+  const stockRect = stockEl ? stockEl.getBoundingClientRect() : null;
+
+  batch.forEach((card, i) => {
+    setTimeout(() => {
+      state.columns[i].push({ ...card, faceUp: true, dealing: true, dealIdx: i });
+      renderColumns();
+
+      // カードの位置を取得して CSS 変数でオフセットを計算
+      if (stockRect) {
+        requestAnimationFrame(() => {
+          // 各列の最後のカード要素を探す
+          const colEls = document.querySelectorAll('.column');
+          if (colEls[i]) {
+            const cards = colEls[i].querySelectorAll('.card');
+            const newCard = cards[cards.length - 1];
+            if (newCard) {
+              const cardRect = newCard.getBoundingClientRect();
+              const dx = stockRect.left - cardRect.left + (stockRect.width - cardRect.width) / 2;
+              const dy = stockRect.top - cardRect.top + (stockRect.height - cardRect.height) / 2;
+              const rot = (Math.random() - 0.5) * 18;
+              newCard.style.setProperty('--deal-dx', `${dx}px`);
+              newCard.style.setProperty('--deal-dy', `${dy}px`);
+              newCard.style.setProperty('--deal-rot', `${rot}deg`);
+              newCard.style.animationDuration = '0.38s';
+            }
+          }
+        });
+      }
+
+      // dealingフラグを外す（アニメ終了後）
+      setTimeout(() => {
+        if (state.columns[i].length > 0) {
+          state.columns[i][state.columns[i].length - 1].dealing = false;
+        }
+      }, 420);
+    }, i * 70);
+  });
+
+  // 最後のカードが配られた後に統計更新
+  setTimeout(() => {
+    state.moves++;
+    state.score = Math.max(0, state.score - 1);
+    updateStats();
+    renderStock();
+  }, batch.length * 70 + 80);
+}
+
+// ============================================================
+// UNDO
+// ============================================================
+function saveHistory(type, data) {
+  state.history.push({ type, data, moves: state.moves, score: state.score });
+}
+
+function undoMove() {
+  if (state.history.length === 0) {
+    showToast('これ以上戻せません');
+    return;
+  }
+
+  const entry = state.history.pop();
+  state.moves = entry.moves;
+  state.score = entry.score;
+  selected = null;
+  validTargets = [];
+  clearHints();
+
+  if (entry.type === 'move') {
+    const { fromCol, fromKi, toCol, toColLen, movedCards, prevTopFaceUp } = entry.data;
+    // remove from destination
+    state.columns[toCol].splice(toColLen);
+    // restore to source
+    state.columns[fromCol].splice(fromKi);
+    state.columns[fromCol].push(...movedCards);
+    // restore face-up state of card before moved cards
+    if (fromKi > 0 && prevTopFaceUp !== null) {
+      state.columns[fromCol][fromKi - 1].faceUp = prevTopFaceUp;
+    }
+  } else if (entry.type === 'deal') {
+    const { stockIdx, cards } = entry.data;
+    // remove last card from each column
+    state.columns.forEach((col) => col.pop());
+    state.stock.push(cards);
+  } else if (entry.type === 'complete') {
+    const { colIdx, start, cards, prevTopFaceUp } = entry.data;
+    // foundationsから取り除く
+    state.foundations.pop();
+    state.cleared--;
+    // カードを列に戻す
+    state.columns[colIdx].splice(start, 0, ...cards);
+    // その下のカードの表裏を戻す
+    if (start > 0 && prevTopFaceUp !== null) {
+      state.columns[colIdx][start - 1].faceUp = prevTopFaceUp;
+    }
+  }
+
+  updateStats();
+  render();
+}
+
+// ============================================================
+// HINT
+// ============================================================
+function showHint() {
+  clearHints();
+  const moves = findAllMoves();
+
+  if (moves.length === 0) {
+    showToast('有効な手がありません。山札を補充しましょう。');
+    return;
+  }
+
+  const best = pickBestMove(moves);
+  const fromKey = `${best.fromCol}-${best.fromKi}`;
+
+  hintCards = [fromKey];
+  state.hintUsed++;
+  state.score = Math.max(0, state.score - 50); // ヒント使用で大幅減点
+  updateStats();
+  render();
+
+  setTimeout(clearHints, 3000);
+  showToast('💡 光っているカードを動かしましょう（-50点）');
+}
+
+/**
+ * 局面を評価してベストな手を返す
+ * 優先度（高い順）：
+ * 1. 完成セット（K→A同スーツ）が完成する手
+ * 2. 空列を作れる手（最優先 — 空列は整理の要）
+ * 3. 空列を使って裏向きをめくれる手（空列活用）
+ * 4. 裏向きカードをめくれる手
+ * 5. 同スーツで連結しつつ裏向きをめくれる手
+ * 6. 同スーツ接続
+ * 7. それ以外
+ */
+function pickBestMove(moves) {
+  let best = null;
+  let bestScore = -Infinity;
+
+  // 現在の空列数
+  const currentEmpties = state.columns.filter(c => c.length === 0).length;
+
+  moves.forEach(m => {
+    let score = 0;
+    const movingCards = state.columns[m.fromCol].slice(m.fromKi);
+    const movingTopCard = movingCards[0];
+    const targetCol = state.columns[m.toCol];
+    const targetTop = targetCol[targetCol.length - 1];
+    const srcColAfter = state.columns[m.fromCol].slice(0, m.fromKi);
+
+    // 1. この手でK→A同スーツが完成するか
+    if (targetTop) {
+      const combined = [...targetCol, ...movingCards];
+      const start = combined.length - 13;
+      if (start >= 0 && combined[start] && combined[start].rank === 'K') {
+        let complete = true;
+        for (let i = 0; i < 13; i++) {
+          if (!combined[start + i] || combined[start + i].rank !== RANKS[12 - i] || combined[start + i].suit !== combined[start].suit) {
+            complete = false; break;
+          }
+        }
+        if (complete) score += 10000;
+      }
+    }
+
+    // 2. 空列を作れる（最最優先）
+    const makesEmpty = srcColAfter.length === 0;
+    if (makesEmpty) score += 2000;
+
+    // 3. 空列への移動で裏向きをめくれる（空列活用）
+    const movingToEmpty = !targetTop;
+    const flipsAfterMove = srcColAfter.length > 0 && !srcColAfter[srcColAfter.length - 1].faceUp;
+    if (movingToEmpty && flipsAfterMove) score += 800;
+
+    // 4. 裏向きカードをめくれる（空列不要でも）
+    if (!movingToEmpty && flipsAfterMove) score += 600;
+
+    // 5. 同スーツ接続ボーナス
+    if (targetTop && targetTop.suit === movingTopCard.suit) {
+      score += 200;
+      // 同スーツ連鎖が長くなるほど加点
+      let chainLen = movingCards.length;
+      for (let i = targetCol.length - 1; i >= 0; i--) {
+        if (targetCol[i].suit === movingTopCard.suit && targetCol[i].faceUp) chainLen++;
+        else break;
+      }
+      score += chainLen * 15;
+    }
+
+    // 6. 移動枚数ボーナス（多く動かすほど整理が進む）
+    score += movingCards.length * 8;
+
+    // ── ペナルティ ────────────────────────────────────────
+
+    // P1. 同スーツ連鎖を崩す（大きなペナルティ）
+    if (m.fromKi > 0) {
+      const cardBelow = state.columns[m.fromCol][m.fromKi - 1];
+      if (cardBelow && cardBelow.faceUp && cardBelow.suit === movingTopCard.suit) score -= 500;
+    }
+
+    // P2. 空列への無駄移動（裏向きもめくれず、空列も増えず）
+    if (movingToEmpty && !flipsAfterMove && !makesEmpty) {
+      score -= 300;
+    }
+
+    // P3. 異スーツ接続で何の進展もない手
+    if (targetTop && targetTop.suit !== movingTopCard.suit && !flipsAfterMove && !makesEmpty) {
+      score -= 200;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = m;
+    }
+  });
+
+  // スコアが低すぎる（完全に無価値）場合はnull
+  if (bestScore < 0) return null;
+
+  return best;
+}
+
+function findAllMoves() {
+  const moves = [];
+  state.columns.forEach((col, ci) => {
+    for (let ki = 0; ki < col.length; ki++) {
+      if (!col[ki].faceUp) continue;
+      if (!isValidSequence(col, ki)) continue;
+      const movingRank = RANK_VAL[col[ki].rank];
+
+      state.columns.forEach((tcol, ti) => {
+        if (ti === ci) return;
+        const topCard = tcol[tcol.length - 1];
+        if (!topCard && ki === 0) { // moving whole column to empty - skip trivial
+          // only suggest if it frees a face-down card
+          if (col.some(c => !c.faceUp)) {
+            moves.push({ fromCol: ci, fromKi: ki, toCol: ti, toColLen: 0 });
+          }
+        } else if (topCard && topCard.faceUp && RANK_VAL[topCard.rank] === movingRank + 1) {
+          moves.push({ fromCol: ci, fromKi: ki, toCol: ti, toColLen: tcol.length });
+        }
+      });
+    }
+  });
+  return moves;
+}
+
+function clearHints() {
+  hintCards = [];
+  validTargets = [];
+}
+
+// 同じ盤面で最初からやり直す（シードは同じ）
+function restartSameBoard() {
+  hideModal();
+  const seed = state.isToday ? getTodaySeed() : PROBLEM_SEEDS[currentProblemIdx];
+  const { columns, stock } = dealGame(seed);
+  clearInterval(state.timerInterval);
+  const wasToday = state.isToday;
+  state = {
+    columns, stock,
+    foundations: [],
+    history: [],
+    moves: 0,
+    score: 1000,
+    startTime: Date.now(),
+    timerInterval: setInterval(updateTimer, 1000),
+    hintUsed: 0,
+    adUsed: 0,
+    cleared: 0,
+    gameOver: false,
+    difficulty: currentDifficulty,
+    isToday: wasToday,
+  };
+  render();
+  updateStats();
+  showToast('🔄 同じ盤面で最初からスタート！');
+}
+
+function showAdModal() {
+  // 広告機能（将来対応）
+  showToast('この機能は準備中です');
+}
+
+function executeRewind(steps) {
+  hideModal();
+  for (let i = 0; i < steps; i++) undoMove();
+  state.adUsed++;
+  state.score = Math.max(0, state.score - 20);
+  updateStats();
+  showToast(`⏪ ${steps}手前に戻りました！`);
+}
+
+// ============================================================
+// WIN & REVIEW
+// ============================================================
+function showWin() {
+  state.gameOver = true;
+  clearInterval(state.timerInterval);
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const timeStr = `${m}:${String(s).padStart(2,'0')}`;
+
+  const todayBadge = state.isToday
+    ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
+        📅 今日の問題クリア！
+       </div>`
+    : '';
+
+  const shareBtn = state.isToday
+    ? `<button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed},${state.adUsed})">📤 結果をシェア</button>`
+    : '';
+
+  showModal(`
+    <div class="win-stars">🏆</div>
+    ${todayBadge}
+    <h2>クリア！おめでとう</h2>
+    <div class="stats-grid">
+      <div><div class="s-label">手数</div><div class="s-val">${state.moves}手</div></div>
+      <div><div class="s-label">タイム</div><div class="s-val">${timeStr}</div></div>
+      <div><div class="s-label">スコア</div><div class="s-val">${state.score}点</div></div>
+      <div><div class="s-label">難易度</div><div class="s-val">${state.difficulty || 4}スート</div></div>
+      <div><div class="s-label">ヒント使用</div><div class="s-val">${state.hintUsed}回</div></div>
+      <div><div class="s-label">問題</div><div class="s-val">${state.isToday ? '今日の問題' : `#${currentProblemIdx + 1}`}</div></div>
+    </div>
+    <div class="btn-group">
+      ${shareBtn}
+      <button class="btn" onclick="showReview()">📋 振り返る</button>
+      <button class="btn primary" onclick="newGame()">次の問題へ</button>
+      <button class="btn" onclick="hideModal()">閉じる</button>
+    </div>
+  `);
+}
+
+function shareResult(moves, timeStr, score, hintUsed, adUsed) {
+  const text = buildShareText(moves, timeStr, score, hintUsed, adUsed);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 結果をコピーしました！SNSに貼り付けてシェアしよう');
+    });
+  } else {
+    // フォールバック
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 結果をコピーしました！');
+  }
+}
+
+function showReview() {
+  const total = state.history.length;
+  showModal(`
+    <h2>📋 振り返り</h2>
+    <p>全 <strong style="color:var(--gold-light)">${total}手</strong> のプレイを振り返れます。<br>
+    「↩ 1手戻す」で手順を確認できます。<br>
+    最初の状態まで戻して再挑戦も可能です。</p>
+    <div class="btn-group">
+      <button class="btn" onclick="hideModal();undoMove()">↩ 1手戻す</button>
+      <button class="btn danger" onclick="rewindToStart()">⏮ 最初に戻す</button>
+      <button class="btn primary" onclick="hideModal()">閉じる</button>
+    </div>
+  `);
+}
+
+function rewindToStart() {
+  hideModal();
+  while (state.history.length > 0) undoMove();
+  showToast('⏮ 最初の状態に戻しました');
+}
+
+// ============================================================
+// STATS & TIMER
+// ============================================================
+function updateStats() {
+  document.getElementById('stat-moves').textContent = state.moves;
+  document.getElementById('stat-score').textContent = state.score;
+  document.getElementById('stat-cleared').textContent = `${state.cleared}/8`;
+}
+
+function updateTimer() {
+  if (!state.startTime) return;
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  document.getElementById('stat-time').textContent = `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// ============================================================
+// MODAL & TOAST
+// ============================================================
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function hideModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function isRed(suit) {
+  return suit === '♥' || suit === '♦';
+}
+
+// ============================================================
+// AI COACH（ルールベース）
+// ============================================================
+// ── 盤面分析エンジン ──────────────────────────────────────
+
+function analyzeBoardState() {
+  const cols = state.columns;
+  const allMoves = findAllMoves();
+  const canDeal = state.stock.length > 0 && cols.every(c => c.length > 0);
+
+  // 裏向きカード総数
+  const totalFaceDown = cols.reduce((s, c) => s + c.filter(x => !x.faceUp).length, 0);
+  // 空列数
+  const emptyCols = cols.filter(c => c.length === 0).length;
+  // 同スーツ連続手
+  const sameSuitMoves = allMoves.filter(m => {
+    const target = cols[m.toCol][cols[m.toCol].length - 1];
+    return target && target.suit === cols[m.fromCol][m.fromKi].suit;
+  });
+  // 裏向きをめくれる手
+  const flipMoves = allMoves.filter(m => {
+    const src = cols[m.fromCol];
+    return m.fromKi > 0 && !src[m.fromKi - 1].faceUp;
+  });
+  // 空列を作れる手
+  const emptyColMoves = allMoves.filter(m => {
+    return cols[m.fromCol].length === m.fromKi; // 列全体を移動
+  }).filter(m => cols[m.fromCol].every(c => c.faceUp));
+
+  return { allMoves, canDeal, totalFaceDown, emptyCols,
+           sameSuitMoves, flipMoves, emptyColMoves };
+}
+
+// ── 最善手の文言生成 ──────────────────────────────────────
+
+let coachHighlightTimer = null;
+
+function clearCoachHighlight() {
+  document.querySelectorAll('.card.coach-hint').forEach(el => el.classList.remove('coach-hint'));
+  document.querySelectorAll('.card.coach-target').forEach(el => el.classList.remove('coach-target'));
+  document.querySelectorAll('.column-slot.coach-target-empty').forEach(el => el.classList.remove('coach-target-empty'));
+  clearTimeout(coachHighlightTimer);
+}
+
+function highlightCoachMove(best) {
+  clearCoachHighlight();
+  if (!best) return;
+
+  requestAnimationFrame(() => {
+    // 移動元カードをハイライト
+    const colEls = document.querySelectorAll('.column');
+    const fromColEl = colEls[best.fromCol];
+    if (fromColEl) {
+      const cards = fromColEl.querySelectorAll('.card');
+      // fromKi以降のカードすべてをハイライト
+      for (let i = best.fromKi; i < state.columns[best.fromCol].length; i++) {
+        if (cards[i]) cards[i].classList.add('coach-hint');
+      }
+    }
+
+    // 移動先をハイライト
+    const toColEl = colEls[best.toCol];
+    if (toColEl) {
+      const toCards = toColEl.querySelectorAll('.card');
+      if (toCards.length > 0) {
+        toCards[toCards.length - 1].classList.add('coach-target');
+      } else {
+        const slot = toColEl.querySelector('.column-slot');
+        if (slot) slot.classList.add('coach-target-empty');
+      }
+    }
+
+    // 8秒後に自動解除
+    coachHighlightTimer = setTimeout(clearCoachHighlight, 8000);
+  });
+}
+
+function adviceBestMove() {
+  const { allMoves, canDeal, sameSuitMoves, flipMoves, emptyColMoves } = analyzeBoardState();
+
+  if (allMoves.length === 0 && !canDeal) {
+    clearCoachHighlight();
+    return '⚠️ 有効な手がありません。↩ 戻すボタンで手を戻してみましょう。';
+  }
+
+  const best = pickBestMove(allMoves);
+
+  // bestがnull = 有効手はあるが価値のある手がない → 山札補充を優先
+  if (!best) {
+    clearCoachHighlight();
+    if (canDeal) {
+      return '🃏 今は動かす価値のある手がありません。\n山札を配って新しい選択肢を作りましょう。';
+    }
+    return '⚠️ 有効な手はありますが、どれも局面を改善しません。↩ 戻すボタンで数手前に戻ることをお勧めします。';
+  }
+
+  // ハイライト
+  highlightCoachMove(best);
+
+  const card   = state.columns[best.fromCol][best.fromKi];
+  const target = state.columns[best.toCol][state.columns[best.toCol].length - 1];
+
+  let reason = '';
+  const makesEmpty = state.columns[best.fromCol].slice(0, best.fromKi).length === 0;
+  const flipsCard = state.columns[best.fromCol].slice(0, best.fromKi).length > 0
+    && !state.columns[best.fromCol][best.fromKi - 1]?.faceUp;
+
+  if (makesEmpty) {
+    reason = `この列が空になります！空き列はカードの中継地点として非常に重要です。`;
+  } else if (!target && flipsCard) {
+    reason = `空列に移動することで裏向きカードがめくれ、選択肢が広がります。`;
+  } else if (flipsCard && sameSuitMoves.includes(best)) {
+    reason = `同じ${card.suit}スーツに繋げつつ、裏向きカードもめくれる一石二鳥の手です。`;
+  } else if (flipsCard) {
+    reason = `この移動で裏向きカードが1枚めくれ、選択肢が広がります。`;
+  } else if (sameSuitMoves.includes(best)) {
+    reason = `同じ${card.suit}スーツに繋げられるので、セット完成に近づきます。`;
+  } else if (!target) {
+    reason = `空列への移動です。Kから始まる整理ができます。`;
+  } else {
+    reason = `順番に並べて後のセット完成に備えます。`;
+  }
+
+  const moving = state.columns[best.fromCol].slice(best.fromKi).map(c => `${c.rank}${c.suit}`).join('→');
+  return `👆 光っているカード（${moving}）を${target ? target.rank + target.suit + 'の上' : '空列'}へ。\n${reason}`;
+}
+
+// ── クリア可能性の評価 ────────────────────────────────────
+
+function adviceClearability() {
+  const { allMoves, canDeal, totalFaceDown, emptyCols, sameSuitMoves } = analyzeBoardState();
+  const cols = state.columns;
+
+  // スーツごとの表向きカード枚数を集計
+  const suitCount = {};
+  SUITS.forEach(s => suitCount[s] = 0);
+  cols.forEach(col => col.forEach(c => { if (c.faceUp) suitCount[c.suit]++; }));
+  const minSuit = Math.min(...Object.values(suitCount));
+
+  let assessment = '';
+  let detail = '';
+
+  if (allMoves.length === 0 && !canDeal) {
+    assessment = '❌ 現状ではクリア不可能です。';
+    detail = '有効な手がなく、山札も補充できません。';
+  } else if (totalFaceDown === 0 && allMoves.length > 0) {
+    assessment = '✅ クリアの可能性が高いです！';
+    detail = `裏向きカードがすべてめくれています。有効手も${allMoves.length}手あります。集中してスーツを揃えましょう。`;
+  } else if (state.stock.length >= 2 && totalFaceDown <= 10) {
+    assessment = '🟡 まだ十分クリアできます。';
+    detail = `山札が${state.stock.length}回残っており、裏向きカードも${totalFaceDown}枚と少ないです。`;
+  } else if (state.stock.length === 0 && allMoves.length <= 3 && totalFaceDown > 8) {
+    assessment = '🔴 かなり厳しい局面です。';
+    detail = `山札がなく、裏向きカードが${totalFaceDown}枚残っています。有効手も${allMoves.length}手しかありません。`;
+  } else {
+    assessment = '🟡 まだ可能性はあります。';
+    detail = `有効手${allMoves.length}手、裏向きカード${totalFaceDown}枚、山札${state.stock.length}回。`;
+  }
+
+  const sameSuitPct = allMoves.length > 0 ? Math.round(sameSuitMoves.length / allMoves.length * 100) : 0;
+  const tip = sameSuitPct >= 50
+    ? `有効手の${sameSuitPct}%が同スーツ接続です。積極的に狙いましょう。`
+    : `同スーツに繋げられる手が少ないです。まず裏向きカードをめくることを優先してください。`;
+
+  return `${assessment}\n${detail}\n\n💡 ${tip}`;
+}
+
+// ── 戻すべき手数の提案 ────────────────────────────────────
+
+function adviceRewind() {
+  if (state.history.length === 0) {
+    return '履歴がないため、戻せません。';
+  }
+
+  const { allMoves } = analyzeBoardState();
+  const { totalFaceDown } = analyzeBoardState();
+
+  const steps = Math.min(5, state.history.length);
+  return `⏪ ↩ 戻すボタンで${steps}手ほど前に戻ることをおすすめします。\n有効な手が見つかる地点まで遡って、違うルートを試してみましょう。\n\n現在の局面：有効手${allMoves.length}手・裏向き${totalFaceDown}枚`;
+}
+
+// ── 局面解説 ─────────────────────────────────────────────
+
+function adviceExplain() {
+  const { allMoves, canDeal, totalFaceDown, emptyCols, sameSuitMoves, flipMoves } = analyzeBoardState();
+  const cols = state.columns;
+
+  // 最も有望な列（表向きが多く、同スーツが揃っている）
+  const colScores = cols.map((col, i) => {
+    const faceUp = col.filter(c => c.faceUp);
+    const suits = faceUp.map(c => c.suit);
+    const dominant = suits.sort((a,b) => suits.filter(x=>x===b).length - suits.filter(x=>x===a).length)[0];
+    const sameCount = suits.filter(s => s === dominant).length;
+    return { i, faceUp: faceUp.length, sameCount, faceDown: col.filter(c=>!c.faceUp).length };
+  });
+  const bestCol = colScores.sort((a,b) => b.sameCount - a.sameCount)[0];
+  const worstCol = colScores.sort((a,b) => b.faceDown - a.faceDown)[0];
+
+  const lines = [
+    `📊 現在の局面サマリー`,
+    `・有効手: ${allMoves.length}手（うち同スーツ接続: ${sameSuitMoves.length}手）`,
+    `・裏向きカード: ${totalFaceDown}枚 / 空列: ${emptyCols}列`,
+    `・山札: 残り${state.stock.length}回 / 完成セット: ${state.foundations.length}/8`,
+    ``,
+    `🎯 注目ポイント`,
+    `・列${bestCol.i+1}は同スーツが${bestCol.sameCount}枚揃っていて有望です`,
+    worstCol.faceDown > 0
+      ? `・列${worstCol.i+1}に裏向きが${worstCol.faceDown}枚あります。優先してめくりましょう`
+      : `・すべての裏向きカードがめくれています！`,
+    flipMoves.length > 0
+      ? `・今すぐ裏向きをめくれる手が${flipMoves.length}手あります` : '',
+  ].filter(Boolean);
+
+  return lines.join('\n');
+}
+
+// ── 質問のルーティング ────────────────────────────────────
+
+function routeQuestion(msg) {
+  const m = msg.replace(/\s/g, '');
+  if (/どうすべき|何をすれ|次の手|おすすめ|ベスト|最善/.test(m)) return adviceBestMove();
+  if (/クリア|可能性|勝て|諦め|いける/.test(m)) return adviceClearability();
+  if (/戻す|巻き戻|何手|どこまで/.test(m)) return adviceRewind();
+  if (/解説|説明|状況|局面|サマリ|分析/.test(m)) return adviceExplain();
+  // デフォルト：総合アドバイス
+  return adviceBestMove() + '\n\n' + adviceClearability();
+}
+
+// ── UI操作 ───────────────────────────────────────────────
+
+function askAi(question) {
+  const box   = document.getElementById('ai-advice-box');
+  const text  = document.getElementById('ai-advice-text');
+
+  // ボタンをハイライト
+  document.querySelectorAll('.ai-quick').forEach(b => {
+    b.style.background = b.textContent.includes(question.slice(0,4))
+      ? 'rgba(201,168,76,0.3)' : '';
+  });
+
+  text.textContent = '考え中...';
+  box.classList.add('open');
+
+  setTimeout(() => {
+    const reply = routeQuestion(question);
+    text.innerHTML = reply.replace(/\n/g, '<br>');
+    // ハイライト解除
+    document.querySelectorAll('.ai-quick').forEach(b => b.style.background = '');
+  }, 350);
+}
+
+function closeAdvice() {
+  document.getElementById('ai-advice-box').classList.remove('open');
+  clearCoachHighlight();
+}
+
+// ============================================================
+// START
+// ============================================================
+newGame(0);
+
+// ============================================================
+// PWA: Service Worker 登録
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>

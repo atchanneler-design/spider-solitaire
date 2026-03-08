@@ -1,0 +1,21 @@
+{
+  "name": "Spider Solitaire Pro",
+  "short_name": "Spider",
+  "description": "スパイダーソリティア - 1・2・4スート対応、AIコーチ搭載",
+  "start_url": "./spider-solitaire.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f3a22",
+  "theme_color": "#1a5c38",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "screenshots": []
+}
