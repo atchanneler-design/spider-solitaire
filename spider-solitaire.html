@@ -876,6 +876,7 @@ let state = {
 let selected = null;      // {colIdx, cardIdx}
 let hintCards = [];       // [fromKey] only — hint shows source card only
 let validTargets = [];    // list of "ci-ki" keys for valid drop targets
+let isDealing = false;    // animation lock for deal-from-stock
 
 // ============================================================
 // TODAY'S CHALLENGE
@@ -1330,6 +1331,7 @@ function renderStock() {
 // CARD INTERACTIONS
 // ============================================================
 function onCardClick(ci, ki) {
+  if (isDealing) return;
   clearHints();
   const col = state.columns[ci];
   const card = col[ki];
@@ -1553,6 +1555,7 @@ function applySetComplete(colIdx, start, suit) {
 }
 
 function dealFromStock() {
+  if (isDealing) return;
   if (state.stock.length === 0) return;
 
   const allHaveCards = state.columns.every(c => c.length > 0);
@@ -1570,51 +1573,90 @@ function dealFromStock() {
 
   // 山札の位置を取得（アニメ起点）
   const stockEl = document.querySelector('.stock-pile');
-  const stockRect = stockEl ? stockEl.getBoundingClientRect() : null;
-
-  batch.forEach((card, i) => {
-    setTimeout(() => {
-      state.columns[i].push({ ...card, faceUp: true, dealing: true, dealIdx: i });
-      renderColumns();
-
-      // カードの位置を取得して CSS 変数でオフセットを計算
-      if (stockRect) {
-        requestAnimationFrame(() => {
-          // 各列の最後のカード要素を探す
-          const colEls = document.querySelectorAll('.column');
-          if (colEls[i]) {
-            const cards = colEls[i].querySelectorAll('.card');
-            const newCard = cards[cards.length - 1];
-            if (newCard) {
-              const cardRect = newCard.getBoundingClientRect();
-              const dx = stockRect.left - cardRect.left + (stockRect.width - cardRect.width) / 2;
-              const dy = stockRect.top - cardRect.top + (stockRect.height - cardRect.height) / 2;
-              const rot = (Math.random() - 0.5) * 18;
-              newCard.style.setProperty('--deal-dx', `${dx}px`);
-              newCard.style.setProperty('--deal-dy', `${dy}px`);
-              newCard.style.setProperty('--deal-rot', `${rot}deg`);
-              newCard.style.animationDuration = '0.38s';
-            }
-          }
-        });
-      }
-
-      // dealingフラグを外す（アニメ終了後）
-      setTimeout(() => {
-        if (state.columns[i].length > 0) {
-          state.columns[i][state.columns[i].length - 1].dealing = false;
-        }
-      }, 420);
-    }, i * 70);
-  });
-
-  // 最後のカードが配られた後に統計更新
-  setTimeout(() => {
+  if (!stockEl) {
+    batch.forEach((card, i) => state.columns[i].push({ ...card, faceUp: true }));
     state.moves++;
     state.score = Math.max(0, state.score - 1);
     updateStats();
+    render();
+    return;
+  }
+  const stockRect = stockEl.getBoundingClientRect();
+  const srcX = stockRect.left + stockRect.width / 2;
+  const srcY = stockRect.top + stockRect.height / 2;
+
+  // 状態を更新してrender()を1回だけ呼ぶ
+  batch.forEach((card, i) => state.columns[i].push({ ...card, faceUp: true }));
+  state.moves++;
+  state.score = Math.max(0, state.score - 1);
+  updateStats();
+  render();
+
+  // render()後に各列の最上段カードの位置を記録 → 隠す
+  const colEls = document.querySelectorAll('.column');
+  const destRects = [];
+  const newCardEls = [];
+  for (let i = 0; i < 10; i++) {
+    const cards = colEls[i] ? colEls[i].querySelectorAll('.card') : [];
+    const el = cards[cards.length - 1] || null;
+    destRects.push(el ? el.getBoundingClientRect() : null);
+    newCardEls.push(el);
+    if (el) el.style.visibility = 'hidden';
+  }
+
+  // アニメーションロック
+  isDealing = true;
+
+  const INTERVAL = 50;
+  const FLY_MS   = 370;
+
+  batch.forEach((card, i) => {
+    const dest = destRects[i];
+    if (!dest) return;
+
+    setTimeout(() => {
+      const red = card.suit === '♥' || card.suit === '♦';
+
+      const flying = document.createElement('div');
+      flying.style.cssText = `
+        position:fixed;
+        left:${srcX - dest.width / 2}px;
+        top:${srcY - dest.height / 2}px;
+        width:${dest.width}px; height:${dest.height}px;
+        background:#fff; border-radius:7px;
+        border:1px solid #bbb;
+        box-shadow:0 4px 14px rgba(0,0,0,0.45);
+        z-index:999; pointer-events:none;
+        display:flex; align-items:flex-start; padding:4px 5px;
+        font-family:'DM Mono',monospace; font-weight:800; font-size:1rem;
+        color:${red ? '#c0392b' : '#1a1a1a'};
+        transition:transform ${FLY_MS}ms cubic-bezier(0.25,0.46,0.45,0.94),
+                   opacity 0.15s ease ${FLY_MS - 60}ms;
+        will-change:transform;
+      `;
+      flying.textContent = card.rank + card.suit;
+      document.body.appendChild(flying);
+
+      const dx = dest.left - (srcX - dest.width / 2);
+      const dy = dest.top  - (srcY - dest.height / 2);
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        flying.style.transform = `translate(${dx}px,${dy}px)`;
+      }));
+
+      setTimeout(() => {
+        flying.remove();
+        if (newCardEls[i]) newCardEls[i].style.visibility = '';
+      }, FLY_MS);
+
+    }, i * INTERVAL);
+  });
+
+  // 全カード着地後にロック解除
+  setTimeout(() => {
+    isDealing = false;
     renderStock();
-  }, batch.length * 70 + 80);
+  }, 10 * INTERVAL + FLY_MS + 30);
 }
 
 // ============================================================
