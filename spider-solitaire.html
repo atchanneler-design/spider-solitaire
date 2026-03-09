@@ -659,6 +659,100 @@
     animation: spin-once 0.5s ease;
   }
 
+  /* RANKING MODAL */
+  .modal.wide { max-width: 480px; }
+
+  .rank-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .rank-tab {
+    flex: 1;
+    padding: 7px 4px;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: transparent;
+    color: rgba(245,240,232,0.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .rank-tab.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.2);
+    color: var(--gold-light);
+    font-weight: bold;
+  }
+
+  .rank-panel { display: none; text-align: left; }
+  .rank-panel.active { display: block; }
+
+  .rank-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .rank-summary-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .rank-summary-item .r-label {
+    font-size: 0.65rem;
+    color: rgba(245,240,232,0.4);
+    margin-bottom: 4px;
+  }
+
+  .rank-summary-item .r-val {
+    font-size: 0.95rem;
+    color: var(--gold-light);
+  }
+
+  .rank-history-title {
+    font-size: 0.65rem;
+    color: rgba(245,240,232,0.4);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .rank-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+
+  .rank-history-table th {
+    color: rgba(245,240,232,0.4);
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    text-align: center;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+
+  .rank-history-table td {
+    color: var(--cream);
+    padding: 6px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .rank-history-table tr:last-child td { border-bottom: none; }
+
+  .rank-no-data {
+    text-align: center;
+    color: rgba(245,240,232,0.3);
+    font-size: 0.85rem;
+    padding: 28px 0;
+  }
+
   /* DEAL ANIMATION - 山札から飛んでくる */
   .card.dealing {
     animation: deal-fly 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -711,6 +805,7 @@
       <button class="btn primary" onclick="confirmNewGame()">新しいゲーム</button>
       <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()">📅 今日の問題</button>
       <button class="btn" onclick="undoMove()">↩ 戻す</button>
+      <button class="btn" onclick="showRanking()">🏆 記録</button>
     </div>
     <div class="difficulty-selector">
       <span class="diff-label">難易度</span>
@@ -794,10 +889,11 @@ function loadStats() {
   catch { return {}; }
 }
 
-function saveStats(difficulty, moves, elapsed) {
+function saveStats(difficulty, moves, elapsed, score) {
   const stats = loadStats();
   const key = String(difficulty);
-  const d = stats[key] || { clears: 0, bestMoves: null, bestTime: null };
+  const d = stats[key] || { clears: 0, bestMoves: null, bestTime: null, bestScore: null, history: [] };
+  if (!d.history) d.history = [];
 
   d.clears++;
   const newRecords = [];
@@ -810,6 +906,16 @@ function saveStats(difficulty, moves, elapsed) {
     d.bestTime = elapsed;
     newRecords.push('time');
   }
+  if (d.bestScore === null || score > d.bestScore) {
+    d.bestScore = score;
+    newRecords.push('score');
+  }
+
+  // 直近5件の履歴を保存
+  const dateLabel = getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3');
+  d.history.push({ date: dateLabel, moves, time: elapsed, score });
+  if (d.history.length > 5) d.history.shift();
+
   stats[key] = d;
 
   if (state.isToday) {
@@ -1769,7 +1875,7 @@ function showWin() {
   const diff = state.difficulty || 4;
 
   // 統計を保存してベスト記録を取得
-  const { record, newRecords } = saveStats(diff, state.moves, elapsed);
+  const { record, newRecords } = saveStats(diff, state.moves, elapsed, state.score);
 
   const todayBadge = state.isToday
     ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
@@ -1785,8 +1891,9 @@ function showWin() {
     ? null  // 今回が新記録なので前回なし
     : (newRecords.includes('moves') ? null : record.bestMoves);
 
-  const movesClass  = newRecords.includes('moves')  ? 'b-val new-record' : 'b-val';
-  const timeClass   = newRecords.includes('time')   ? 'b-val new-record' : 'b-val';
+  const movesClass = newRecords.includes('moves') ? 'b-val new-record' : 'b-val';
+  const timeClass  = newRecords.includes('time')  ? 'b-val new-record' : 'b-val';
+  const scoreClass = newRecords.includes('score') ? 'b-val new-record' : 'b-val';
 
   const bestSection = `
     <div class="best-section">
@@ -1801,12 +1908,12 @@ function showWin() {
           <span class="${timeClass}">${fmtTime(record.bestTime)}</span>
         </div>
         <div class="best-item">
-          <span class="b-label">今回の手数</span>
-          <span class="b-val">${state.moves}手</span>
+          <span class="b-label">ベストスコア</span>
+          <span class="${scoreClass}">${record.bestScore}点</span>
         </div>
         <div class="best-item">
-          <span class="b-label">今回のタイム</span>
-          <span class="b-val">${timeStr}</span>
+          <span class="b-label">今回のスコア</span>
+          <span class="b-val">${state.score}点</span>
         </div>
       </div>
     </div>`;
@@ -1840,6 +1947,84 @@ function shareResult(moves, timeStr, score, hintUsed, adUsed, difficulty, isToda
   const text = buildShareText(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday);
   const xUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent(text);
   window.open(xUrl, '_blank', 'noopener,noreferrer');
+}
+
+function showRanking() {
+  const stats = loadStats();
+  const diffs = [
+    { key: '1', label: '1♠ 1スート' },
+    { key: '2', label: '2♠ 2スート' },
+    { key: '4', label: '4♠ 4スート' },
+  ];
+
+  const tabButtons = diffs.map((d, i) =>
+    `<button class="rank-tab${i === 0 ? ' active' : ''}" onclick="switchRankTab(${i})">${d.label}</button>`
+  ).join('');
+
+  const panels = diffs.map((d, i) => {
+    const rec = stats[d.key];
+    if (!rec || rec.clears === 0) {
+      return `<div class="rank-panel${i === 0 ? ' active' : ''}" id="rank-panel-${i}">
+        <div class="rank-no-data">まだクリア記録がありません</div>
+      </div>`;
+    }
+
+    const summary = `
+      <div class="rank-summary">
+        <div class="rank-summary-item">
+          <div class="r-label">クリア回数</div>
+          <div class="r-val">${rec.clears}回</div>
+        </div>
+        <div class="rank-summary-item">
+          <div class="r-label">ベスト手数</div>
+          <div class="r-val">${rec.bestMoves}手</div>
+        </div>
+        <div class="rank-summary-item">
+          <div class="r-label">ベストタイム</div>
+          <div class="r-val">${fmtTime(rec.bestTime)}</div>
+        </div>
+        <div class="rank-summary-item">
+          <div class="r-label">ベストスコア</div>
+          <div class="r-val">${rec.bestScore ?? '-'}点</div>
+        </div>
+      </div>`;
+
+    const historyRows = rec.history && rec.history.length > 0
+      ? [...rec.history].reverse().map(h =>
+          `<tr>
+            <td>${h.date}</td>
+            <td>${h.moves}手</td>
+            <td>${fmtTime(h.time)}</td>
+            <td>${h.score}点</td>
+          </tr>`
+        ).join('')
+      : `<tr><td colspan="4" style="color:rgba(245,240,232,0.3);padding:16px">履歴なし</td></tr>`;
+
+    const history = `
+      <div class="rank-history-title">直近のクリア履歴</div>
+      <table class="rank-history-table">
+        <tr><th>日付</th><th>手数</th><th>タイム</th><th>スコア</th></tr>
+        ${historyRows}
+      </table>`;
+
+    return `<div class="rank-panel${i === 0 ? ' active' : ''}" id="rank-panel-${i}">
+      ${summary}${history}
+    </div>`;
+  }).join('');
+
+  showModal(`
+    <h2>🏆 記録</h2>
+    <div class="rank-tabs">${tabButtons}</div>
+    ${panels}
+    <div class="btn-group" style="margin-top:16px">
+      <button class="btn primary" onclick="hideModal()">閉じる</button>
+    </div>
+  `, true);
+}
+
+function switchRankTab(idx) {
+  document.querySelectorAll('.rank-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.rank-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
 }
 
 function showReview() {
@@ -1883,9 +2068,10 @@ function updateTimer() {
 // ============================================================
 // MODAL & TOAST
 // ============================================================
-function showModal(html) {
+function showModal(html, wide) {
   document.getElementById('modal-content').innerHTML = html;
   document.getElementById('modal').style.display = 'flex';
+  document.querySelector('.modal').classList.toggle('wide', !!wide);
 }
 
 function hideModal() {
