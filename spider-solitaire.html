@@ -798,7 +798,7 @@
 <body>
 <div id="app">
   <header>
-    <div class="title">♠ SPIDER SOLITAIRE</div>
+    <div class="title" onclick="confirmGoHome()" style="cursor:pointer">♠ SPIDER SOLITAIRE</div>
     <div class="streak-display" id="streak-display" style="display:none">
       <span class="streak-count">🔥<span id="stat-streak">0</span></span>
       <span class="streak-label">連続</span>
@@ -1200,6 +1200,17 @@ function setDifficulty(n) {
     if (btn) btn.classList.toggle('active', i === n);
   });
   newGame();
+}
+
+function confirmGoHome() {
+  showModal(`
+    <h2>トップページへ</h2>
+    <p style="margin-bottom:24px">ゲームの進行は保存されません。<br>トップページに戻りますか？</p>
+    <div class="btn-group">
+      <button class="btn primary" onclick="location.href='index.html'">はい</button>
+      <button class="btn" onclick="hideModal()">いいえ</button>
+    </div>
+  `);
 }
 
 function confirmNewGame() {
