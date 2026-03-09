@@ -598,6 +598,54 @@
     font-size: 0.9rem;
   }
 
+  .best-section {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 4px 0 12px;
+    font-size: 0.75rem;
+  }
+
+  .best-section-title {
+    color: rgba(245,240,232,0.45);
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .best-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .best-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 60px;
+  }
+
+  .best-item .b-label { color: rgba(245,240,232,0.45); font-size: 0.65rem; }
+  .best-item .b-val   { color: var(--gold-light); font-size: 0.85rem; }
+  .best-item .b-val.new-record { color: #4ade80; }
+
+  .new-record-badge {
+    display: inline-block;
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.4);
+    color: #4ade80;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    padding: 4px 10px;
+    margin-bottom: 8px;
+    animation: spin-once 0.5s ease;
+  }
+
   /* DEAL ANIMATION - 山札から飛んでくる */
   .card.dealing {
     animation: deal-fly 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -723,6 +771,53 @@ let validTargets = [];    // list of "ci-ki" keys for valid drop targets
 
 // ============================================================
 // TODAY'S CHALLENGE
+// ============================================================
+// LOCAL STORAGE: 統計管理
+// ============================================================
+const STATS_KEY = 'spider_stats_v1';
+
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveStats(difficulty, moves, elapsed) {
+  const stats = loadStats();
+  const key = String(difficulty);
+  const d = stats[key] || { clears: 0, bestMoves: null, bestTime: null };
+
+  d.clears++;
+  const newRecords = [];
+
+  if (d.bestMoves === null || moves < d.bestMoves) {
+    d.bestMoves = moves;
+    newRecords.push('moves');
+  }
+  if (d.bestTime === null || elapsed < d.bestTime) {
+    d.bestTime = elapsed;
+    newRecords.push('time');
+  }
+  stats[key] = d;
+
+  if (state.isToday) {
+    stats.todayClear = { date: getTodayDateString() };
+  }
+
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  return { record: d, newRecords };
+}
+
+function isTodayCleared() {
+  const stats = loadStats();
+  return stats.todayClear?.date === getTodayDateString();
+}
+
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 // ============================================================
 function getTodayDateString() {
   const d = new Date();
@@ -1658,15 +1753,51 @@ function showWin() {
   state.gameOver = true;
   clearInterval(state.timerInterval);
   const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-  const m = Math.floor(elapsed / 60);
-  const s = elapsed % 60;
-  const timeStr = `${m}:${String(s).padStart(2,'0')}`;
+  const timeStr = fmtTime(elapsed);
+  const diff = state.difficulty || 4;
+
+  // 統計を保存してベスト記録を取得
+  const { record, newRecords } = saveStats(diff, state.moves, elapsed);
 
   const todayBadge = state.isToday
     ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
         📅 今日の問題クリア！
        </div>`
     : '';
+
+  const newRecordBadge = newRecords.length > 0
+    ? `<div class="new-record-badge">🏆 新記録！</div>`
+    : '';
+
+  const prevBestMoves = newRecords.includes('moves') && record.clears > 1
+    ? null  // 今回が新記録なので前回なし
+    : (newRecords.includes('moves') ? null : record.bestMoves);
+
+  const movesClass  = newRecords.includes('moves')  ? 'b-val new-record' : 'b-val';
+  const timeClass   = newRecords.includes('time')   ? 'b-val new-record' : 'b-val';
+
+  const bestSection = `
+    <div class="best-section">
+      <div class="best-section-title">📊 ${diff}スート ベスト記録（${record.clears}回クリア）</div>
+      <div class="best-row">
+        <div class="best-item">
+          <span class="b-label">最少手数</span>
+          <span class="${movesClass}">${record.bestMoves}手</span>
+        </div>
+        <div class="best-item">
+          <span class="b-label">最短タイム</span>
+          <span class="${timeClass}">${fmtTime(record.bestTime)}</span>
+        </div>
+        <div class="best-item">
+          <span class="b-label">今回の手数</span>
+          <span class="b-val">${state.moves}手</span>
+        </div>
+        <div class="best-item">
+          <span class="b-label">今回のタイム</span>
+          <span class="b-val">${timeStr}</span>
+        </div>
+      </div>
+    </div>`;
 
   const shareBtn = state.isToday
     ? `<button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed},${state.adUsed})">📤 結果をシェア</button>`
@@ -1675,15 +1806,17 @@ function showWin() {
   showModal(`
     <div class="win-stars">🏆</div>
     ${todayBadge}
+    ${newRecordBadge}
     <h2>クリア！おめでとう</h2>
     <div class="stats-grid">
       <div><div class="s-label">手数</div><div class="s-val">${state.moves}手</div></div>
       <div><div class="s-label">タイム</div><div class="s-val">${timeStr}</div></div>
       <div><div class="s-label">スコア</div><div class="s-val">${state.score}点</div></div>
-      <div><div class="s-label">難易度</div><div class="s-val">${state.difficulty || 4}スート</div></div>
+      <div><div class="s-label">難易度</div><div class="s-val">${diff}スート</div></div>
       <div><div class="s-label">ヒント使用</div><div class="s-val">${state.hintUsed}回</div></div>
       <div><div class="s-label">問題</div><div class="s-val">${state.isToday ? '今日の問題' : `#${currentProblemIdx + 1}`}</div></div>
     </div>
+    ${bestSection}
     <div class="btn-group">
       ${shareBtn}
       <button class="btn" onclick="showReview()">📋 振り返る</button>
