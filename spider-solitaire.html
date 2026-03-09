@@ -96,6 +96,25 @@
   .stat-item { display: flex; flex-direction: column; align-items: center; }
   .stat-value { color: var(--gold-light); font-size: 1rem; font-weight: 500; }
 
+  .streak-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .streak-count {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ff9500;
+    letter-spacing: 1px;
+  }
+
+  .streak-label {
+    color: rgba(245,240,232,0.45);
+    font-size: 0.65rem;
+  }
+
   /* TOOLBAR */
   .toolbar {
     display: flex;
@@ -780,6 +799,10 @@
 <div id="app">
   <header>
     <div class="title">♠ SPIDER SOLITAIRE</div>
+    <div class="streak-display" id="streak-display" style="display:none">
+      <span class="streak-count">🔥<span id="stat-streak">0</span></span>
+      <span class="streak-label">連続</span>
+    </div>
     <div class="stats">
       <div class="stat-item">
         <span class="stat-value" id="stat-moves">0</span>
@@ -930,6 +953,47 @@ function saveStats(difficulty, moves, elapsed, score) {
 function isTodayCleared() {
   const stats = loadStats();
   return stats.todayClear?.date === getTodayDateString();
+}
+
+function getYesterdayString() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateTodayStreak() {
+  const stats = loadStats();
+  const todayStr = getTodayDateString();
+
+  // 今日すでにカウント済みなら加算しない
+  if (stats.streakLastDate === todayStr) {
+    renderStreak();
+    return;
+  }
+
+  const count = stats.streakLastDate === getYesterdayString()
+    ? (stats.streakCount || 0) + 1
+    : 1;
+
+  stats.streakCount    = count;
+  stats.streakLastDate = todayStr;
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+
+  renderStreak();
+  setTimeout(() => showToast(`🔥 ${count}日連続クリア！`), 900);
+}
+
+function renderStreak() {
+  const stats = loadStats();
+  const count = stats.streakCount || 0;
+  const el = document.getElementById('streak-display');
+  if (!el) return;
+  if (count === 0) {
+    el.style.display = 'none';
+  } else {
+    el.style.display = '';
+    document.getElementById('stat-streak').textContent = count;
+  }
 }
 
 function fmtTime(sec) {
@@ -1918,6 +1982,7 @@ function showWin() {
 
   // 統計を保存してベスト記録を取得
   const { record, newRecords } = saveStats(diff, state.moves, elapsed, state.score);
+  if (state.isToday) updateTodayStreak();
 
   const todayBadge = state.isToday
     ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
@@ -2391,6 +2456,7 @@ function closeAdvice() {
 // START
 // ============================================================
 newGame(0);
+renderStreak();
 
 // ============================================================
 // PWA: Service Worker 登録
