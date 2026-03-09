@@ -84,11 +84,16 @@
   /* TOOLBAR */
   .toolbar {
     display: flex;
-    gap: 8px;
-    padding: 10px 20px;
+    flex-direction: column;
+    padding: 8px 20px;
     background: rgba(0,0,0,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .toolbar-row {
+    display: flex;
+    gap: 8px;
     align-items: center;
   }
 
@@ -96,7 +101,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-left: auto;
+    padding-top: 2px;
+    border-top: 1px solid rgba(255,255,255,0.06);
   }
   .diff-label {
     font-size: 0.65rem;
@@ -638,14 +644,16 @@
   </header>
 
   <div class="toolbar">
-    <button class="btn primary" onclick="confirmNewGame()">新しいゲーム</button>
-    <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()">📅 今日の問題</button>
-    <button class="btn" onclick="undoMove()">↩ 戻す</button>
+    <div class="toolbar-row">
+      <button class="btn primary" onclick="confirmNewGame()">新しいゲーム</button>
+      <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()">📅 今日の問題</button>
+      <button class="btn" onclick="undoMove()">↩ 戻す</button>
+    </div>
     <div class="difficulty-selector">
       <span class="diff-label">難易度</span>
-      <button class="diff-btn" id="diff-1" onclick="setDifficulty(1)">1♠</button>
-      <button class="diff-btn" id="diff-2" onclick="setDifficulty(2)">2♠</button>
-      <button class="diff-btn active" id="diff-4" onclick="setDifficulty(4)">4♠</button>
+      <button class="diff-btn" id="diff-1" onclick="confirmSetDifficulty(1)">1♠</button>
+      <button class="diff-btn" id="diff-2" onclick="confirmSetDifficulty(2)">2♠</button>
+      <button class="diff-btn active" id="diff-4" onclick="confirmSetDifficulty(4)">4♠</button>
     </div>
   </div>
 
@@ -779,7 +787,7 @@ function launchTodayChallenge() {
 
 function updateTodayBadge() {
   // 今日の問題プレイ中はボタンを光らせる
-  const btn = document.querySelector('.toolbar .btn:nth-child(2)');
+  const btn = document.querySelector('.toolbar-row .btn:nth-child(2)');
   if (btn) {
     btn.style.background = state.isToday
       ? 'rgba(255,200,50,0.35)'
@@ -880,6 +888,23 @@ function dealGame(seed) {
 // ============================================================
 // GAME INIT
 // ============================================================
+function confirmSetDifficulty(n) {
+  if (n === currentDifficulty) return;
+  if (state.moves < 3 || state.gameOver) {
+    setDifficulty(n);
+    return;
+  }
+  const labels = { 1: '1スート（かんたん）', 2: '2スート（ふつう）', 4: '4スート（むずかしい）' };
+  showModal(`
+    <h2>難易度を変更しますか？</h2>
+    <p style="margin-bottom:24px">${labels[n]} に変更すると<br>現在のゲームは失われます。</p>
+    <div class="btn-group">
+      <button class="btn danger" onclick="setDifficulty(${n})">変更する</button>
+      <button class="btn primary" onclick="hideModal()">キャンセル</button>
+    </div>
+  `);
+}
+
 function setDifficulty(n) {
   currentDifficulty = n;
   [1, 2, 4].forEach(i => {
