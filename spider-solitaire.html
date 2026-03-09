@@ -1339,7 +1339,7 @@ function checkCompletedSet(colIdx) {
     prevTopFaceUp: start > 0 ? state.columns[colIdx][start - 1].faceUp : null,
   });
 
-  applySetComplete(colIdx, start, suit);
+  animateSetComplete(colIdx, start, seq, suit);
   return true;
 }
 
