@@ -892,23 +892,22 @@ function updateTodayBadge() {
   }
 }
 
-function buildShareText(moves, timeStr, score, hintUsed, adUsed) {
-  const date = getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3');
-  const hintEmoji  = hintUsed  === 0 ? '💡✅' : `💡×${hintUsed}`;
-  const adEmoji    = adUsed    === 0 ? '📺✅' : `📺×${adUsed}`;
-  // スコアをグラフ表示（10段階）
+function buildShareText(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday) {
+  const diff = difficulty || 4;
+  const diffLabel = { 1: '1スート', 2: '2スート', 4: '4スート' }[diff] || `${diff}スート`;
   const bar = Math.round(Math.min(score, 1000) / 100);
   const gauge = '█'.repeat(bar) + '░'.repeat(10 - bar);
+  const title = isToday ? 'Spider Solitaire Pro 今日の問題クリア！' : 'Spider Solitaire Pro クリア！';
+  const tags = isToday ? '#SpiderSolitaire #今日の問題' : '#SpiderSolitaire';
+  const url = 'https://spider-solitaire-seven.vercel.app/spider-solitaire.html';
 
-  return `♠ Spider Solitaire 今日の問題 ${date}
-━━━━━━━━━━━━━━
-🏆 スコア  ${score}点
-⏱ タイム  ${timeStr}
-🃏 手数   ${moves}手
-${hintEmoji}  ${adEmoji}
-━━━━━━━━━━━━━━
+  return `${title}
+難易度: ${diffLabel}
+━━━━━━━━━━
+🏆 ${score}点  🃏 ${moves}手  ⏱ ${timeStr}
 [${gauge}]
-#SpiderSolitaire #今日の問題`;
+${url}
+${tags}`;
 }
 
 // ============================================================
@@ -1799,9 +1798,7 @@ function showWin() {
       </div>
     </div>`;
 
-  const shareBtn = state.isToday
-    ? `<button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed},${state.adUsed})">📤 結果をシェア</button>`
-    : '';
+  const shareBtn = `<button class="btn" style="background:#000;border-color:#333;color:#fff;font-weight:bold;letter-spacing:0.05em;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed || 0},${state.adUsed || 0},${diff},${state.isToday})">𝕏 ポストする</button>`;
 
   showModal(`
     <div class="win-stars">🏆</div>
@@ -1826,22 +1823,10 @@ function showWin() {
   `);
 }
 
-function shareResult(moves, timeStr, score, hintUsed, adUsed) {
-  const text = buildShareText(moves, timeStr, score, hintUsed, adUsed);
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('📋 結果をコピーしました！SNSに貼り付けてシェアしよう');
-    });
-  } else {
-    // フォールバック
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('📋 結果をコピーしました！');
-  }
+function shareResult(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday) {
+  const text = buildShareText(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday);
+  const xUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent(text);
+  window.open(xUrl, '_blank', 'noopener,noreferrer');
 }
 
 function showReview() {
