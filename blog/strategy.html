@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スパイダーソリティア 攻略法・勝つためのコツ - Spider Solitaire Pro</title>
+  <meta name="description" content="スパイダーソリティアの勝率を上げる攻略法を解説。空き列の作り方、山札補充のタイミング、同スーツ接続の重要性など実践的なコツを紹介します。">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/strategy.html">
+  <meta property="og:title"       content="スパイダーソリティア 攻略法・勝つためのコツ">
+  <meta property="og:description" content="スパイダーソリティアの勝率を上げる攻略法を解説。空き列の作り方、山札補充のタイミング、同スーツ接続の重要性など実践的なコツを紹介します。">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="スパイダーソリティア 攻略法・勝つためのコツ">
+  <meta name="twitter:description" content="スパイダーソリティアの勝率を上げる攻略法を解説。空き列の作り方、山札補充のタイミング、同スーツ接続の重要性など実践的なコツを紹介します。">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(0,0,0,0.25); border-bottom: 1px solid rgba(201,168,76,0.3); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 4px; }
+    .tip-box {
+      background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 10px; padding: 18px 20px; margin: 20px 0;
+    }
+    .tip-box .tip-label { font-size: 0.65rem; color: #4ade80; margin-bottom: 6px; letter-spacing: 1px; }
+    .tip-box p { margin: 0; opacity: 0.9; }
+    .warn-box {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 10px; padding: 18px 20px; margin: 20px 0;
+    }
+    .warn-box .warn-label { font-size: 0.65rem; color: #f87171; margin-bottom: 6px; letter-spacing: 1px; }
+    .warn-box p { margin: 0; opacity: 0.9; }
+    .priority-list { counter-reset: priority; list-style: none; padding: 0; }
+    .priority-list li { counter-increment: priority; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; opacity: 0.85; font-size: 0.85rem; line-height: 1.8; }
+    .priority-list li::before { content: counter(priority); min-width: 26px; height: 26px; background: rgba(201,168,76,0.2); border: 1px solid rgba(201,168,76,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--gold); flex-shrink: 0; }
+    .cta-inline { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0; }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play { display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark); font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; text-decoration: none; border-radius: 8px; transition: background 0.2s; }
+    .btn-play:hover { background: var(--gold-light); }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../index.html">トップ</a>
+      <a href="index.html">ブログ</a>
+      <a href="../spider-solitaire.html">プレイ</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../index.html">トップ</a> &rsaquo; <a href="index.html">ブログ</a> &rsaquo; 攻略法・コツ</p>
+    <span class="tag">攻略</span>
+    <h1>スパイダーソリティア<br>攻略法・勝つためのコツ</h1>
+    <p class="lead">スパイダーソリティアは運の要素もありますが、正しい戦略を身につければ勝率を大きく改善できます。本記事では「なぜ空き列が重要なのか」「山札をいつ補充すべきか」「同スーツ接続を優先する理由」など、実践で役立つ攻略テクニックを詳しく解説します。</p>
+
+    <article>
+
+      <section>
+        <h2>最重要戦略：空き列を作る</h2>
+        <p>スパイダーソリティアで最も重要な戦略は、<strong style="color:var(--gold-light)">空き列（すべてのカードを取り除いた列）を作ること</strong>です。空き列はゲーム中最も価値の高いリソースで、これを制する者がゲームを制すると言っても過言ではありません。</p>
+
+        <h3>空き列が強力な理由</h3>
+        <p>空き列には任意のカードを置くことができます。これにより、別の列で移動させたいカードが邪魔な列にある場合、一時的に空き列へ退避させることができます。また、複数枚の連続を作る際に、途中のカードを一時保管する「バッファ」として使えます。</p>
+        <p>特に序盤で1〜2個の空き列を確保できると、その後の展開が大きく有利になります。どの列の枚数が最も少ないかを常に意識し、優先的に空き列を作るよう手を組み立てましょう。</p>
+
+        <div class="tip-box">
+          <div class="tip-label">💡 TIPS</div>
+          <p>AIコーチの「次の手は？」ボタンを押すと、空き列を作れる手を最優先で提案してくれます。迷ったときは積極的に活用しましょう。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>同スーツ接続を優先する</h2>
+        <p>複数枚を同時に移動できるのは<strong style="color:var(--gold-light)">同じスートが降順に連続している場合のみ</strong>です。異なるスートの連続は「移動可能に見えて実は非効率」なことが多いため、常に同スーツでの接続を意識してください。</p>
+
+        <h3>スート混在の連続が持つリスク</h3>
+        <p>たとえば「♠7 → ♥6 → ♠5」という並びは降順ではありますが、これを1列として別の場所へ移すには1枚ずつ動かす必要があります。3枚を別々に動かすためには最低でも2〜3回の操作と、追加の空き列が必要です。このような「見かけ上の連続」は後々の手詰まりの原因になります。</p>
+        <p>手を打つ前に「この接続は同スートか？」を必ず確認する習慣をつけましょう。同スートで繋げられる手があるなら、そちらを優先するのが基本です。</p>
+      </section>
+
+      <section>
+        <h2>裏向きカードを積極的にめくる</h2>
+        <p>裏向きのカードは移動も活用もできません。<strong style="color:var(--gold-light)">裏向きカードをめくること＝選択肢を増やすこと</strong>です。列の一番上のカードを動かせる状況なら、積極的に動かして裏向きカードを表にしていきましょう。</p>
+
+        <h3>めくる手の優先順位</h3>
+        <ol>
+          <li>裏向きカードが多い列から優先的にめくる</li>
+          <li>すでに表向きカードが揃っている列より、裏向きが多い列へ手を集中させる</li>
+          <li>完成セットに繋がりやすいスートの裏向きを優先的にめくる</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>AIコーチが使う手の優先順位</h2>
+        <p><a href="../spider-solitaire.html" style="color:var(--gold)">Spider Solitaire Pro</a> のAIコーチは以下の優先順位で最善手を判断しています。この考え方を理解することで、自分で考える力が身につきます。</p>
+
+        <ul class="priority-list">
+          <li>完成セット（K→A同スーツ）を作れる手（最優先）</li>
+          <li>空き列を作れる手</li>
+          <li>空き列を使って裏向きカードをめくれる手</li>
+          <li>裏向きカードをめくれる手</li>
+          <li>同スーツの接続を増やせる手</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>山札補充のタイミング</h2>
+        <p>山札補充は全10列に1枚ずつカードを配ります。これは選択肢が増えると同時に、各列の枚数が増えて整理が難しくなるリスクもあります。</p>
+
+        <div class="warn-box">
+          <div class="warn-label">⚠️ 注意</div>
+          <p>手詰まりではないのに焦って山札を補充すると、せっかく作った空き列が埋まってしまいます。「これ以上有効な手がない」と判断してから補充しましょう。</p>
+        </div>
+
+        <h3>補充前のチェックリスト</h3>
+        <ul>
+          <li>現在の盤面で有効な手をすべて試したか？</li>
+          <li>空き列はあるか？（なければ1列空けてから補充が理想）</li>
+          <li>補充後に完成セットを作れる見込みはあるか？</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Undo（巻き戻し）の活用法</h2>
+        <p>Spider Solitaire Pro では何手でも自由に巻き戻せます。これを恐れず積極的に使うことが上達への近道です。</p>
+        <p>特に「AIコーチの何手戻す？」機能は、現在の局面から最適な巻き戻しポイントを提案してくれます。手詰まりを感じたら、思い切って数手前に戻してみましょう。「あの手を打たなければよかった」という気づきが実力アップに繋がります。</p>
+      </section>
+
+      <div class="cta-inline">
+        <p>攻略法を頭に入れたら実践あるのみ。<br>まずは1スートでコツを掴もう。</p>
+        <a href="../spider-solitaire.html" class="btn-play">プレイする</a>
+      </div>
+
+      <div class="nav-links">
+        <a href="rules.html">← ルール完全ガイド</a>
+        <a href="beginner.html">→ 初心者向け入門ガイド</a>
+        <a href="index.html">← ブログ一覧</a>
+      </div>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../index.html">トップ</a> &nbsp;|&nbsp; <a href="index.html">ブログ</a> &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+  </footer>
+</div>
+</body>
+</html>

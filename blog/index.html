@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブログ - Spider Solitaire Pro</title>
+  <meta name="description" content="スパイダーソリティアのルール・攻略法・初心者ガイドなど役立つ記事を掲載しています。">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/">
+  <meta property="og:title"       content="ブログ - Spider Solitaire Pro">
+  <meta property="og:description" content="スパイダーソリティアのルール・攻略法・初心者ガイドなど役立つ記事を掲載しています。">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="ブログ - Spider Solitaire Pro">
+  <meta name="twitter:description" content="スパイダーソリティアのルール・攻略法・初心者ガイドなど役立つ記事を掲載しています。">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .page-title {
+      font-family: 'Playfair Display', serif; font-size: 1.8rem;
+      color: var(--gold-light); margin-bottom: 8px;
+    }
+    .page-lead { font-size: 0.85rem; opacity: 0.7; margin-bottom: 40px; line-height: 1.8; }
+    .blog-grid { display: grid; gap: 20px; }
+    .blog-card {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px; padding: 24px; text-decoration: none;
+      display: block; transition: border-color 0.2s, transform 0.15s;
+    }
+    .blog-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .blog-card .tag {
+      font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 10px;
+    }
+    .blog-card h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold-light); margin-bottom: 8px; }
+    .blog-card p { font-size: 0.8rem; line-height: 1.8; opacity: 0.75; }
+    .blog-card .read-more { font-size: 0.75rem; color: var(--gold); margin-top: 12px; display: block; }
+    .cta-box {
+      margin-top: 48px; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 12px; padding: 28px; text-align: center;
+    }
+    .cta-box p { font-size: 0.85rem; opacity: 0.8; margin-bottom: 16px; line-height: 1.8; }
+    .btn-play {
+      display: inline-block; padding: 12px 36px; background: var(--gold); color: var(--green-dark);
+      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700;
+      text-decoration: none; border-radius: 8px; transition: background 0.2s;
+    }
+    .btn-play:hover { background: var(--gold-light); }
+    footer {
+      text-align: center; padding: 24px; background: rgba(0,0,0,0.25);
+      border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../index.html">トップ</a>
+      <a href="../spider-solitaire.html">プレイ</a>
+      <a href="../privacy.html">プライバシー</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1 class="page-title">ブログ</h1>
+    <p class="page-lead">スパイダーソリティアのルール解説・攻略法・初心者ガイドなど、<br>ゲームをもっと楽しむための記事を掲載しています。</p>
+
+    <div class="blog-grid">
+
+      <a href="rules.html" class="blog-card">
+        <span class="tag">ルール</span>
+        <h2>スパイダーソリティア ルール完全ガイド</h2>
+        <p>デッキの枚数、カードの配り方、移動ルール、フォンデーション完成条件まで。スパイダーソリティアのすべてのルールをわかりやすく解説します。難易度ごとの違いも詳しく説明。</p>
+        <span class="read-more">続きを読む →</span>
+      </a>
+
+      <a href="strategy.html" class="blog-card">
+        <span class="tag">攻略</span>
+        <h2>スパイダーソリティア 攻略法・勝つためのコツ</h2>
+        <p>勝率を上げるための具体的な戦略を解説。「空き列を作る」ことがなぜ重要なのか、山札補充のタイミング、同スーツ接続の優先度など、中級者以上を目指すためのテクニックを紹介します。</p>
+        <span class="read-more">続きを読む →</span>
+      </a>
+
+      <a href="beginner.html" class="blog-card">
+        <span class="tag">入門</span>
+        <h2>初心者向け入門ガイド — まず1スートをクリアしよう</h2>
+        <p>スパイダーソリティアを始めたばかりの方へ。最初の3手の考え方、よくある失敗パターン、AIコーチやヒント機能の使い方まで、初めてでも楽しめるように丁寧に説明します。</p>
+        <span class="read-more">続きを読む →</span>
+      </a>
+
+    </div>
+
+    <div class="cta-box">
+      <p>記事を読んだら実際にプレイして練習しよう。<br>AIコーチが最善手を教えてくれるから、初心者でも安心。</p>
+      <a href="../spider-solitaire.html" class="btn-play">今すぐプレイ</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../index.html">トップ</a> &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+  </footer>
+</div>
+</body>
+</html>

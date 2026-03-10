@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スパイダーソリティア 初心者向け入門ガイド - Spider Solitaire Pro</title>
+  <meta name="description" content="スパイダーソリティア初心者向けの入門ガイド。最初の3手の考え方、よくある失敗パターン、AIコーチの使い方まで丁寧に解説します。">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/beginner.html">
+  <meta property="og:title"       content="スパイダーソリティア 初心者向け入門ガイド">
+  <meta property="og:description" content="スパイダーソリティア初心者向けの入門ガイド。最初の3手の考え方、よくある失敗パターン、AIコーチの使い方まで丁寧に解説します。">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="スパイダーソリティア 初心者向け入門ガイド">
+  <meta name="twitter:description" content="スパイダーソリティア初心者向けの入門ガイド。最初の3手の考え方、よくある失敗パターン、AIコーチの使い方まで丁寧に解説します。">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(0,0,0,0.25); border-bottom: 1px solid rgba(201,168,76,0.3); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 4px; }
+    .step-list { list-style: none; padding: 0; counter-reset: step; }
+    .step-list li { counter-increment: step; display: grid; grid-template-columns: 40px 1fr; gap: 12px; margin-bottom: 16px; align-items: start; }
+    .step-list li::before { content: "STEP" "\A" counter(step); white-space: pre; font-size: 0.6rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 6px; padding: 6px 4px; text-align: center; line-height: 1.4; }
+    .step-list li > div { padding-top: 2px; }
+    .step-list li > div strong { display: block; color: var(--gold-light); font-size: 0.85rem; margin-bottom: 4px; }
+    .step-list li > div p { margin: 0; }
+    .tip-box { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); border-radius: 10px; padding: 18px 20px; margin: 20px 0; }
+    .tip-box .tip-label { font-size: 0.65rem; color: #4ade80; margin-bottom: 6px; letter-spacing: 1px; }
+    .tip-box p { margin: 0; opacity: 0.9; }
+    .mistake-list { list-style: none; padding: 0; }
+    .mistake-list li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; margin-bottom: 14px; font-size: 0.85rem; line-height: 1.8; opacity: 0.85; }
+    .mistake-list li::before { content: "✗"; color: #f87171; font-weight: bold; padding-top: 2px; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+    .feature-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.15); border-radius: 10px; padding: 16px; }
+    .feature-card .fc-title { color: var(--gold-light); font-size: 0.82rem; margin-bottom: 6px; }
+    .feature-card p { font-size: 0.78rem; margin: 0; opacity: 0.75; line-height: 1.7; }
+    .cta-inline { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0; }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play { display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark); font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; text-decoration: none; border-radius: 8px; transition: background 0.2s; }
+    .btn-play:hover { background: var(--gold-light); }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../index.html">トップ</a>
+      <a href="index.html">ブログ</a>
+      <a href="../spider-solitaire.html">プレイ</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../index.html">トップ</a> &rsaquo; <a href="index.html">ブログ</a> &rsaquo; 初心者向け入門ガイド</p>
+    <span class="tag">入門</span>
+    <h1>初心者向け入門ガイド<br>— まず1スートをクリアしよう</h1>
+    <p class="lead">「スパイダーソリティアをやってみたけど難しくて諦めた」という方は多いのではないでしょうか。実は、正しい入り方を知っていれば初心者でも十分楽しめます。このガイドでは、初めてプレイする方に向けて、最初の一手の考え方から便利な機能の活用法まで、ステップごとに丁寧に説明します。</p>
+
+    <article>
+
+      <section>
+        <h2>まずは「1スート」から始めよう</h2>
+        <p>スパイダーソリティアには1スート・2スート・4スートの3つの難易度があります。<strong style="color:var(--gold-light)">初心者は必ず1スート（♠のみ）から始めてください。</strong></p>
+        <p>1スートはすべてのカードが同じスートのため、隣のカードが1ランク低ければ自由に動かせます。移動のルールをシンプルに体験できるため、ゲームの流れを掴むのに最適です。1スートを5〜10回クリアしたら2スートに挑戦、という段階的なステップアップをおすすめします。</p>
+        <div class="tip-box">
+          <div class="tip-label">💡 ポイント</div>
+          <p>ゲーム画面下部のツールバーで難易度を「1♠」に切り替えられます。確認ダイアログが出るので「変更する」を選択してください。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>ゲームの流れをステップで理解する</h2>
+        <ul class="step-list">
+          <li>
+            <div>
+              <strong>盤面を確認する</strong>
+              <p>ゲーム開始時、10列のカードが並び、各列の一番上だけが表向きです。まず表向きのカードを確認し、どこに何があるかを把握しましょう。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>動かせるカードを探す</strong>
+              <p>表向きのカードを別の列に移動できます。移動先のカードより1ランク低ければOKです。たとえば「K」の上には「Q」、「7」の上には「6」を置けます。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>裏向きカードをめくる</strong>
+              <p>カードを移動させると、その列の次のカードが表向きになることがあります。できるだけ多くの裏向きカードをめくって選択肢を増やしましょう。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>手詰まりなら山札を補充</strong>
+              <p>有効な手がなくなったら右下の山札をタップして補充します。全列に1枚ずつ配られます。補充は5回までです。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>K→Aを完成させる</strong>
+              <p>同スートのK→Q→J→10→9→8→7→6→5→4→3→2→Aが1列に揃うと自動的にフォンデーションへ移動します。これを8組作ればクリアです。</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>初心者がよくやってしまう失敗</h2>
+        <ul class="mistake-list">
+          <li>とりあえず動かせるカードを手当たり次第に動かしてしまう。目的なく動かすと盤面が混雑して身動きが取れなくなります。</li>
+          <li>山札を早めに補充しすぎる。有効な手があるうちに補充すると、せっかく作りかけた空き列が埋まってしまいます。</li>
+          <li>スコアを気にしすぎてヒントやAIコーチを使わない。初心者のうちはどんどん使って構いません。使い方を覚えることが先決です。</li>
+          <li>失敗したときに諦める。スパイダーソリティアはUndoを活用しながら繰り返しプレイすることで上達します。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Spider Solitaire Pro の便利な機能を活用しよう</h2>
+        <p>このアプリには初心者をサポートする機能が充実しています。遠慮なく使いながら少しずつ覚えていきましょう。</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="fc-title">💡 ヒント</div>
+            <p>移動元と移動先のカードをハイライト表示。有効な手がないときは「山札を補充しましょう」と表示されます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-title">↩ Undo</div>
+            <p>何手でも巻き戻せます。「あの手は間違いだった」と気づいたらすぐに戻しましょう。</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-title">🤖 次の手は？</div>
+            <p>AIコーチが最善手を教えてくれます。なぜその手が良いかの説明も表示されます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-title">🤖 局面を解説</div>
+            <p>現在の盤面を総合的に分析してくれます。「空き列が〇個ある」「裏向きが多い列は〇列目」など具体的なコメントが表示されます。</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>上達のロードマップ</h2>
+        <ol>
+          <li><strong style="color:var(--gold-light)">1スートを10回クリアする</strong> — ゲームの基本的な流れを体に馴染ませる</li>
+          <li><strong style="color:var(--gold-light)">AIコーチなしで1スートをクリアする</strong> — 自分で考える力をつける</li>
+          <li><strong style="color:var(--gold-light)">2スートに挑戦する</strong> — スート管理の難しさを体験する</li>
+          <li><strong style="color:var(--gold-light)">今日の問題に毎日取り組む</strong> — 全員と同じ盤面で実力を試す</li>
+          <li><strong style="color:var(--gold-light)">4スートに挑戦する</strong> — 上級者への道</li>
+        </ol>
+        <p>焦らず一歩ずつ進めましょう。スパイダーソリティアは、プレイするたびに新しい発見がある奥深いゲームです。</p>
+      </section>
+
+      <div class="cta-inline">
+        <p>入門ガイドを読んだら、まず1スートで挑戦してみよう。<br>AIコーチが丁寧にサポートしてくれます。</p>
+        <a href="../spider-solitaire.html" class="btn-play">1スートで始める</a>
+      </div>
+
+      <div class="nav-links">
+        <a href="rules.html">→ ルール完全ガイド</a>
+        <a href="strategy.html">→ 攻略法・コツ</a>
+        <a href="index.html">← ブログ一覧</a>
+      </div>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../index.html">トップ</a> &nbsp;|&nbsp; <a href="index.html">ブログ</a> &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+  </footer>
+</div>
+</body>
+</html>

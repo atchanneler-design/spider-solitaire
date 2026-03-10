@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スパイダーソリティア ルール完全ガイド - Spider Solitaire Pro</title>
+  <meta name="description" content="スパイダーソリティアのルールを完全解説。デッキ構成・カードの配り方・移動ルール・難易度の違いまでわかりやすく説明します。">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/rules.html">
+  <meta property="og:title"       content="スパイダーソリティア ルール完全ガイド">
+  <meta property="og:description" content="スパイダーソリティアのルールを完全解説。デッキ構成・カードの配り方・移動ルール・難易度の違いまでわかりやすく説明します。">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="スパイダーソリティア ルール完全ガイド">
+  <meta name="twitter:description" content="スパイダーソリティアのルールを完全解説。デッキ構成・カードの配り方・移動ルール・難易度の違いまでわかりやすく説明します。">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; }
+    .info-box {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 10px; padding: 20px; margin: 20px 0;
+    }
+    .info-box h3 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.82rem; }
+    th { background: rgba(201,168,76,0.15); color: var(--gold); padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(201,168,76,0.3); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 0.85; }
+    .cta-inline {
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0;
+    }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play {
+      display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark);
+      font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; border-radius: 8px; transition: background 0.2s;
+    }
+    .btn-play:hover { background: var(--gold-light); }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../index.html">トップ</a>
+      <a href="index.html">ブログ</a>
+      <a href="../spider-solitaire.html">プレイ</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../index.html">トップ</a> &rsaquo; <a href="index.html">ブログ</a> &rsaquo; ルール完全ガイド</p>
+    <span class="tag">ルール</span>
+    <h1>スパイダーソリティア<br>ルール完全ガイド</h1>
+    <p class="lead">スパイダーソリティアは世界で最も人気のある一人用カードゲームのひとつです。通常のソリティアより複雑に見えますが、基本ルールさえ覚えれば誰でも楽しめます。このガイドでは、デッキの構成から移動ルール、クリア条件まで、すべてのルールをわかりやすく解説します。</p>
+
+    <article>
+
+      <section>
+        <h2>ゲームの目的</h2>
+        <p>スパイダーソリティアの目的は、<strong style="color:var(--gold-light)">同じスートのK（キング）からA（エース）まで13枚を降順に並べた「完成セット」を8組作る</strong>ことです。8組すべてを完成させるとゲームクリアとなります。</p>
+        <p>一見シンプルに聞こえますが、104枚のカード（標準デッキ2組分）を使うため、思考と計画が必要な奥深いゲームです。</p>
+      </section>
+
+      <section>
+        <h2>カードの配置と構成</h2>
+
+        <h3>使用するカード</h3>
+        <p>スパイダーソリティアは<strong style="color:var(--gold-light)">標準52枚デッキを2組、合計104枚</strong>使用します。難易度によって使用するスートの種類が変わりますが、枚数は常に104枚です。</p>
+
+        <h3>初期配置</h3>
+        <p>ゲーム開始時、104枚のうち54枚が10列に配られます。</p>
+        <ul>
+          <li>左から1〜4列目：各6枚（計24枚）</li>
+          <li>5〜10列目：各5枚（計30枚）</li>
+          <li>各列の一番上のカードだけが表向き（残りは裏向き）</li>
+          <li>残り50枚は山札として右下に5束（各10枚）で置かれる</li>
+        </ul>
+
+        <div class="info-box">
+          <h3>山札の補充ルール</h3>
+          <p>山札は1束ずつ補充できます。1回補充すると、全10列に1枚ずつカードが配られます。ただし、<strong style="color:var(--gold-light)">空の列がある状態では山札を補充できません</strong>。補充前に空き列を埋める必要があります。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>カードの移動ルール</h2>
+
+        <h3>基本の移動</h3>
+        <p>表向きのカードを別の列に移動できます。移動先のカードは、移動するカードより<strong style="color:var(--gold-light)">1ランク大きい</strong>必要があります。たとえば「7」の上には「6」を置けます。スートが異なっていても、降順であれば置くことができます。</p>
+
+        <h3>複数枚の同時移動</h3>
+        <p>複数枚を同時に移動させる場合は条件があります。<strong style="color:var(--gold-light)">同じスートで降順に連続している場合のみ</strong>、複数枚をまとめて移動できます。異なるスートが混在している連続であっても移動自体は可能ですが、それは「1枚ずつの移動」の繰り返しとして扱われます。</p>
+
+        <h3>空き列への移動</h3>
+        <p>すべてのカードを取り除いた列（空き列）には、どのカードでも移動させることができます。空き列は非常に貴重なリソースで、上手に活用することが攻略のカギです。</p>
+      </section>
+
+      <section>
+        <h2>完成セットとフォンデーション</h2>
+        <p>同じスートのKからAまで13枚が降順に1列に揃うと、自動的にフォンデーション（画面上部の完成エリア）に移動し、完成セットとしてカウントされます。スコアも100点加算されます。</p>
+        <p>完成セットを作る際、消えた列の一番上のカードが自動的に表向きになります。これが次の手を生む重要な瞬間です。</p>
+      </section>
+
+      <section>
+        <h2>難易度の違い</h2>
+        <p>スパイダーソリティアには3つの難易度があり、使用するスートの種類によって難しさが大きく変わります。</p>
+
+        <table>
+          <tr>
+            <th>難易度</th>
+            <th>使用スート</th>
+            <th>枚数構成</th>
+            <th>難しさ</th>
+          </tr>
+          <tr>
+            <td>1スート（かんたん）</td>
+            <td>♠のみ</td>
+            <td>♠を8周 = 104枚</td>
+            <td>★☆☆</td>
+          </tr>
+          <tr>
+            <td>2スート（ふつう）</td>
+            <td>♠♥</td>
+            <td>各スート4周 = 104枚</td>
+            <td>★★☆</td>
+          </tr>
+          <tr>
+            <td>4スート（むずかしい）</td>
+            <td>♠♥♦♣</td>
+            <td>各スート2周 = 104枚</td>
+            <td>★★★</td>
+          </tr>
+        </table>
+
+        <p>1スートはすべて同じスートのため、複数枚の同時移動が自由にできます。4スートはスートが混在するため、複数枚移動の条件が厳しく難易度が格段に上がります。</p>
+      </section>
+
+      <section>
+        <h2>スコアシステム</h2>
+        <p>スコアは戦略的プレイを促すために設計されています。</p>
+        <ul>
+          <li><strong style="color:var(--gold-light)">初期スコア：1000点</strong></li>
+          <li>1手ごとに −1点</li>
+          <li>完成セット1組につき +100点</li>
+          <li>8組すべて完成でゲームクリア</li>
+        </ul>
+        <p>少ない手数でクリアするほど高スコアになります。無駄な手を減らし、計画的に進めることが高スコアへの近道です。</p>
+      </section>
+
+      <div class="cta-inline">
+        <p>ルールを覚えたら実際にプレイしてみよう。<br>AIコーチが次の手を教えてくれるから安心。</p>
+        <a href="../spider-solitaire.html" class="btn-play">プレイする</a>
+      </div>
+
+      <div class="nav-links">
+        <a href="beginner.html">→ 初心者向け入門ガイド</a>
+        <a href="strategy.html">→ 攻略法・コツ</a>
+        <a href="index.html">← ブログ一覧</a>
+      </div>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../index.html">トップ</a> &nbsp;|&nbsp; <a href="index.html">ブログ</a> &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+  </footer>
+</div>
+</body>
+</html>
