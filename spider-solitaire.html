@@ -84,7 +84,14 @@
     color: var(--gold-light);
     font-size: 1.4rem;
     letter-spacing: 2px;
+    background: none;
+    border: none;
+    padding: 8px 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
+  .title:active { opacity: 0.7; }
 
   .stats {
     display: flex;
@@ -798,7 +805,7 @@
 <body>
 <div id="app">
   <header>
-    <div class="title" onclick="confirmGoHome()" style="cursor:pointer">♠ SPIDER SOLITAIRE</div>
+    <button class="title" onclick="confirmGoHome()">♠ SPIDER SOLITAIRE</button>
     <div class="streak-display" id="streak-display" style="display:none">
       <span class="streak-count">🔥<span id="stat-streak">0</span></span>
       <span class="streak-label">連続</span>
