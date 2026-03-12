@@ -1365,7 +1365,12 @@ function renderColumns() {
     const totalH = top + CARD_H;
     colEl.style.height = totalH + 'px';
 
-    // 空き列クリックは1タップ方式では使用しない
+    // 空き列をタップ → ハイライト中の移動先なら移動
+    slot.addEventListener('click', () => {
+      if (selected && validTargets.includes(`${ci}-empty`)) {
+        moveSelected(ci);
+      }
+    });
 
     el.appendChild(colEl);
   });
@@ -1416,67 +1421,76 @@ function onCardClick(ci, ki) {
   const card = col[ki];
   if (!card.faceUp) return;
 
+  // 同じカードを再タップ → キャンセル
+  if (selected && selected.colIdx === ci && selected.cardIdx === ki) {
+    selected = null;
+    validTargets = [];
+    render();
+    return;
+  }
+
+  // ハイライト待機中に移動先カード（トップ）をタップ → 移動
+  if (selected && validTargets.length > 0) {
+    const selKey = `${ci}-${col.length - 1}`;
+    if (ki === col.length - 1 && validTargets.includes(selKey)) {
+      moveSelected(ci);
+      return;
+    }
+    // 別のカードをタップ → 選択切り替え（fall through）
+    selected = null;
+    validTargets = [];
+  }
+
   if (!isValidSequence(col, ki)) {
     showToast('その位置からは動かせません');
     return;
   }
 
-  const movingCard = col[ki];
-  const movingRank = RANK_VAL[movingCard.rank];
+  const targets = findValidTargets(ci, ki);
 
-  // 優先度1: 同スーツで rank+1 の列（最も左）
-  let targetCol = -1;
-  for (let i = 0; i < state.columns.length; i++) {
-    if (i === ci) continue;
-    const tcol = state.columns[i];
-    if (tcol.length === 0) continue;
-    const top = tcol[tcol.length - 1];
-    if (top.faceUp && RANK_VAL[top.rank] === movingRank + 1 && top.suit === movingCard.suit) {
-      targetCol = i;
-      break;
-    }
+  if (targets.length === 0) {
+    showToast('移動できません');
+    return;
   }
 
-  // 優先度2: 異スーツでも rank+1 の列（最も左）
-  if (targetCol === -1) {
-    for (let i = 0; i < state.columns.length; i++) {
-      if (i === ci) continue;
-      const tcol = state.columns[i];
-      if (tcol.length === 0) continue;
+  if (targets.length === 1) {
+    // 移動先が1つ → 即移動
+    selected = { colIdx: ci, cardIdx: ki };
+    validTargets = [];
+    moveSelected(targets[0]);
+    return;
+  }
+
+  // 移動先が複数 → 全候補をハイライトして待機
+  selected = { colIdx: ci, cardIdx: ki };
+  validTargets = targets.map(ti => {
+    const tcol = state.columns[ti];
+    return tcol.length === 0 ? `${ti}-empty` : `${ti}-${tcol.length - 1}`;
+  });
+  render();
+}
+
+function findValidTargets(fromCol, fromKi) {
+  const movingCard = state.columns[fromCol][fromKi];
+  const movingRank = RANK_VAL[movingCard.rank];
+  const sameSuit = [], diffSuit = [], empty = [];
+
+  for (let i = 0; i < state.columns.length; i++) {
+    if (i === fromCol) continue;
+    const tcol = state.columns[i];
+    if (tcol.length === 0) {
+      empty.push(i);
+    } else {
       const top = tcol[tcol.length - 1];
       if (top.faceUp && RANK_VAL[top.rank] === movingRank + 1) {
-        targetCol = i;
-        break;
+        if (top.suit === movingCard.suit) sameSuit.push(i);
+        else diffSuit.push(i);
       }
     }
   }
 
-  // 優先度3: 空き列（最も左）
-  if (targetCol === -1) {
-    for (let i = 0; i < state.columns.length; i++) {
-      if (i === ci) continue;
-      if (state.columns[i].length === 0) {
-        targetCol = i;
-        break;
-      }
-    }
-  }
-
-  if (targetCol !== -1) {
-    selected = { colIdx: ci, cardIdx: ki };
-    validTargets = [];
-    moveSelected(targetCol);
-  } else {
-    // 移動先なし — 一時ハイライトしてトースト
-    selected = { colIdx: ci, cardIdx: ki };
-    validTargets = [];
-    render();
-    showToast('移動できません');
-    setTimeout(() => {
-      selected = null;
-      render();
-    }, 600);
-  }
+  // 優先順: 同スーツ → 異スーツ → 空き列（各カテゴリ内は左優先）
+  return [...sameSuit, ...diffSuit, ...empty];
 }
 
 function isValidSequence(col, startKi) {
