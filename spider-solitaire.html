@@ -1365,10 +1365,7 @@ function renderColumns() {
     const totalH = top + CARD_H;
     colEl.style.height = totalH + 'px';
 
-    // click on empty column
-    slot.addEventListener('click', () => {
-      if (selected) moveSelected(ci);
-    });
+    // 空き列クリックは1タップ方式では使用しない
 
     el.appendChild(colEl);
   });
@@ -1424,42 +1421,62 @@ function onCardClick(ci, ki) {
     return;
   }
 
-  if (selected === null) {
-    selected = { colIdx: ci, cardIdx: ki };
-    computeValidTargets(ci, ki);
-    render();
-  } else if (selected.colIdx === ci && selected.cardIdx === ki) {
-    selected = null;
-    validTargets = [];
-    render();
-  } else {
-    const topKi = col.length - 1;
-    if (ki === topKi) {
-      moveSelected(ci);
-    } else {
-      selected = { colIdx: ci, cardIdx: ki };
-      computeValidTargets(ci, ki);
-      render();
-    }
-  }
-}
-
-function computeValidTargets(fromCol, fromKi) {
-  validTargets = [];
-  const movingCard = state.columns[fromCol][fromKi];
+  const movingCard = col[ki];
   const movingRank = RANK_VAL[movingCard.rank];
 
-  state.columns.forEach((col, ci) => {
-    if (ci === fromCol) return;
-    if (col.length === 0) {
-      validTargets.push(`${ci}-empty`);
-    } else {
-      const topCard = col[col.length - 1];
-      if (topCard.faceUp && RANK_VAL[topCard.rank] === movingRank + 1) {
-        validTargets.push(`${ci}-${col.length - 1}`);
+  // 優先度1: 同スーツで rank+1 の列（最も左）
+  let targetCol = -1;
+  for (let i = 0; i < state.columns.length; i++) {
+    if (i === ci) continue;
+    const tcol = state.columns[i];
+    if (tcol.length === 0) continue;
+    const top = tcol[tcol.length - 1];
+    if (top.faceUp && RANK_VAL[top.rank] === movingRank + 1 && top.suit === movingCard.suit) {
+      targetCol = i;
+      break;
+    }
+  }
+
+  // 優先度2: 異スーツでも rank+1 の列（最も左）
+  if (targetCol === -1) {
+    for (let i = 0; i < state.columns.length; i++) {
+      if (i === ci) continue;
+      const tcol = state.columns[i];
+      if (tcol.length === 0) continue;
+      const top = tcol[tcol.length - 1];
+      if (top.faceUp && RANK_VAL[top.rank] === movingRank + 1) {
+        targetCol = i;
+        break;
       }
     }
-  });
+  }
+
+  // 優先度3: 空き列（最も左）
+  if (targetCol === -1) {
+    for (let i = 0; i < state.columns.length; i++) {
+      if (i === ci) continue;
+      if (state.columns[i].length === 0) {
+        targetCol = i;
+        break;
+      }
+    }
+  }
+
+  if (targetCol !== -1) {
+    selected = { colIdx: ci, cardIdx: ki };
+    validTargets = [];
+    moveSelected(targetCol);
+  } else {
+    // 移動先なし — 一時ハイライトしてトースト
+    selected = { colIdx: ci, cardIdx: ki };
+    validTargets = [];
+    render();
+    showToast('移動できません');
+    setTimeout(() => {
+      selected = null;
+      render();
+    }, 600);
+  }
 }
 
 function isValidSequence(col, startKi) {
