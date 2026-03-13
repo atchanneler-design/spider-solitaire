@@ -203,13 +203,22 @@
     min-height: 0;
   }
 
-  /* TOP ROW: foundations */
+  /* TOP ROW: stock (left) + foundations (right) */
   .top-row {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: flex-start;
     gap: 8px;
     padding: 0 4px;
     margin-bottom: 4px;
+  }
+
+  #foundations {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
   }
 
   .foundation-slot {
@@ -385,9 +394,7 @@
   /* STOCK */
   .stock-area {
     display: flex;
-    justify-content: flex-end;
-    padding: 0 4px;
-    margin-top: 8px;
+    flex-shrink: 0;
   }
 
   .stock-pile {
@@ -419,7 +426,7 @@
 
   .stock-count {
     position: absolute;
-    bottom: -18px;
+    bottom: 4px;
     width: 100%;
     text-align: center;
     color: rgba(245,240,232,0.6);
@@ -869,9 +876,11 @@
   </div>
 
   <div id="game-area">
-    <div class="top-row" id="foundations"></div>
+    <div class="top-row">
+      <div id="stock-area"></div>
+      <div id="foundations"></div>
+    </div>
     <div class="columns" id="columns"></div>
-    <div class="stock-area" id="stock-area"></div>
   </div>
 </div>
 
