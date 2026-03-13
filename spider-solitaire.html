@@ -54,6 +54,7 @@
     min-height: 100vh;
     font-family: 'DM Mono', monospace;
     user-select: none;
+    -webkit-user-select: none;
     overflow-x: hidden;
   }
 
@@ -1345,6 +1346,7 @@ function renderColumns() {
       cardEl.style.zIndex = ki + 1;
       cardEl.dataset.col = ci;
       cardEl.dataset.ki = ki;
+      cardEl.draggable = false;
 
       if (card.faceUp) {
         const isR = isRed(card.suit);
@@ -2665,6 +2667,9 @@ renderStreak();
 // PWA: Service Worker 登録
 // ============================================================
 if ('serviceWorker' in navigator) {
+  // Chrome のネイティブドラッグによるテキスト選択を全域で防止
+  document.addEventListener('dragstart', e => e.preventDefault());
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
       .catch(err => console.warn('SW registration failed:', err));
