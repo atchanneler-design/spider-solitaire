@@ -51,12 +51,13 @@
 
   body {
     background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
     font-family: 'DM Mono', monospace;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   /* felt texture */
@@ -69,7 +70,7 @@
     z-index: 0;
   }
 
-  #app { position: relative; z-index: 1; }
+  #app { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
 
   /* HEADER */
   header {
@@ -198,6 +199,8 @@
     flex-direction: column;
     padding: 12px 6px;
     gap: 8px;
+    flex: 1;
+    min-height: 0;
   }
 
   /* TOP ROW: foundations */
@@ -244,6 +247,9 @@
     gap: clamp(2px, 0.8vw, 5px);
     justify-content: center;
     padding: 0 2px;
+    flex: 1;
+    min-height: 0;
+    align-items: flex-start;
   }
 
   .column {
@@ -1392,11 +1398,28 @@ function renderFoundations() {
 
 function renderColumns() {
   const el = document.getElementById('columns');
-  el.innerHTML = '';
 
+  // --- dynamic card offset: compress if tallest column doesn't fit ---
   const CARD_H = 100;
-  const FACE_DOWN_OFFSET = 14;
-  const FACE_UP_OFFSET = 30;
+  const DEFAULT_FD = 14, DEFAULT_FU = 30;
+  const MIN_FD = 7,      MIN_FU = 14;
+  const availH = el.clientHeight || Math.floor(window.innerHeight * 0.5);
+
+  let minScale = 1.0;
+  state.columns.forEach(col => {
+    const nfd = col.filter(c => !c.faceUp).length;
+    const nfu = col.filter(c =>  c.faceUp).length;
+    const needed = nfd * DEFAULT_FD + nfu * DEFAULT_FU;
+    if (needed > 0 && availH > CARD_H) {
+      const scale = (availH - CARD_H) / needed;
+      if (scale < minScale) minScale = scale;
+    }
+  });
+  const FACE_DOWN_OFFSET = Math.max(MIN_FD, Math.floor(DEFAULT_FD * minScale));
+  const FACE_UP_OFFSET   = Math.max(MIN_FU, Math.floor(DEFAULT_FU * minScale));
+  // --- end dynamic offset ---
+
+  el.innerHTML = '';
 
   state.columns.forEach((col, ci) => {
     const colEl = document.createElement('div');
