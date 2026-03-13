@@ -310,6 +310,17 @@
     50%     { box-shadow: 0 0 0 5px rgba(74,158,255,1.0), 0 6px 18px rgba(74,158,255,0.5); }
   }
 
+  /* ドラッグゴースト */
+  #drag-ghost { filter: drop-shadow(0 8px 24px rgba(0,0,0,0.55)); }
+  #drag-ghost .card { opacity: 0.92; }
+
+  /* ドラッグ中の有効列ハイライト */
+  .column.drag-target .column-slot {
+    border-color: rgba(74,158,255,0.9) !important;
+    background: rgba(74,158,255,0.10);
+    animation: pulse-target 1s ease-in-out infinite;
+  }
+
   /* 上部ストリップ：重なっても常に見える帯 */
   .card-top {
     position: absolute;
@@ -907,6 +918,8 @@ let selected = null;      // {colIdx, cardIdx}
 let hintCards = [];       // [fromKey] only — hint shows source card only
 let validTargets = [];    // list of "ci-ki" keys for valid drop targets
 let isDealing = false;    // animation lock for deal-from-stock
+let dragState = null;     // ドラッグ状態
+const DRAG_THRESHOLD = 6; // ドラッグ判定ピクセル
 
 // ============================================================
 // TODAY'S CHALLENGE
@@ -1310,13 +1323,10 @@ function renderColumns() {
   state.columns.forEach((col, ci) => {
     const colEl = document.createElement('div');
     colEl.className = 'column';
+    colEl.dataset.colIdx = ci;
 
     const slot = document.createElement('div');
     slot.className = 'column-slot';
-    // 空列が有効ターゲットの場合は青く光らせる
-    if (selected && validTargets.includes(`${ci}-empty`)) {
-      slot.classList.add('valid-target-empty');
-    }
     colEl.appendChild(slot);
 
     let top = 0;
@@ -1329,6 +1339,8 @@ function renderColumns() {
         + (isFront && card.faceUp ? ' card-front' : '');
       cardEl.style.top = top + 'px';
       cardEl.style.zIndex = ki + 1;
+      cardEl.dataset.col = ci;
+      cardEl.dataset.ki = ki;
 
       if (card.faceUp) {
         const isR = isRed(card.suit);
@@ -1342,19 +1354,12 @@ function renderColumns() {
         `;
 
         const selKey = `${ci}-${ki}`;
-        if (selected && selected.colIdx === ci && selected.cardIdx === ki) {
-          cardEl.classList.add('selected');
-        }
-        // ヒントは動かすカードだけ（fromKeyのみ）
+        // ヒント表示
         if (hintCards[0] === selKey) {
           cardEl.classList.add('hint-card');
         }
-        // タップ後：置けるカード（トップのみ）を青く光らせる
-        if (validTargets.includes(selKey)) {
-          cardEl.classList.add('valid-target');
-        }
 
-        cardEl.addEventListener('click', () => onCardClick(ci, ki));
+        cardEl.addEventListener('pointerdown', e => onPointerDown(e, ci, ki));
       }
 
       top += card.faceUp ? FACE_UP_OFFSET : FACE_DOWN_OFFSET;
@@ -1364,13 +1369,6 @@ function renderColumns() {
     // total height
     const totalH = top + CARD_H;
     colEl.style.height = totalH + 'px';
-
-    // 空き列をタップ → ハイライト中の移動先なら移動
-    slot.addEventListener('click', () => {
-      if (selected && validTargets.includes(`${ci}-empty`)) {
-        moveSelected(ci);
-      }
-    });
 
     el.appendChild(colEl);
   });
@@ -1414,32 +1412,178 @@ function renderStock() {
 // ============================================================
 // CARD INTERACTIONS
 // ============================================================
-function onCardClick(ci, ki) {
-  if (isDealing) return;
-  clearHints();
-  const col = state.columns[ci];
-  const card = col[ki];
-  if (!card.faceUp) return;
+// ============================================================
+// タップ / ドラッグ 共通エントリ
+// ============================================================
+function onPointerDown(e, ci, ki) {
+  if (isDealing || dragState) return;
+  e.preventDefault();
 
-  // 同じカードを再タップ → キャンセル
-  if (selected && selected.colIdx === ci && selected.cardIdx === ki) {
-    selected = null;
-    validTargets = [];
-    render();
+  const col = state.columns[ci];
+  if (!col[ki] || !col[ki].faceUp) return;
+
+  const rect = e.currentTarget.getBoundingClientRect();
+  dragState = {
+    fromCol: ci, fromKi: ki,
+    startX: e.clientX, startY: e.clientY,
+    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+    originalLeft: rect.left, originalTop: rect.top,
+    currentX: e.clientX, currentY: e.clientY,
+    isDragging: false,
+    ghostEl: null, hiddenEls: [], targets: [],
+    cardWidth: rect.width,
+  };
+
+  document.addEventListener('pointermove', onDragMove, { passive: false });
+  document.addEventListener('pointerup', onDragEnd);
+  document.addEventListener('pointercancel', onDragCancel);
+}
+
+function onDragMove(e) {
+  if (!dragState) return;
+  e.preventDefault();
+  dragState.currentX = e.clientX;
+  dragState.currentY = e.clientY;
+
+  if (!dragState.isDragging) {
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+
+    const col = state.columns[dragState.fromCol];
+    if (!isValidSequence(col, dragState.fromKi)) {
+      removeDragListeners();
+      dragState = null;
+      return;
+    }
+
+    dragState.isDragging = true;
+    dragState.targets = findValidTargets(dragState.fromCol, dragState.fromKi);
+
+    // ゴースト生成
+    const ghost = buildGhostEl(dragState.fromCol, dragState.fromKi, dragState.cardWidth);
+    ghost.style.transform = `translate(${dragState.originalLeft}px,${dragState.originalTop}px)`;
+    document.body.appendChild(ghost);
+    dragState.ghostEl = ghost;
+
+    // ドラッグ元カードを非表示
+    for (let k = dragState.fromKi; k < state.columns[dragState.fromCol].length; k++) {
+      const el = document.querySelector(`[data-col="${dragState.fromCol}"][data-ki="${k}"]`);
+      if (el) { el.style.opacity = '0'; dragState.hiddenEls.push(el); }
+    }
+
+    // 有効列をハイライト
+    dragState.targets.forEach(ti => {
+      const colEl = document.querySelector(`[data-col-idx="${ti}"]`);
+      if (colEl) colEl.classList.add('drag-target');
+    });
+  }
+
+  const tx = e.clientX - dragState.offsetX;
+  const ty = e.clientY - dragState.offsetY;
+  dragState.ghostEl.style.transform = `translate(${tx}px,${ty}px)`;
+}
+
+function onDragEnd(e) {
+  if (!dragState) return;
+  removeDragListeners();
+  clearDragHighlights();
+
+  if (!dragState.isDragging) {
+    // タップとして処理
+    const { fromCol, fromKi } = dragState;
+    dragState = null;
+    handleTap(fromCol, fromKi);
     return;
   }
 
-  // ハイライト待機中に移動先カード（トップ）をタップ → 移動
-  if (selected && validTargets.length > 0) {
-    const selKey = `${ci}-${col.length - 1}`;
-    if (ki === col.length - 1 && validTargets.includes(selKey)) {
-      moveSelected(ci);
-      return;
-    }
-    // 別のカードをタップ → 選択切り替え（fall through）
-    selected = null;
+  const { ghostEl, hiddenEls, targets, fromCol, fromKi, currentX, currentY, originalLeft, originalTop } = dragState;
+  dragState = null;
+
+  const targetCol = getDropCol(currentX, currentY, ghostEl);
+  if (targetCol !== -1 && targets.includes(targetCol)) {
+    ghostEl.remove();
+    hiddenEls.forEach(el => el.style.opacity = '');
+    selected = { colIdx: fromCol, cardIdx: fromKi };
     validTargets = [];
+    moveSelected(targetCol);
+  } else {
+    // 元の位置にスナップバック
+    hiddenEls.forEach(el => el.style.opacity = '');
+    ghostEl.style.transition = 'transform 0.22s cubic-bezier(0.2,0,0.3,1)';
+    ghostEl.style.transform = `translate(${originalLeft}px,${originalTop}px)`;
+    setTimeout(() => ghostEl.remove(), 230);
   }
+}
+
+function onDragCancel() {
+  if (!dragState) return;
+  removeDragListeners();
+  clearDragHighlights();
+  const { ghostEl, hiddenEls, originalLeft, originalTop } = dragState;
+  dragState = null;
+  hiddenEls.forEach(el => el.style.opacity = '');
+  if (ghostEl) {
+    ghostEl.style.transition = 'transform 0.22s ease-out';
+    ghostEl.style.transform = `translate(${originalLeft}px,${originalTop}px)`;
+    setTimeout(() => ghostEl.remove(), 230);
+  }
+}
+
+function removeDragListeners() {
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', onDragEnd);
+  document.removeEventListener('pointercancel', onDragCancel);
+}
+
+function clearDragHighlights() {
+  document.querySelectorAll('.column.drag-target').forEach(el => el.classList.remove('drag-target'));
+}
+
+function buildGhostEl(fromCol, fromKi, cardWidth) {
+  const ghost = document.createElement('div');
+  ghost.id = 'drag-ghost';
+  ghost.style.cssText = `position:fixed;left:0;top:0;width:${cardWidth}px;pointer-events:none;z-index:9999;will-change:transform;`;
+
+  const FACE_UP_OFFSET = 30, CARD_H = 100;
+  const cards = state.columns[fromCol].slice(fromKi);
+  let top = 0;
+  cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    const isR = isRed(card.suit);
+    const cls = isR ? 'red' : 'black';
+    el.className = 'card card-front';
+    el.style.cssText = `position:absolute;top:${top}px;width:100%;height:${CARD_H}px;`;
+    el.innerHTML = `
+      <div class="card-top">
+        <span class="card-top-rank ${cls}${card.rank === '10' ? ' rank-10' : ''}">${card.rank}</span>
+        <span class="card-top-suit ${cls}">${card.suit}</span>
+      </div>
+      <span class="card-center-suit ${cls}">${card.suit}</span>`;
+    ghost.appendChild(el);
+    if (i < cards.length - 1) top += FACE_UP_OFFSET;
+  });
+  ghost.style.height = (top + CARD_H) + 'px';
+  ghost.style.filter = 'drop-shadow(0 8px 20px rgba(0,0,0,0.6))';
+  return ghost;
+}
+
+function getDropCol(x, y, ghostEl) {
+  if (ghostEl) ghostEl.style.display = 'none';
+  const el = document.elementFromPoint(x, y);
+  if (ghostEl) ghostEl.style.display = '';
+  if (!el) return -1;
+  const colEl = el.closest('[data-col-idx]');
+  return colEl ? parseInt(colEl.dataset.colIdx) : -1;
+}
+
+// ============================================================
+// タップ処理（pointerdown → pointerup で移動なし）
+// ============================================================
+function handleTap(ci, ki) {
+  clearHints();
+  const col = state.columns[ci];
+  if (!col[ki] || !col[ki].faceUp) return;
 
   if (!isValidSequence(col, ki)) {
     showToast('その位置からは動かせません');
@@ -1447,27 +1591,15 @@ function onCardClick(ci, ki) {
   }
 
   const targets = findValidTargets(ci, ki);
-
   if (targets.length === 0) {
     showToast('移動できません');
     return;
   }
 
-  if (targets.length === 1) {
-    // 移動先が1つ → 即移動
-    selected = { colIdx: ci, cardIdx: ki };
-    validTargets = [];
-    moveSelected(targets[0]);
-    return;
-  }
-
-  // 移動先が複数 → 全候補をハイライトして待機
+  // 左優先（同スーツ→異スーツ→空き列）で自動移動
   selected = { colIdx: ci, cardIdx: ki };
-  validTargets = targets.map(ti => {
-    const tcol = state.columns[ti];
-    return tcol.length === 0 ? `${ti}-empty` : `${ti}-${tcol.length - 1}`;
-  });
-  render();
+  validTargets = [];
+  moveSelected(targets[0]);
 }
 
 function findValidTargets(fromCol, fromKi) {
