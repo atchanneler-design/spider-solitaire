@@ -932,6 +932,76 @@ const DRAG_THRESHOLD = 6; // ドラッグ判定ピクセル
 // LOCAL STORAGE: 統計管理
 // ============================================================
 const STATS_KEY = 'spider_stats_v1';
+const GAME_STATE_KEY = 'spider_game_v1';
+
+// ゲーム状態をlocalStorageに保存
+function saveGameState() {
+  if (!state.columns.length) return;
+  const elapsed = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
+  try {
+    localStorage.setItem(GAME_STATE_KEY, JSON.stringify({
+      columns:     state.columns,
+      stock:       state.stock,
+      foundations: state.foundations,
+      history:     state.history,
+      moves:       state.moves,
+      score:       state.score,
+      elapsed,
+      hintUsed:    state.hintUsed,
+      adUsed:      state.adUsed,
+      cleared:     state.cleared,
+      gameOver:    state.gameOver,
+      difficulty:  state.difficulty,
+      isToday:     state.isToday || false,
+      problemIdx:  currentProblemIdx,
+    }));
+  } catch(e) {}
+}
+
+// localStorageからゲーム状態を復元
+function loadGameState() {
+  try {
+    const raw = localStorage.getItem(GAME_STATE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d?.columns?.length) return false;
+    // クリア済みなら復元しない
+    if (d.gameOver) { localStorage.removeItem(GAME_STATE_KEY); return false; }
+
+    clearInterval(state.timerInterval);
+    currentProblemIdx = d.problemIdx ?? 0;
+    currentDifficulty = d.difficulty ?? 4;
+
+    state = {
+      columns:     d.columns,
+      stock:       d.stock       || [],
+      foundations: d.foundations || [],
+      history:     d.history     || [],
+      moves:       d.moves       || 0,
+      score:       d.score       ?? 1000,
+      startTime:   Date.now() - (d.elapsed || 0) * 1000,
+      timerInterval: setInterval(updateTimer, 1000),
+      hintUsed:    d.hintUsed    || 0,
+      adUsed:      d.adUsed      || 0,
+      cleared:     d.cleared     || 0,
+      gameOver:    false,
+      difficulty:  d.difficulty  || 4,
+      isToday:     d.isToday     || false,
+    };
+
+    // 難易度ボタン同期
+    [1, 2, 4].forEach(n => {
+      document.getElementById(`diff-${n}`)?.classList.toggle('active', n === currentDifficulty);
+    });
+
+    render();
+    updateStats();
+    updateTimer();
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
 
 function loadStats() {
   try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; }
@@ -1259,6 +1329,7 @@ function confirmNewGame() {
 }
 
 function newGame(problemIdx = null) {
+  localStorage.removeItem(GAME_STATE_KEY); // セーブデータをリセット
   clearHints();
   selected = null;
   if (problemIdx === null) {
@@ -2180,6 +2251,7 @@ function executeRewind(steps) {
 // ============================================================
 function showWin() {
   state.gameOver = true;
+  localStorage.removeItem(GAME_STATE_KEY); // クリア済みなのでセーブデータを削除
   clearInterval(state.timerInterval);
   const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
   const timeStr = fmtTime(elapsed);
@@ -2367,6 +2439,7 @@ function updateStats() {
   document.getElementById('stat-moves').textContent = state.moves;
   document.getElementById('stat-score').textContent = state.score;
   document.getElementById('stat-cleared').textContent = `${state.cleared}/8`;
+  saveGameState();
 }
 
 function updateTimer() {
@@ -2660,8 +2733,32 @@ function closeAdvice() {
 // ============================================================
 // START
 // ============================================================
-newGame(0);
+// 中断セーブがあれば復元、なければ新規ゲーム
+if (!loadGameState()) {
+  newGame(0);
+}
 renderStreak();
+
+// タブ非表示/アプリ切り替え時にタイマーを停止し状態を保存、
+// 復帰時はタイマーを再開（隠れていた時間はカウントしない）
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+    saveGameState();
+  } else if (!state.gameOver && state.startTime) {
+    // 隠れていた時間を除いてstartTimeを再設定
+    try {
+      const saved = JSON.parse(localStorage.getItem(GAME_STATE_KEY));
+      if (saved?.elapsed !== undefined) {
+        state.startTime = Date.now() - saved.elapsed * 1000;
+      }
+    } catch(e) {}
+    if (!state.timerInterval) {
+      state.timerInterval = setInterval(updateTimer, 1000);
+    }
+  }
+});
 
 // ============================================================
 // PWA: Service Worker 登録
