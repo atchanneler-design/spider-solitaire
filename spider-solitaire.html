@@ -274,6 +274,10 @@
     cursor: pointer;
     transition: box-shadow 0.1s, transform 0.1s;
     overflow: hidden;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.38); }
 
@@ -1423,20 +1427,55 @@ function onPointerDown(e, ci, ki) {
   if (!col[ki] || !col[ki].faceUp) return;
 
   const rect = e.currentTarget.getBoundingClientRect();
+  const cardEl = e.currentTarget;
+
   dragState = {
     fromCol: ci, fromKi: ki,
     startX: e.clientX, startY: e.clientY,
     offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
     originalLeft: rect.left, originalTop: rect.top,
     currentX: e.clientX, currentY: e.clientY,
-    isDragging: false,
+    isDragging: false, longPressed: false,
     ghostEl: null, hiddenEls: [], targets: [],
-    cardWidth: rect.width,
+    cardWidth: rect.width, cardEl,
+    // 長押しタイマー
+    longPressTimer: setTimeout(() => startDragFromLongPress(), 250),
   };
 
   document.addEventListener('pointermove', onDragMove, { passive: false });
   document.addEventListener('pointerup', onDragEnd);
   document.addEventListener('pointercancel', onDragCancel);
+}
+
+function startDragFromLongPress() {
+  if (!dragState || dragState.isDragging) return;
+
+  const col = state.columns[dragState.fromCol];
+  if (!isValidSequence(col, dragState.fromKi)) return;
+
+  dragState.longPressed = true;
+  dragState.isDragging = true;
+  dragState.targets = findValidTargets(dragState.fromCol, dragState.fromKi);
+
+  // ゴースト生成
+  const ghost = buildGhostEl(dragState.fromCol, dragState.fromKi, dragState.cardWidth);
+  const tx = dragState.currentX - dragState.offsetX;
+  const ty = dragState.currentY - dragState.offsetY;
+  ghost.style.transform = `translate(${tx}px,${ty}px)`;
+  document.body.appendChild(ghost);
+  dragState.ghostEl = ghost;
+
+  // ドラッグ元カードを非表示
+  for (let k = dragState.fromKi; k < state.columns[dragState.fromCol].length; k++) {
+    const el = document.querySelector(`[data-col="${dragState.fromCol}"][data-ki="${k}"]`);
+    if (el) { el.style.opacity = '0'; dragState.hiddenEls.push(el); }
+  }
+
+  // 有効列をハイライト
+  dragState.targets.forEach(ti => {
+    const colEl = document.querySelector(`[data-col-idx="${ti}"]`);
+    if (colEl) colEl.classList.add('drag-target');
+  });
 }
 
 function onDragMove(e) {
@@ -1445,38 +1484,19 @@ function onDragMove(e) {
   dragState.currentX = e.clientX;
   dragState.currentY = e.clientY;
 
+  // 指が動いたら長押しタイマーをキャンセル（スクロール意図）
   if (!dragState.isDragging) {
     const dx = e.clientX - dragState.startX;
     const dy = e.clientY - dragState.startY;
-    if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
-
-    const col = state.columns[dragState.fromCol];
-    if (!isValidSequence(col, dragState.fromKi)) {
+    if (dx * dx + dy * dy > DRAG_THRESHOLD * DRAG_THRESHOLD) {
+      clearTimeout(dragState.longPressTimer);
+      // 長押し前に動いた → タップ扱いでキャンセル
       removeDragListeners();
+      const { fromCol, fromKi } = dragState;
       dragState = null;
-      return;
+      handleTap(fromCol, fromKi);
     }
-
-    dragState.isDragging = true;
-    dragState.targets = findValidTargets(dragState.fromCol, dragState.fromKi);
-
-    // ゴースト生成
-    const ghost = buildGhostEl(dragState.fromCol, dragState.fromKi, dragState.cardWidth);
-    ghost.style.transform = `translate(${dragState.originalLeft}px,${dragState.originalTop}px)`;
-    document.body.appendChild(ghost);
-    dragState.ghostEl = ghost;
-
-    // ドラッグ元カードを非表示
-    for (let k = dragState.fromKi; k < state.columns[dragState.fromCol].length; k++) {
-      const el = document.querySelector(`[data-col="${dragState.fromCol}"][data-ki="${k}"]`);
-      if (el) { el.style.opacity = '0'; dragState.hiddenEls.push(el); }
-    }
-
-    // 有効列をハイライト
-    dragState.targets.forEach(ti => {
-      const colEl = document.querySelector(`[data-col-idx="${ti}"]`);
-      if (colEl) colEl.classList.add('drag-target');
-    });
+    return;
   }
 
   const tx = e.clientX - dragState.offsetX;
@@ -1486,11 +1506,12 @@ function onDragMove(e) {
 
 function onDragEnd(e) {
   if (!dragState) return;
+  clearTimeout(dragState.longPressTimer);
   removeDragListeners();
   clearDragHighlights();
 
   if (!dragState.isDragging) {
-    // タップとして処理
+    // 長押し前にリリース → タップとして処理
     const { fromCol, fromKi } = dragState;
     dragState = null;
     handleTap(fromCol, fromKi);
@@ -1518,6 +1539,7 @@ function onDragEnd(e) {
 
 function onDragCancel() {
   if (!dragState) return;
+  clearTimeout(dragState.longPressTimer);
   removeDragListeners();
   clearDragHighlights();
   const { ghostEl, hiddenEls, originalLeft, originalTop } = dragState;
