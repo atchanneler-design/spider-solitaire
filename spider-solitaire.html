@@ -1569,10 +1569,17 @@ function startDragFromLongPress() {
     if (el) { el.style.opacity = '0'; dragState.hiddenEls.push(el); }
   }
 
-  // 有効列をハイライト
+  // 有効列をハイライト（空き列はスロット、有カード列はトップカードを光らせる）
   dragState.targets.forEach(ti => {
-    const colEl = document.querySelector(`[data-col-idx="${ti}"]`);
-    if (colEl) colEl.classList.add('drag-target');
+    const tcol = state.columns[ti];
+    if (tcol.length === 0) {
+      const colEl = document.querySelector(`[data-col-idx="${ti}"]`);
+      if (colEl) colEl.classList.add('drag-target');
+    } else {
+      const topKi = tcol.length - 1;
+      const cardEl = document.querySelector(`[data-col="${ti}"][data-ki="${topKi}"]`);
+      if (cardEl) cardEl.classList.add('valid-target');
+    }
   });
 }
 
@@ -1658,6 +1665,7 @@ function removeDragListeners() {
 
 function clearDragHighlights() {
   document.querySelectorAll('.column.drag-target').forEach(el => el.classList.remove('drag-target'));
+  document.querySelectorAll('.card.valid-target').forEach(el => el.classList.remove('valid-target'));
 }
 
 function buildGhostEl(fromCol, fromKi, cardWidth) {
