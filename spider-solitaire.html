@@ -924,6 +924,7 @@ let selected = null;      // {colIdx, cardIdx}
 let hintCards = [];       // [fromKey] only — hint shows source card only
 let validTargets = [];    // list of "ci-ki" keys for valid drop targets
 let isDealing = false;    // animation lock for deal-from-stock
+let isAutoCompleting = false; // オート完成中フラグ
 let dragState = null;     // ドラッグ状態
 const DRAG_THRESHOLD = 6; // ドラッグ判定ピクセル
 
@@ -1695,7 +1696,7 @@ function handleTap(ci, ki) {
   // 左優先（同スーツ→異スーツ→空き列）で自動移動
   selected = { colIdx: ci, cardIdx: ki };
   validTargets = [];
-  moveSelected(targets[0]);
+  moveSelected(targets[0], true); // アニメあり
 }
 
 function findValidTargets(fromCol, fromKi) {
@@ -1731,20 +1732,109 @@ function isValidSequence(col, startKi) {
   return true;
 }
 
-function moveSelected(toCol) {
+// ============================================================
+// ① オート完成
+// ============================================================
+function checkAutoFinish() {
+  if (state.gameOver || isAutoCompleting) return;
+  if (state.stock.length > 0) return;
+  // 裏向きカードが残っていたら不可
+  if (state.columns.some(col => col.some(c => !c.faceUp))) return;
+  // まだ完成していないセットがある場合のみ
+  if (state.foundations.length >= 8) return;
+
+  isAutoCompleting = true;
+  showToast('自動完成中...');
+  setTimeout(runAutoStep, 400);
+}
+
+function runAutoStep() {
+  if (state.gameOver) { isAutoCompleting = false; return; }
+  const move = findAutoMove();
+  if (!move) { isAutoCompleting = false; return; }
+  selected = { colIdx: move.fromCol, cardIdx: move.fromKi };
+  validTargets = [];
+  moveSelected(move.toCol, true);
+}
+
+function findAutoMove() {
+  // 同スーツ接続を優先して探す
+  for (let ci = 0; ci < state.columns.length; ci++) {
+    const col = state.columns[ci];
+    for (let ki = 0; ki < col.length; ki++) {
+      if (!col[ki].faceUp || !isValidSequence(col, ki)) continue;
+      const same = findValidTargets(ci, ki).filter(ti => {
+        const tc = state.columns[ti];
+        return tc.length > 0 && tc[tc.length - 1].suit === col[ki].suit;
+      });
+      if (same.length > 0) return { fromCol: ci, fromKi: ki, toCol: same[0] };
+    }
+  }
+  // 任意の有効手
+  for (let ci = 0; ci < state.columns.length; ci++) {
+    const col = state.columns[ci];
+    for (let ki = 0; ki < col.length; ki++) {
+      if (!col[ki].faceUp || !isValidSequence(col, ki)) continue;
+      const targets = findValidTargets(ci, ki);
+      if (targets.length > 0) return { fromCol: ci, fromKi: ki, toCol: targets[0] };
+    }
+  }
+  return null;
+}
+
+// ============================================================
+// ② 詰まり検出
+// ============================================================
+function isDeadEnd() {
+  if (state.gameOver || isAutoCompleting) return false;
+  // 山札が補充できる？（全列に1枚以上ある場合）
+  if (state.stock.length > 0 && state.columns.every(c => c.length > 0)) return false;
+  // 有効な手がある？
+  for (let ci = 0; ci < state.columns.length; ci++) {
+    const col = state.columns[ci];
+    for (let ki = 0; ki < col.length; ki++) {
+      if (!col[ki].faceUp || !isValidSequence(col, ki)) continue;
+      if (findValidTargets(ci, ki).length > 0) return false;
+    }
+  }
+  return true;
+}
+
+function checkDeadEnd() {
+  if (!isDeadEnd()) return;
+  showModal(`
+    <h2>🚫 詰まっています</h2>
+    <p style="margin-bottom:20px">有効な手がありません。<br>Undoで巻き戻すか、新しいゲームを始めましょう。</p>
+    <div class="btn-group">
+      <button class="btn primary" onclick="undoMove();hideModal()">↩ Undoで戻す</button>
+      <button class="btn" onclick="hideModal()">そのまま続ける</button>
+    </div>
+  `);
+}
+
+function moveSelected(toCol, animate = false) {
   if (!selected) return;
   const { colIdx: fromCol, cardIdx: fromKi } = selected;
   const toColArr = state.columns[toCol];
   const movingCards = state.columns[fromCol].slice(fromKi);
   const topOfTarget = toColArr[toColArr.length - 1];
 
-  // validate: top of target must be rank+1 of moving card, OR target empty
+  // validate
   const movingRank = RANK_VAL[movingCards[0].rank];
   if (topOfTarget && RANK_VAL[topOfTarget.rank] !== movingRank + 1) {
     showToast('そこには置けません');
     selected = null;
     render();
     return;
+  }
+
+  // アニメ用: 移動前のカード位置を取得
+  const srcRects = [];
+  if (animate) {
+    for (let k = fromKi; k < fromKi + movingCards.length; k++) {
+      const el = document.querySelector(`[data-col="${fromCol}"][data-ki="${k}"]`);
+      srcRects.push(el ? el.getBoundingClientRect() : null);
+    }
   }
 
   // save history
@@ -1758,7 +1848,7 @@ function moveSelected(toCol) {
   // execute move
   state.columns[fromCol].splice(fromKi);
   state.columns[toCol].push(...movingCards);
-  clearCoachHighlight(); // コーチハイライトを解除
+  clearCoachHighlight();
 
   // flip new top of source
   const srcCol = state.columns[fromCol];
@@ -1771,9 +1861,56 @@ function moveSelected(toCol) {
   selected = null;
   validTargets = [];
 
-  const setCompleted = checkCompletedSet(toCol);
-  updateStats();
-  render();
+  const afterMove = () => {
+    checkCompletedSet(toCol);
+    updateStats();
+    render();
+    if (!isAutoCompleting) checkDeadEnd();
+    checkAutoFinish();
+  };
+
+  if (animate && srcRects.some(r => r !== null)) {
+    render(); // まずDOMを更新
+    // 移動先カードの位置を取得
+    const newLen = state.columns[toCol].length;
+    const dstRects = [], dstEls = [];
+    for (let k = newLen - movingCards.length; k < newLen; k++) {
+      const el = document.querySelector(`[data-col="${toCol}"][data-ki="${k}"]`);
+      dstRects.push(el ? el.getBoundingClientRect() : null);
+      dstEls.push(el);
+    }
+    // 移動先を一時的に非表示
+    dstEls.forEach(el => { if (el) el.style.visibility = 'hidden'; });
+    // クローンを作成してアニメ
+    const clones = [];
+    movingCards.forEach((card, i) => {
+      const src = srcRects[i], dst = dstRects[i];
+      if (!src || !dst) return;
+      const isR = isRed(card.suit);
+      const cls = isR ? 'red' : 'black';
+      const cl = document.createElement('div');
+      cl.className = 'card card-front';
+      cl.style.cssText = `position:fixed;left:0;top:0;width:${src.width}px;height:${src.height}px;transform:translate(${src.left}px,${src.top}px);pointer-events:none;z-index:999;will-change:transform;`;
+      cl.innerHTML = `<div class="card-top"><span class="card-top-rank ${cls}${card.rank==='10'?' rank-10':''}">${card.rank}</span><span class="card-top-suit ${cls}">${card.suit}</span></div><span class="card-center-suit ${cls}">${card.suit}</span>`;
+      document.body.appendChild(cl);
+      clones.push({ cl, dst });
+    });
+    isDealing = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      clones.forEach(({ cl, dst }) => {
+        cl.style.transition = 'transform 0.18s cubic-bezier(0.2,0,0.3,1)';
+        cl.style.transform = `translate(${dst.left}px,${dst.top}px)`;
+      });
+    }));
+    setTimeout(() => {
+      clones.forEach(({ cl }) => cl.remove());
+      dstEls.forEach(el => { if (el) el.style.visibility = ''; });
+      isDealing = false;
+      afterMove();
+    }, 200);
+  } else {
+    afterMove();
+  }
 }
 
 function checkCompletedSet(colIdx) {
@@ -1997,6 +2134,7 @@ function dealFromStock() {
   setTimeout(() => {
     isDealing = false;
     renderStock();
+    checkDeadEnd();
   }, 10 * INTERVAL + FLY_MS + 30);
 }
 
@@ -2252,6 +2390,7 @@ function executeRewind(steps) {
 // ============================================================
 function showWin() {
   state.gameOver = true;
+  isAutoCompleting = false;
   localStorage.removeItem(GAME_STATE_KEY); // クリア済みなのでセーブデータを削除
   clearInterval(state.timerInterval);
   const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
