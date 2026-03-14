@@ -685,6 +685,58 @@
   }
   #ai-advice-close:hover { color: var(--cream); }
 
+  /* iOS PWA INSTALL BANNER */
+  #pwa-banner {
+    position: fixed;
+    bottom: 44px;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: linear-gradient(135deg, #1a5c38 0%, #0f3a22 100%);
+    border-top: 1px solid rgba(201,168,76,0.5);
+    padding: 10px 16px 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #pwa-banner.visible { transform: translateY(0); }
+  #pwa-banner-text {
+    flex: 1;
+    font-size: 0.75rem;
+    color: var(--cream);
+    line-height: 1.6;
+  }
+  #pwa-banner-text strong {
+    display: block;
+    color: var(--gold-light);
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+  }
+  #pwa-banner-text .pwa-hint {
+    opacity: 0.75;
+    font-size: 0.7rem;
+  }
+  #pwa-banner-close {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    color: var(--gold);
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #pwa-banner-close:active { background: rgba(201,168,76,0.2); }
+
   /* ゲームエリアに下部バー分のパディング */
   #app { padding-bottom: 44px; }
 
@@ -964,6 +1016,15 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- iOS PWA INSTALL BANNER -->
+<div id="pwa-banner">
+  <div id="pwa-banner-text">
+    <strong>📲 ホーム画面に追加するとアプリとして使えます</strong>
+    <span class="pwa-hint">Safari の 共有ボタン → ホーム画面に追加</span>
+  </div>
+  <button id="pwa-banner-close" onclick="dismissPwaBanner()">✕</button>
+</div>
 
 <!-- AI COACH BAR -->
 <div id="ai-bar">
@@ -3126,6 +3187,42 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+// ============================================================
+// iOS PWA インストールバナー
+// ============================================================
+const PWA_BANNER_KEY = 'pwa_banner_dismissed';
+
+function isIosSafari() {
+  const ua = navigator.userAgent;
+  const isIos = /iP(hone|ad|od)/.test(ua);
+  const isStandalone = navigator.standalone === true;
+  // Safari かどうか（Chrome/Firefox/Line等を除外）
+  const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
+  return isIos && isSafari && !isStandalone;
+}
+
+function dismissPwaBanner() {
+  const banner = document.getElementById('pwa-banner');
+  banner.classList.remove('visible');
+  localStorage.setItem(PWA_BANNER_KEY, Date.now().toString());
+}
+
+function initPwaBanner() {
+  if (!isIosSafari()) return;
+
+  const dismissed = localStorage.getItem(PWA_BANNER_KEY);
+  if (dismissed) {
+    const days = (Date.now() - parseInt(dismissed, 10)) / (1000 * 60 * 60 * 24);
+    if (days < 14) return;
+  }
+
+  setTimeout(() => {
+    document.getElementById('pwa-banner').classList.add('visible');
+  }, 3000);
+}
+
+initPwaBanner();
 
 // ============================================================
 // PWA: Service Worker 登録
