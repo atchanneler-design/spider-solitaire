@@ -548,7 +548,31 @@
     border-top: 1px solid rgba(201,168,76,0.3);
     z-index: 150;
     font-family: 'DM Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
+
+  /* リサイズハンドル */
+  #ai-resize-handle {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+    flex-shrink: 0;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #ai-resize-handle::after {
+    content: '';
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  #ai-resize-handle:hover::after { background: rgba(255,255,255,0.55); }
 
   /* クイックボタン行 */
   #ai-quick-row {
@@ -558,6 +582,7 @@
     padding: 6px 10px;
     overflow-x: auto;
     scrollbar-width: none;
+    flex-shrink: 0;
   }
   #ai-quick-row::-webkit-scrollbar { display: none; }
 
@@ -613,9 +638,11 @@
     overflow: hidden;
     transition: max-height 0.3s ease;
     border-top: 0px solid rgba(201,168,76,0.15);
+    flex: 1;
+    min-height: 0;
   }
   #ai-advice-box.open {
-    max-height: 160px;
+    max-height: 70vh;
     border-top-width: 1px;
   }
 
@@ -625,7 +652,7 @@
     gap: 10px;
     align-items: flex-start;
     overflow-y: auto;
-    max-height: 160px;
+    max-height: 70vh;
   }
 
   #ai-advice-icon {
@@ -934,6 +961,7 @@
 
 <!-- AI COACH BAR -->
 <div id="ai-bar">
+  <div id="ai-resize-handle"></div>
   <div id="ai-quick-row">
     <button class="ai-quick ai-hint-btn" onclick="showAllHints()">💡 ヒント</button>
     <button class="ai-quick ai-consult-btn" onclick="askAi('盤面を分析して')">🤖 AIに相談</button>
@@ -3005,6 +3033,56 @@ function closeAdvice() {
 }
 
 // ============================================================
+// AI BAR RESIZE
+// ============================================================
+const AI_HEIGHT_KEY = 'spider_ai_height_v1';
+const AI_MIN_H = 80;
+function getAiMaxH() { return Math.floor(window.innerHeight * 0.7); }
+let aiResizeState = null;
+
+function applyAiHeight(h) {
+  document.getElementById('ai-bar').style.height = h + 'px';
+  document.getElementById('app').style.paddingBottom = h + 'px';
+}
+
+function initAiResize() {
+  const saved = parseInt(localStorage.getItem(AI_HEIGHT_KEY));
+  if (saved && saved >= AI_MIN_H) {
+    applyAiHeight(saved);
+  } else {
+    // 初回：自然な高さに合わせてパディングを設定
+    const naturalH = document.getElementById('ai-bar').offsetHeight;
+    document.getElementById('app').style.paddingBottom = naturalH + 'px';
+  }
+
+  document.getElementById('ai-resize-handle').addEventListener('pointerdown', e => {
+    e.preventDefault();
+    aiResizeState = {
+      startY: e.clientY,
+      startH: document.getElementById('ai-bar').offsetHeight,
+    };
+    document.addEventListener('pointermove', onAiResizeMove, { passive: false });
+    document.addEventListener('pointerup', onAiResizeEnd);
+  });
+}
+
+function onAiResizeMove(e) {
+  if (!aiResizeState) return;
+  e.preventDefault();
+  const delta = aiResizeState.startY - e.clientY; // 上にドラッグ = 高さ増加
+  const newH = Math.min(getAiMaxH(), Math.max(AI_MIN_H, aiResizeState.startH + delta));
+  applyAiHeight(newH);
+}
+
+function onAiResizeEnd() {
+  if (!aiResizeState) return;
+  localStorage.setItem(AI_HEIGHT_KEY, document.getElementById('ai-bar').offsetHeight);
+  aiResizeState = null;
+  document.removeEventListener('pointermove', onAiResizeMove);
+  document.removeEventListener('pointerup', onAiResizeEnd);
+}
+
+// ============================================================
 // START
 // ============================================================
 // 中断セーブがあれば復元、なければ新規ゲーム
@@ -3012,6 +3090,7 @@ if (!loadGameState()) {
   newGame(0);
 }
 renderStreak();
+initAiResize();
 
 // タブ非表示/アプリ切り替え時にタイマーを停止し状態を保存、
 // 復帰時はタイマーを再開（隠れていた時間はカウントしない）
