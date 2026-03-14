@@ -2929,18 +2929,26 @@ function routeQuestion(msg) {
 // ── UI操作 ───────────────────────────────────────────────
 
 function buildBoardContext() {
+  const emptyCols = state.columns.filter(c => c.length === 0).length;
+  const totalFaceDown = state.columns.reduce((s, c) => s + c.filter(x => !x.faceUp).length, 0);
+
   const lines = [
-    '[盤面情報]',
+    '=== スパイダーソリティア 盤面情報 ===',
     `難易度: ${state.difficulty}スート`,
-    `手数: ${state.moves}手 / スコア: ${state.score} / 完成セット: ${state.foundations.length}/8`,
-    `山札: 残り${state.stock.length}回`,
+    `手数: ${state.moves}手 | スコア: ${state.score}`,
+    `山札残り: ${state.stock.length}回 | フォンデーション完成: ${state.foundations.length}/8`,
+    `空き列: ${emptyCols}列 | 裏向きカード合計: ${totalFaceDown}枚`,
     '',
-    '[各列の状態（列番号: 裏向き枚数 | 表向きカード 下→上の順）]',
+    '--- 各列の状態（表向きカードは下→上の順） ---',
   ];
   state.columns.forEach((col, i) => {
-    const fd = col.filter(c => !c.faceUp).length;
-    const fu = col.filter(c =>  c.faceUp).map(c => `${c.rank}${c.suit}`).join(' ');
-    lines.push(`列${i + 1}: 裏向き${fd}枚 | ${fu || '（空）'}`);
+    if (col.length === 0) {
+      lines.push(`列${i + 1}: 【空き列】`);
+    } else {
+      const fd = col.filter(c => !c.faceUp).length;
+      const fu = col.filter(c => c.faceUp).map(c => `${c.rank}${c.suit}`).join(' ');
+      lines.push(`列${i + 1}: 裏向き${fd}枚 | 表向き→ ${fu}`);
+    }
   });
   return lines.join('\n');
 }
