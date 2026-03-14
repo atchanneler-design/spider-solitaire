@@ -574,6 +574,26 @@
     color: var(--cream);
   }
 
+  .ai-hint-btn {
+    border-color: rgba(201,168,76,0.5);
+    color: var(--gold-light);
+    padding: 7px 20px;
+    font-size: 0.75rem;
+    flex: 1;
+  }
+  .ai-consult-btn {
+    border-color: rgba(74,158,255,0.5);
+    background: rgba(74,158,255,0.08);
+    color: rgba(74,158,255,0.9);
+    padding: 7px 20px;
+    font-size: 0.75rem;
+    flex: 1;
+  }
+  .ai-consult-btn:hover, .ai-consult-btn:active {
+    background: rgba(74,158,255,0.2);
+    color: #6ab4ff;
+  }
+
   /* アドバイス表示エリア（タップ後に展開） */
   #ai-advice-box {
     max-height: 0;
@@ -902,11 +922,8 @@
 <!-- AI COACH BAR -->
 <div id="ai-bar">
   <div id="ai-quick-row">
-    <span id="ai-label">🤖 コーチ</span>
-    <button class="ai-quick" onclick="askAi('ここからどうすべき？')">次の手は？</button>
-    <button class="ai-quick" onclick="askAi('まだクリアできる？')">クリアできる？</button>
-    <button class="ai-quick" onclick="askAi('どこまで戻すべき？')">何手戻す？</button>
-    <button class="ai-quick" onclick="askAi('今の局面を解説して')">局面を解説</button>
+    <button class="ai-quick ai-hint-btn" onclick="showAllHints()">💡 ヒント</button>
+    <button class="ai-quick ai-consult-btn" onclick="askAi('盤面を分析して')">🤖 AIに相談</button>
   </div>
   <div id="ai-advice-box">
     <div id="ai-advice-inner">
@@ -1475,7 +1492,7 @@ function renderColumns() {
 
         const selKey = `${ci}-${ki}`;
         // ヒント表示
-        if (hintCards[0] === selKey) {
+        if (hintCards.includes(selKey)) {
           cardEl.classList.add('hint-card');
         }
 
@@ -2263,6 +2280,21 @@ function showHint() {
 
   setTimeout(clearHints, 3000);
   showToast('💡 光っているカードを動かしましょう（-50点）');
+}
+
+// AIバーの「ヒント」ボタン用 — 移動可能なカードをすべてハイライト（減点なし）
+function showAllHints() {
+  clearHints();
+  clearCoachHighlight();
+  const moves = findAllMoves();
+  if (moves.length === 0) {
+    showToast('有効な手がありません。山札を補充しましょう。');
+    return;
+  }
+  // 各移動の起点カード（fromCol-fromKi）をすべて収集（重複除去）
+  hintCards = [...new Set(moves.map(m => `${m.fromCol}-${m.fromKi}`))];
+  render();
+  setTimeout(() => { clearHints(); render(); }, 4000);
 }
 
 /**
