@@ -1386,6 +1386,7 @@ function newGame(problemIdx = null) {
   hideModal();
   render();
   updateStats();
+  gtag('event', 'game_start', { difficulty: currentDifficulty });
 }
 
 // ============================================================
@@ -2449,6 +2450,9 @@ function showWin() {
   const { record, newRecords } = saveStats(diff, state.moves, elapsed, state.score);
   if (state.isToday) updateTodayStreak();
 
+  gtag('event', 'game_clear', { difficulty: diff, moves: state.moves, time_seconds: elapsed, score: state.score });
+  if (state.isToday) gtag('event', 'daily_clear', { difficulty: diff });
+
   const todayBadge = state.isToday
     ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
         📅 今日の問題クリア！
@@ -2893,6 +2897,7 @@ function routeQuestion(msg) {
 // ── UI操作 ───────────────────────────────────────────────
 
 function askAi(question) {
+  gtag('event', 'coach_used', { question });
   const box   = document.getElementById('ai-advice-box');
   const text  = document.getElementById('ai-advice-text');
 
