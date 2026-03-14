@@ -34,7 +34,9 @@ module.exports = async function handler(req, res) {
 番号付きリストで「列○から列○へ○○を移動」の形式で記載。
 
 【4. 注意点・リスク】
-やってはいけない手や、見落としやすいポイントを1〜2文で。`,
+やってはいけない手や、見落としやすいポイントを1〜2文で。
+
+マークダウン記法（**や##）は使わないでください。普通のテキストで回答してください。`,
         messages: [{
           role: 'user',
           content: `${boardContext}\n\n質問: ${question}`,
