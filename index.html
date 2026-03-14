@@ -230,6 +230,66 @@
     .suit-card .level { font-size: 0.7rem; color: var(--gold); margin-bottom: 4px; }
     .suit-card .label { font-size: 0.75rem; color: var(--cream); opacity: 0.7; }
 
+    /* AI SECTION */
+    .ai-section {
+      padding: 0 24px 48px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .ai-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .ai-highlight {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 14px;
+      padding: 24px 20px;
+    }
+
+    .ai-highlight .ai-icon {
+      font-size: 2.4rem;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .ai-highlight h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: var(--gold-light);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .ai-highlight ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .ai-highlight ul li {
+      font-size: 0.82rem;
+      color: var(--cream);
+      opacity: 0.8;
+      line-height: 1.7;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .ai-highlight ul li:last-child { border-bottom: none; }
+
+    .ai-highlight ul li .check {
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
     /* CTA BOTTOM */
     .cta-bottom {
       text-align: center;
@@ -285,9 +345,27 @@
       <img src="icon.svg" alt="Spider Solitaire Pro">
     </div>
     <h1>Spider<br>Solitaire Pro</h1>
-    <p>AIコーチ搭載のスパイダーソリティア。<br>
-       毎日全員が同じ盤面に挑戦する「今日の問題」で腕を競おう。</p>
-    <a href="spider-solitaire.html" class="btn-play">今すぐプレイ</a>
+    <p>AIコーチと一緒にプレイして、<br>
+       一緒に上手くなる。<br>
+       毎日同じ盤面に挑む「今日の問題」で腕を競おう。</p>
+    <a href="spider-solitaire.html" class="btn-play">AIと一緒にプレイ</a>
+  </section>
+
+  <hr class="divider">
+
+  <!-- AI SECTION -->
+  <section class="ai-section">
+    <h2>AIコーチとともに上手くなる</h2>
+    <div class="ai-highlight">
+      <div class="ai-icon">🤖</div>
+      <h3>詰まったら、AIに相談</h3>
+      <ul>
+        <li><span class="check">✦</span>盤面の状況を自動分析。「良い」「厳しい」をひと言で判定</li>
+        <li><span class="check">✦</span>次の3〜5手の具体的な方針を番号付きで提示</li>
+        <li><span class="check">✦</span>やってはいけない手・見落としやすいポイントも解説</li>
+        <li><span class="check">✦</span>ヒント機能で移動できるカードをハイライト表示</li>
+      </ul>
+    </div>
   </section>
 
   <hr class="divider">
@@ -296,11 +374,6 @@
   <section class="features">
     <h2>特徴</h2>
     <div class="feature-grid">
-      <div class="feature-card">
-        <div class="icon">🤖</div>
-        <h3>AIコーチ</h3>
-        <p>最善手の提案・局面解説・巻き戻しアドバイス</p>
-      </div>
       <div class="feature-card">
         <div class="icon">📅</div>
         <h3>今日の問題</h3>
@@ -312,9 +385,14 @@
         <p>何手でも巻き戻せる。クリア後の振り返りにも対応</p>
       </div>
       <div class="feature-card">
-        <div class="icon">💡</div>
-        <h3>ヒント機能</h3>
-        <p>移動元・移動先をハイライト表示でサポート</p>
+        <div class="icon">📱</div>
+        <h3>PWA対応</h3>
+        <p>インストールしてオフラインでもプレイ可能</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏆</div>
+        <h3>スコア記録</h3>
+        <p>難易度別クリア回数・最高スコアをローカル保存</p>
       </div>
     </div>
   </section>
@@ -347,7 +425,7 @@
 
   <!-- CTA BOTTOM -->
   <section class="cta-bottom">
-    <a href="spider-solitaire.html" class="btn-play">ゲームをはじめる</a>
+    <a href="spider-solitaire.html" class="btn-play">AIと一緒にはじめる</a>
     <p>ブラウザで動作 · インストール不要 · 無料</p>
   </section>
 
