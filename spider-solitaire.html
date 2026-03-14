@@ -2896,26 +2896,49 @@ function routeQuestion(msg) {
 
 // ── UI操作 ───────────────────────────────────────────────
 
-function askAi(question) {
-  gtag('event', 'coach_used', { question });
-  const box   = document.getElementById('ai-advice-box');
-  const text  = document.getElementById('ai-advice-text');
+function buildBoardContext() {
+  const lines = [
+    '[盤面情報]',
+    `難易度: ${state.difficulty}スート`,
+    `手数: ${state.moves}手 / スコア: ${state.score} / 完成セット: ${state.foundations.length}/8`,
+    `山札: 残り${state.stock.length}回`,
+    '',
+    '[各列の状態（列番号: 裏向き枚数 | 表向きカード 下→上の順）]',
+  ];
+  state.columns.forEach((col, i) => {
+    const fd = col.filter(c => !c.faceUp).length;
+    const fu = col.filter(c =>  c.faceUp).map(c => `${c.rank}${c.suit}`).join(' ');
+    lines.push(`列${i + 1}: 裏向き${fd}枚 | ${fu || '（空）'}`);
+  });
+  return lines.join('\n');
+}
 
-  // ボタンをハイライト
+async function askAi(question) {
+  gtag('event', 'coach_used', { question });
+  const box  = document.getElementById('ai-advice-box');
+  const text = document.getElementById('ai-advice-text');
+
   document.querySelectorAll('.ai-quick').forEach(b => {
-    b.style.background = b.textContent.includes(question.slice(0,4))
+    b.style.background = b.textContent.includes(question.slice(0, 4))
       ? 'rgba(201,168,76,0.3)' : '';
   });
 
   text.textContent = '考え中...';
   box.classList.add('open');
 
-  setTimeout(() => {
-    const reply = routeQuestion(question);
-    text.innerHTML = reply.replace(/\n/g, '<br>');
-    // ハイライト解除
+  try {
+    const res = await fetch('/api/ask-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, boardContext: buildBoardContext() }),
+    });
+    const data = await res.json();
+    text.innerHTML = (data.reply || 'エラーが発生しました').replace(/\n/g, '<br>');
+  } catch (e) {
+    text.textContent = '通信エラーが発生しました。しばらく後に再試行してください。';
+  } finally {
     document.querySelectorAll('.ai-quick').forEach(b => b.style.background = '');
-  }, 350);
+  }
 }
 
 function closeAdvice() {
