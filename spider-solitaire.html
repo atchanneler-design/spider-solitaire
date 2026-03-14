@@ -287,17 +287,21 @@
     top: 0;
   }
 
-  .column-label {
-    position: absolute;
-    top: 2px;
-    left: 0;
-    right: 0;
+  /* 列番号行 */
+  .col-numbers {
+    display: flex;
+    gap: clamp(2px, 0.8vw, 5px);
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .col-num {
+    flex: 1;
+    min-width: 0;
+    max-width: 72px;
     text-align: center;
-    font-size: 0.6rem;
-    color: rgba(255,255,255,0.3);
-    pointer-events: none;
-    z-index: 999;
-    line-height: 1;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.4;
   }
 
   /* CARD -------------------------------------------------------- */
@@ -948,6 +952,7 @@
       <div id="stock-area"></div>
       <div id="foundations"></div>
     </div>
+    <div class="col-numbers" id="col-numbers"></div>
     <div class="columns" id="columns"></div>
   </div>
 </div>
@@ -1452,8 +1457,21 @@ function newGame(problemIdx = null) {
 // ============================================================
 function render() {
   renderFoundations();
+  renderColNumbers();
   renderColumns();
   renderStock();
+}
+
+function renderColNumbers() {
+  const el = document.getElementById('col-numbers');
+  if (el.childElementCount === 10) return; // 初回のみ生成
+  el.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const d = document.createElement('div');
+    d.className = 'col-num';
+    d.textContent = i;
+    el.appendChild(d);
+  }
 }
 
 function renderFoundations() {
@@ -1505,11 +1523,6 @@ function renderColumns() {
     const slot = document.createElement('div');
     slot.className = 'column-slot';
     colEl.appendChild(slot);
-
-    const label = document.createElement('span');
-    label.className = 'column-label';
-    label.textContent = ci + 1;
-    colEl.appendChild(label);
 
     let top = 0;
     col.forEach((card, ki) => {
