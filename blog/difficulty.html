@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>難易度1・2・4スートの違いと選び方 - Spider Solitaire Pro</title>
+  <meta name="description" content="スパイダーソリティアの1スート・2スート・4スートの違いを詳しく解説。それぞれの難しさ・戦略の変化・どれから始めるべきかを説明します。">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/difficulty.html">
+  <meta property="og:title"       content="難易度1・2・4スートの違いと選び方">
+  <meta property="og:description" content="スパイダーソリティアの1スート・2スート・4スートの違いを詳しく解説。それぞれの難しさ・戦略の変化・どれから始めるべきかを説明します。">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="難易度1・2・4スートの違いと選び方">
+  <meta name="twitter:description" content="スパイダーソリティアの1スート・2スート・4スートの違いを詳しく解説。それぞれの難しさ・戦略の変化・どれから始めるべきかを説明します。">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(0,0,0,0.25); border-bottom: 1px solid rgba(201,168,76,0.3); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.82rem; }
+    th { background: rgba(201,168,76,0.15); color: var(--gold); padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(201,168,76,0.3); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 0.85; }
+    .diff-card {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px; padding: 24px; margin-bottom: 20px;
+    }
+    .diff-card .diff-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .diff-card .diff-symbol { font-size: 1.8rem; }
+    .diff-card .diff-meta { }
+    .diff-card .diff-name { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold-light); }
+    .diff-card .diff-level { font-size: 0.7rem; color: var(--gold); opacity: 0.7; margin-top: 2px; }
+    .diff-card p { margin-bottom: 10px; }
+    .diff-card ul { margin-bottom: 0; }
+    .tip-box { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); border-radius: 10px; padding: 18px 20px; margin: 20px 0; }
+    .tip-box .tip-label { font-size: 0.65rem; color: #4ade80; margin-bottom: 6px; letter-spacing: 1px; }
+    .tip-box p { margin: 0; opacity: 0.9; }
+    .warn-box { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 18px 20px; margin: 20px 0; }
+    .warn-box .warn-label { font-size: 0.65rem; color: #f87171; margin-bottom: 6px; letter-spacing: 1px; }
+    .warn-box p { margin: 0; opacity: 0.9; }
+    .cta-inline { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0; }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play { display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark); font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; text-decoration: none; border-radius: 8px; transition: background 0.2s; }
+    .btn-play:hover { background: var(--gold-light); }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../index.html">トップ</a>
+      <a href="index.html">ブログ</a>
+      <a href="../spider-solitaire.html">プレイ</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../index.html">トップ</a> &rsaquo; <a href="index.html">ブログ</a> &rsaquo; 難易度の違いと選び方</p>
+    <span class="tag">難易度</span>
+    <h1>難易度1・2・4スートの<br>違いと選び方</h1>
+    <p class="lead">スパイダーソリティアは「1スート」「2スート」「4スート」の3つの難易度でプレイできます。数字が増えるほど難しくなりますが、その違いは単純に「難しい」だけではありません。必要な戦略が根本的に変わり、求められる思考の深さもまったく異なります。本記事では各難易度の特徴・戦略の違い・どれを選ぶべきかを詳しく解説します。</p>
+
+    <article>
+
+      <section>
+        <h2>3つの難易度の基本的な違い</h2>
+        <p>まず全体像を整理します。枚数は全難易度ともに104枚（52枚デッキ×2組）で変わりませんが、使用するスートの種類が変わります。</p>
+
+        <table>
+          <tr>
+            <th>難易度</th>
+            <th>スート</th>
+            <th>デッキ構成</th>
+            <th>複数枚移動</th>
+            <th>難しさ</th>
+          </tr>
+          <tr>
+            <td>1スート（EASY）</td>
+            <td>♠のみ</td>
+            <td>♠を8周 = 104枚</td>
+            <td>ほぼ自由</td>
+            <td>★☆☆</td>
+          </tr>
+          <tr>
+            <td>2スート（NORMAL）</td>
+            <td>♠♥</td>
+            <td>各スート4周 = 104枚</td>
+            <td>同スートのみ</td>
+            <td>★★☆</td>
+          </tr>
+          <tr>
+            <td>4スート（HARD）</td>
+            <td>♠♥♦♣</td>
+            <td>各スート2周 = 104枚</td>
+            <td>同スートのみ</td>
+            <td>★★★</td>
+          </tr>
+        </table>
+
+        <p>最も重要な違いは「複数枚をまとめて移動できる条件」です。複数枚を一度に動かせるのは<strong style="color:var(--gold-light)">同じスートが降順に連続している場合のみ</strong>です。1スートではすべてのカードが同じスートのため、降順に並んでいれば何枚でも一括移動できます。2スートや4スートになると、スートが混在した連続は1枚ずつ動かすしかありません。</p>
+      </section>
+
+      <section>
+        <h2>1スート（♠のみ）の特徴と戦略</h2>
+
+        <div class="diff-card">
+          <div class="diff-header">
+            <div class="diff-symbol">♠</div>
+            <div class="diff-meta">
+              <div class="diff-name">1スート — EASY</div>
+              <div class="diff-level">初心者から経験者まで楽しめる入門難易度</div>
+            </div>
+          </div>
+          <p>すべてのカードが♠のため、降順に並んでいれば何枚でも自由に移動できます。「ゲームのルールを体で覚える」「空き列の作り方を練習する」「スコアを伸ばす」など、様々な目的でプレイできます。</p>
+          <ul>
+            <li>降順に並べた連続を崩さずに整理しやすい</li>
+            <li>K→Aの完成セットを作る感覚が身につく</li>
+            <li>空き列の作り方・活用法を学ぶのに最適</li>
+            <li>運の要素が高く、毎回異なる展開を楽しめる</li>
+          </ul>
+        </div>
+
+        <h3>1スートならではの戦略</h3>
+        <p>1スートでは、複数枚をまとめて動かせるため、<strong style="color:var(--gold-light)">「長い連続をいかに効率よく作るか」</strong>が攻略の鍵になります。K→Aまでの13枚を1列に集めることを意識しながら、各列を整理していきましょう。長い連続を1回の移動で別の列に移すことができるため、盤面の整理がスムーズに進みます。</p>
+        <p>また、1スートは山札補充後の盤面立て直しが比較的容易です。「思い切って補充して、新しいカードを活用する」という積極的なプレイが有効です。</p>
+
+        <div class="tip-box">
+          <div class="tip-label">💡 上達のコツ</div>
+          <p>1スートで意識すべきは「手数を減らすこと」。AIコーチの「🤖 AIに相談」で状況分析を確認しながら、少ない手数で完成セットを作る練習をしましょう。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2スート（♠♥）の特徴と戦略</h2>
+
+        <div class="diff-card">
+          <div class="diff-header">
+            <div class="diff-symbol">♠♥</div>
+            <div class="diff-meta">
+              <div class="diff-name">2スート — NORMAL</div>
+              <div class="diff-level">戦略思考が必要になる本格難易度</div>
+            </div>
+          </div>
+          <p>♠と♥が混在するため、「降順には並んでいるが異なるスート」という状況が頻繁に発生します。この「スート混在の連続」をいかに整理するかが2スートの中心的な課題です。</p>
+          <ul>
+            <li>スート管理が必要になり思考が深まる</li>
+            <li>同スーツ接続を意識する習慣が身につく</li>
+            <li>1スートより手詰まりになりやすく、Undoの活用が増える</li>
+            <li>AIのアドバイスが特に役立つ難易度</li>
+          </ul>
+        </div>
+
+        <h3>2スートの核心：スート混在をどう処理するか</h3>
+        <p>たとえば「♠8 → ♥7 → ♠6」という3枚の連続がある場合、これを一度に移動させることはできません。3枚をバラバラに動かすには少なくとも2つの「空き場所」が必要です。このような混在連続が盤面に増えると急速に手詰まりに近づきます。</p>
+        <p><strong style="color:var(--gold-light)">2スートでは「混在連続を作らない」ことが最優先戦略</strong>です。移動前に「この手を打つと混在連続が増えるか減るか」を必ず確認しましょう。混在連続が増える手は、よほど理由がなければ避けることをおすすめします。</p>
+
+        <h3>スート別に完成を目指す</h3>
+        <p>2スートでは、できるだけ早い段階で「♠の完成セットを作る」か「♥の完成セットを作る」かを決めて、リソースを集中させる戦略が有効です。両方のスートを均等に進めようとすると、どちらも中途半端になりがちです。</p>
+      </section>
+
+      <section>
+        <h2>4スート（♠♥♦♣）の特徴と戦略</h2>
+
+        <div class="diff-card">
+          <div class="diff-header">
+            <div class="diff-symbol">♠♥♦♣</div>
+            <div class="diff-meta">
+              <div class="diff-name">4スート — HARD</div>
+              <div class="diff-level">上級者向けの最高難度。AIコーチが頼もしい</div>
+            </div>
+          </div>
+          <p>4種類のスートが混在するため、同スートでの連続を作ることが極めて難しくなります。クリア率はプロレベルのプレイヤーでも20〜30%程度と言われており、運の要素も大きく関わってきます。</p>
+          <ul>
+            <li>手詰まりになる確率が格段に高い</li>
+            <li>先読みの深さが1スートより数倍求められる</li>
+            <li>空き列の管理が生命線になる</li>
+            <li>AIコーチを活用することで勝率が大きく改善する</li>
+          </ul>
+        </div>
+
+        <h3>4スートで特に重要な戦略</h3>
+        <p>4スートでは、<strong style="color:var(--gold-light)">「完成セットを作れる見込みのないスートには極力リソースを使わない」</strong>という割り切りが必要になります。4スートすべての完成セットを均等に目指すのではなく、序盤で「どのスートが完成しやすい配置か」を見極め、優先するスートを決めることが攻略のカギです。</p>
+        <p>また、山札補充は4スートでは特にリスクが高くなります。補充によって増えた混在により盤面が一気に複雑化するため、補充前には必ず「補充後の10列に1枚ずつ来ることでどう変わるか」をシミュレーションしましょう。</p>
+
+        <div class="warn-box">
+          <div class="warn-label">⚠️ 注意</div>
+          <p>4スートは詰む配置がゲームの仕様上存在します。どれだけ上手くプレイしても運によってはクリアできない場合があります。「詰んだらUndoで戻す、または諦めて新しいゲームを始める」という割り切りも大切です。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>あなたに合う難易度の選び方</h2>
+        <p>「どの難易度から始めるべきか」「今の自分には何が合っているか」を判断するための目安を紹介します。</p>
+
+        <h3>まず1スートから始めるべき人</h3>
+        <ul>
+          <li>スパイダーソリティアを初めてプレイする</li>
+          <li>ルールをまだ完全に理解していない</li>
+          <li>1スートで連続クリアできていない</li>
+          <li>短時間でサクッとクリアしたい日</li>
+        </ul>
+
+        <h3>2スートに挑戦すべき人</h3>
+        <ul>
+          <li>1スートを安定して（5〜10回に7〜8回程度）クリアできる</li>
+          <li>空き列の作り方・活用法を理解している</li>
+          <li>スート管理という新しい戦略要素を楽しみたい</li>
+          <li>「もう少し歯ごたえがほしい」と感じている</li>
+        </ul>
+
+        <h3>4スートに挑戦すべき人</h3>
+        <ul>
+          <li>2スートをある程度クリアできている</li>
+          <li>手詰まりになってもAIコーチを活用しながら粘れる</li>
+          <li>運要素も含めた本格的な難しさを楽しみたい</li>
+          <li>「今日の問題」で高スコアを狙いたい（今日の問題は選択した難易度で挑戦できます）</li>
+        </ul>
+
+        <div class="tip-box">
+          <div class="tip-label">💡 おすすめの上達ルート</div>
+          <p>1スートで10回クリア → 2スートで10回クリア → 4スートに挑戦、というステップが最も効率的です。各段階でAIコーチの「🤖 AIに相談」を活用して、難易度が上がるごとに変化する優先判断を学びましょう。</p>
+        </div>
+      </section>
+
+      <div class="cta-inline">
+        <p>今の自分に合った難易度でプレイしてみよう。<br>AIコーチがどの難易度でも丁寧にサポートします。</p>
+        <a href="../spider-solitaire.html" class="btn-play">プレイする</a>
+      </div>
+
+      <div class="nav-links">
+        <a href="rules.html">← ルール完全ガイド</a>
+        <a href="strategy.html">→ 攻略法・コツ</a>
+        <a href="index.html">← ブログ一覧</a>
+      </div>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../index.html">トップ</a> &nbsp;|&nbsp; <a href="index.html">ブログ</a> &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+  </footer>
+</div>
+</body>
+</html>
