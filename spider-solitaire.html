@@ -1344,7 +1344,8 @@ const I18N = {
     'board.colsHeader':'--- 各列の状態（表向きカードは下→上の順） ---',
     'board.emptyCol':'列{0}: 【空き列】','board.col':'列{0}: 裏向き{1}枚 | 表向き→ {2}',
     'ss.diff.label':'難易度','ss.easy':'かんたん','ss.normal':'ふつう','ss.hard':'むずかしい',
-    'ss.start':'GAME START','ss.today':'📅 今日の問題','ss.resume':'▶ ゲームを再開',
+    'ss.start':'GAME START','ss.retry':'🔄 同じ盤面で再挑戦',
+    'ss.today':'📅 今日の問題','ss.resume':'▶ ゲームを再開',
     'ss.records':'🏆 記録','ss.home':'🏠 トップページへ','btn.settings':'⚙️ 設定',
   },
   en: {
@@ -1413,7 +1414,8 @@ const I18N = {
     'board.colsHeader':'--- Column states (face-up: bottom→top) ---',
     'board.emptyCol':'Col{0}: [EMPTY]','board.col':'Col{0}: {1} face-down | face-up→ {2}',
     'ss.diff.label':'DIFFICULTY','ss.easy':'Easy','ss.normal':'Normal','ss.hard':'Hard',
-    'ss.start':'GAME START','ss.today':'📅 Today\'s Challenge','ss.resume':'▶ Resume',
+    'ss.start':'GAME START','ss.retry':'🔄 Retry Same Board',
+    'ss.today':'📅 Today\'s Challenge','ss.resume':'▶ Resume',
     'ss.records':'🏆 Records','ss.home':'🏠 Back to Home','btn.settings':'⚙️ Settings',
   }
 };
@@ -1443,6 +1445,7 @@ function applyLang() {
   if (btn) btn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
   const ssBtn = document.getElementById('ss-lang-toggle');
   if (ssBtn) ssBtn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
+  updateStartBtnLabel();
 }
 
 // ============================================================
@@ -1543,6 +1546,7 @@ const STATS_KEY = 'spider_stats_v1';
 const GAME_STATE_KEY = 'spider_game_v1';
 const GAME_HISTORY_KEY = 'spider_history_v1';
 const DIFFICULTY_KEY = 'spider_difficulty_v1';
+const LAUNCH_KEY = 'spider_launch_v1';
 
 // ゲーム状態をlocalStorageに保存
 function saveGameState() {
@@ -1915,15 +1919,26 @@ function setDifficulty(n) {
 // ============================================================
 // START SCREEN
 // ============================================================
+let _ssGameDiff = null; // ゲーム中だった難易度（スタート画面表示時に記録）
+
+function updateStartBtnLabel() {
+  const btn = document.querySelector('.ss-start-btn');
+  if (!btn) return;
+  const isRetry = _ssGameDiff !== null && currentDifficulty === _ssGameDiff;
+  btn.textContent = isRetry ? t('ss.retry') : t('ss.start');
+}
+
 function showStartScreen() {
+  _ssGameDiff = (state.columns.length > 0 && !state.gameOver) ? state.difficulty : null;
   [1, 2, 4].forEach(n => {
     document.getElementById(`ss-${n}`)?.classList.toggle('active', n === currentDifficulty);
   });
-  const hasGame = state.columns.length > 0 && !state.gameOver;
+  const hasGame = _ssGameDiff !== null;
   const resumeBtn = document.getElementById('ss-resume-btn');
   if (resumeBtn) resumeBtn.style.display = hasGame ? '' : 'none';
   const ssBtn = document.getElementById('ss-lang-toggle');
   if (ssBtn) ssBtn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
+  updateStartBtnLabel();
   document.getElementById('start-screen').style.display = 'flex';
 }
 
@@ -1936,12 +1951,18 @@ function selectStartDiff(n) {
   [1, 2, 4].forEach(i => {
     document.getElementById(`ss-${i}`)?.classList.toggle('active', i === n);
   });
+  updateStartBtnLabel();
 }
 
 function startFromScreen() {
   localStorage.setItem(DIFFICULTY_KEY, String(currentDifficulty));
   hideStartScreen();
-  newGame();
+  const isRetry = _ssGameDiff !== null && currentDifficulty === _ssGameDiff;
+  if (isRetry) {
+    retryGame();
+  } else {
+    newGame();
+  }
 }
 
 function startTodayFromScreen() {
@@ -4097,8 +4118,19 @@ function onAiResizeEnd() {
 // ============================================================
 // START
 // ============================================================
-// 中断セーブがあれば復元、なければスタート画面を表示
-if (!loadGameState()) {
+// トップページから難易度指定で起動された場合はそちらを優先
+const _launchMode = localStorage.getItem(LAUNCH_KEY);
+if (_launchMode) {
+  localStorage.removeItem(LAUNCH_KEY);
+  const _ld = parseInt(localStorage.getItem(DIFFICULTY_KEY) || '');
+  if (_ld === 1 || _ld === 2 || _ld === 4) currentDifficulty = _ld;
+  if (_launchMode === 'today') {
+    launchTodayChallenge();
+  } else {
+    newGame();
+  }
+} else if (!loadGameState()) {
+  // 中断セーブがなければスタート画面を表示
   const savedDiff = parseInt(localStorage.getItem(DIFFICULTY_KEY) || '');
   if (savedDiff === 1 || savedDiff === 2 || savedDiff === 4) currentDifficulty = savedDiff;
   showStartScreen();

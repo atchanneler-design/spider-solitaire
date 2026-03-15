@@ -140,8 +140,10 @@
       font-size: 1.1rem;
       font-weight: 700;
       text-decoration: none;
+      border: none;
       border-radius: 8px;
       letter-spacing: 0.05em;
+      cursor: pointer;
       transition: background 0.2s, transform 0.15s;
       box-shadow: 0 4px 20px rgba(201,168,76,0.4);
     }
@@ -327,6 +329,66 @@
       border-top: 1px solid rgba(201,168,76,0.15);
       margin: 0 24px;
     }
+
+    /* PLAY OVERLAY */
+    #play-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.82);
+      align-items: center; justify-content: center;
+      z-index: 50; backdrop-filter: blur(4px);
+      display: none;
+    }
+    #play-overlay.open { display: flex; }
+    .play-panel {
+      background: linear-gradient(145deg, #1a3a24, #0f2018);
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 16px;
+      padding: 28px 24px;
+      width: 90%; max-width: 360px;
+      font-family: 'DM Mono', monospace;
+    }
+    .play-header {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: 22px;
+    }
+    .play-header-title {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold-light); font-size: 1.05rem; text-align: center; line-height: 1.5;
+      white-space: pre-line;
+    }
+    .play-back-btn {
+      position: absolute; left: 0;
+      background: none; border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(245,240,232,0.7); font-size: 0.72rem;
+      padding: 4px 10px; border-radius: 4px; cursor: pointer;
+      font-family: 'DM Mono', monospace;
+    }
+    .play-close-btn {
+      position: absolute; right: 0;
+      background: none; border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(245,240,232,0.7); font-size: 0.85rem;
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .play-choices { display: flex; flex-direction: column; gap: 10px; }
+    .play-choice {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 10px; cursor: pointer; text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: 'DM Mono', monospace; width: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .play-choice:active { transform: scale(0.98); }
+    .play-choice:hover { border-color: rgba(201,168,76,0.5); background: rgba(0,0,0,0.3); }
+    .pc-icon { font-size: 1.5rem; flex-shrink: 0; width: 36px; text-align: center; }
+    .pc-body { flex: 1; }
+    .pc-title { display: block; color: var(--gold-light); font-size: 0.88rem; margin-bottom: 3px; }
+    .pc-desc  { display: block; color: rgba(245,240,232,0.45); font-size: 0.72rem; }
+    .play-choice.today-choice { border-color: rgba(255,200,50,0.25); }
+    .play-choice.today-choice .pc-title { color: #ffd84d; }
+    .play-choice.today-choice:hover { border-color: rgba(255,200,50,0.6); background: rgba(255,200,50,0.05); }
   </style>
 </head>
 <body>
@@ -351,7 +413,7 @@
     <p data-i18n-html="hero.desc">AIコーチと一緒にプレイして、<br>
        一緒に上手くなる。<br>
        毎日同じ盤面に挑む「今日の問題」で腕を競おう。</p>
-    <a href="spider-solitaire.html" class="btn-play" data-i18n="cta.play">AIと一緒にプレイ</a>
+    <button class="btn-play" onclick="showPlayOverlay()" data-i18n="cta.play">AIと一緒にプレイ</button>
   </section>
 
   <hr class="divider">
@@ -428,7 +490,7 @@
 
   <!-- CTA BOTTOM -->
   <section class="cta-bottom">
-    <a href="spider-solitaire.html" class="btn-play" data-i18n="cta.play">AIと一緒にプレイ</a>
+    <button class="btn-play" onclick="showPlayOverlay()" data-i18n="cta.play">AIと一緒にプレイ</button>
     <p data-i18n="cta.note">ブラウザで動作 · インストール不要 · 無料</p>
   </section>
 
@@ -437,6 +499,80 @@
   </footer>
 
 </div>
+
+<!-- PLAY OVERLAY -->
+<div id="play-overlay">
+  <div class="play-panel">
+    <!-- Step 1: difficulty selection -->
+    <div id="play-step1">
+      <div class="play-header">
+        <span class="play-header-title" data-i18n="play.title">難易度を選ぶ</span>
+        <button class="play-close-btn" onclick="hidePlayOverlay()">✕</button>
+      </div>
+      <div class="play-choices">
+        <button class="play-choice" onclick="selectPlay(1,'normal')">
+          <span class="pc-icon">♠</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.easy">簡単</span>
+            <span class="pc-desc" data-i18n="play.easy.desc">1スート</span>
+          </span>
+        </button>
+        <button class="play-choice" onclick="selectPlay(2,'normal')">
+          <span class="pc-icon">♠♥</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.normal">普通</span>
+            <span class="pc-desc" data-i18n="play.normal.desc">2スート</span>
+          </span>
+        </button>
+        <button class="play-choice" onclick="selectPlay(4,'normal')">
+          <span class="pc-icon">♠♥♦♣</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.hard">難しい</span>
+            <span class="pc-desc" data-i18n="play.hard.desc">4スート</span>
+          </span>
+        </button>
+        <button class="play-choice today-choice" onclick="showTodayStep()">
+          <span class="pc-icon">📅</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.today">今日の問題</span>
+            <span class="pc-desc" data-i18n="play.today.desc">全員同じ盤面に挑戦</span>
+          </span>
+        </button>
+      </div>
+    </div>
+    <!-- Step 2: today's challenge difficulty -->
+    <div id="play-step2" style="display:none">
+      <div class="play-header">
+        <button class="play-back-btn" onclick="showStep1()" data-i18n="play.back">← 戻る</button>
+        <span class="play-header-title" data-i18n="play.today.title">📅 今日の問題<br>難易度を選ぶ</span>
+      </div>
+      <div class="play-choices">
+        <button class="play-choice" onclick="selectPlay(1,'today')">
+          <span class="pc-icon">♠</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.easy">簡単</span>
+            <span class="pc-desc" data-i18n="play.easy.desc">1スート</span>
+          </span>
+        </button>
+        <button class="play-choice" onclick="selectPlay(2,'today')">
+          <span class="pc-icon">♠♥</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.normal">普通</span>
+            <span class="pc-desc" data-i18n="play.normal.desc">2スート</span>
+          </span>
+        </button>
+        <button class="play-choice" onclick="selectPlay(4,'today')">
+          <span class="pc-icon">♠♥♦♣</span>
+          <span class="pc-body">
+            <span class="pc-title" data-i18n="play.hard">難しい</span>
+            <span class="pc-desc" data-i18n="play.hard.desc">4スート</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const I18N_PAGE = {
   ja: {
@@ -456,6 +592,13 @@ const I18N_PAGE = {
     'suits.heading':'3つの難易度','suits.1':'1スート','suits.2':'2スート','suits.4':'4スート',
     'cta.note':'ブラウザで動作 · インストール不要 · 無料',
     'footer.privacy':'プライバシーポリシー',
+    'play.title':'難易度を選ぶ',
+    'play.easy':'簡単','play.easy.desc':'1スート — 1種類のスーツ',
+    'play.normal':'普通','play.normal.desc':'2スート — 2種類のスーツ',
+    'play.hard':'難しい','play.hard.desc':'4スート — 4種類すべて',
+    'play.today':'今日の問題','play.today.desc':'全員が同じ盤面に挑戦',
+    'play.today.title':'📅 今日の問題\n難易度を選ぶ',
+    'play.back':'← 戻る',
   },
   en: {
     'nav.blog':'Blog','nav.privacy':'Privacy','nav.contact':'Contact',
@@ -474,6 +617,13 @@ const I18N_PAGE = {
     'suits.heading':'3 Difficulty Levels','suits.1':'1 Suit','suits.2':'2 Suits','suits.4':'4 Suits',
     'cta.note':'Runs in browser · No install · Free',
     'footer.privacy':'Privacy Policy',
+    'play.title':'Choose Difficulty',
+    'play.easy':'Easy','play.easy.desc':'1 Suit — single suit deck',
+    'play.normal':'Normal','play.normal.desc':'2 Suits — two suit deck',
+    'play.hard':'Hard','play.hard.desc':'4 Suits — all four suits',
+    'play.today':'Daily Puzzle','play.today.desc':'Everyone plays the same board today',
+    'play.today.title':'📅 Daily Puzzle\nChoose Difficulty',
+    'play.back':'← Back',
   }
 };
 
@@ -504,6 +654,28 @@ const I18N_PAGE = {
 
   applyLang();
 })();
+
+window.showPlayOverlay = function() {
+  document.getElementById('play-overlay').classList.add('open');
+  showStep1();
+};
+window.hidePlayOverlay = function() {
+  document.getElementById('play-overlay').classList.remove('open');
+};
+function showStep1() {
+  document.getElementById('play-step1').style.display = '';
+  document.getElementById('play-step2').style.display = 'none';
+}
+window.showTodayStep = function() {
+  document.getElementById('play-step1').style.display = 'none';
+  document.getElementById('play-step2').style.display = '';
+};
+window.showStep1 = showStep1;
+window.selectPlay = function(diff, mode) {
+  localStorage.setItem('spider_difficulty_v1', String(diff));
+  localStorage.setItem('spider_launch_v1', mode);
+  location.href = 'spider-solitaire.html';
+};
 </script>
 </body>
 </html>
