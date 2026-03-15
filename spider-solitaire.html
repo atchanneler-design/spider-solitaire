@@ -3263,6 +3263,42 @@ function buildBoardContext() {
       lines.push(t('board.col', i + 1, fd, fu));
     }
   });
+
+  // --- 現在移動可能な手のリスト ---
+  const moves = findAllMoves();
+  lines.push('');
+  lines.push(currentLang === 'en'
+    ? '--- All currently valid moves ---'
+    : '--- 現在移動可能な手（全リスト）---');
+
+  if (moves.length === 0) {
+    lines.push(currentLang === 'en'
+      ? 'No valid moves available. Please deal from the stock.'
+      : '現在移動可能な手はありません。山札を補充してください。');
+  } else {
+    moves.forEach(m => {
+      const fromCard = state.columns[m.fromCol][m.fromKi];
+      const fromStr  = `${fromCard.rank}${fromCard.suit}`;
+      if (m.toColLen === 0) {
+        lines.push(currentLang === 'en'
+          ? `Col${m.fromCol + 1}: ${fromStr} → empty Col${m.toCol + 1}`
+          : `列${m.fromCol + 1}の${fromStr} → 空き列${m.toCol + 1}`);
+      } else {
+        const toCard   = state.columns[m.toCol][m.toColLen - 1];
+        const toStr    = `${toCard.rank}${toCard.suit}`;
+        const sameSuit = fromCard.suit === toCard.suit;
+        lines.push(currentLang === 'en'
+          ? `Col${m.fromCol + 1}: ${fromStr} → onto ${toStr} in Col${m.toCol + 1} (${sameSuit ? 'same-suit' : 'mixed'})`
+          : `列${m.fromCol + 1}の${fromStr} → 列${m.toCol + 1}の${toStr}の上（${sameSuit ? '同スーツ' : '異スーツ'}）`);
+      }
+    });
+  }
+
+  lines.push('');
+  lines.push(currentLang === 'en'
+    ? 'Please choose from the above valid moves when giving advice. Never suggest a move not on this list.'
+    : '上記の移動可能な手のリストから選んでアドバイスしてください。リストにない手は絶対に提案しないでください。');
+
   return lines.join('\n');
 }
 
