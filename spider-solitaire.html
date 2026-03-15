@@ -1073,7 +1073,6 @@
   <div class="toolbar">
     <div class="toolbar-row">
       <button class="btn primary" onclick="confirmNewGame()" data-i18n="btn.newGame">新しいゲーム</button>
-      <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()" data-i18n="btn.today">📅 今日の問題</button>
       <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
       <button id="btn-giveup" class="btn danger" onclick="confirmGiveUp()" data-i18n="btn.giveup" style="display:none">🏳 ギブアップ</button>
       <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
@@ -1083,6 +1082,7 @@
       <button class="diff-btn" id="diff-1" onclick="confirmSetDifficulty(1)">1♠</button>
       <button class="diff-btn" id="diff-2" onclick="confirmSetDifficulty(2)">2♠</button>
       <button class="diff-btn active" id="diff-4" onclick="confirmSetDifficulty(4)">4♠</button>
+      <button class="diff-btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.1)" onclick="startTodayChallenge()" data-i18n="btn.today">📅</button>
     </div>
   </div>
 
