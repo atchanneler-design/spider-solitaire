@@ -1135,6 +1135,14 @@
     letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
   }
   .ss-resume-btn:active { background: rgba(74,158,255,0.2); transform: scale(0.98); }
+  .ss-home-btn {
+    width: 100%; padding: 13px;
+    border: 1px solid rgba(245,240,232,0.15); background: rgba(255,255,255,0.05);
+    color: rgba(245,240,232,0.5); font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
+  }
+  .ss-home-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
   .ss-footer-row {
     display: flex; align-items: center; gap: 16px;
   }
@@ -1256,6 +1264,7 @@
       <button class="ss-start-btn" onclick="startFromScreen()" data-i18n="ss.start">GAME START</button>
       <button class="ss-today-btn" onclick="startTodayFromScreen()" data-i18n="ss.today">📅 今日の問題</button>
       <button class="ss-resume-btn" id="ss-resume-btn" onclick="hideStartScreen()" style="display:none" data-i18n="ss.resume">▶ ゲームを再開</button>
+      <button class="ss-home-btn" onclick="location.href='index.html'" data-i18n="ss.home">🏠 トップページへ</button>
     </div>
     <div class="ss-footer-row">
       <button class="ss-lang-btn" id="ss-lang-toggle" onclick="setLang(currentLang==='ja'?'en':'ja')">EN</button>
@@ -1336,7 +1345,7 @@ const I18N = {
     'board.emptyCol':'列{0}: 【空き列】','board.col':'列{0}: 裏向き{1}枚 | 表向き→ {2}',
     'ss.diff.label':'難易度','ss.easy':'かんたん','ss.normal':'ふつう','ss.hard':'むずかしい',
     'ss.start':'GAME START','ss.today':'📅 今日の問題','ss.resume':'▶ ゲームを再開',
-    'ss.records':'🏆 記録','btn.settings':'⚙️ 設定',
+    'ss.records':'🏆 記録','ss.home':'🏠 トップページへ','btn.settings':'⚙️ 設定',
   },
   en: {
     'stat.moves':'Moves','stat.time':'Time','stat.score':'Score','stat.cleared':'Done','stat.streak':'Streak',
@@ -1405,7 +1414,7 @@ const I18N = {
     'board.emptyCol':'Col{0}: [EMPTY]','board.col':'Col{0}: {1} face-down | face-up→ {2}',
     'ss.diff.label':'DIFFICULTY','ss.easy':'Easy','ss.normal':'Normal','ss.hard':'Hard',
     'ss.start':'GAME START','ss.today':'📅 Today\'s Challenge','ss.resume':'▶ Resume',
-    'ss.records':'🏆 Records','btn.settings':'⚙️ Settings',
+    'ss.records':'🏆 Records','ss.home':'🏠 Back to Home','btn.settings':'⚙️ Settings',
   }
 };
 
