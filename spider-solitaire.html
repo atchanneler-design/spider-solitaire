@@ -106,6 +106,21 @@
   }
   .title:active { opacity: 0.7; }
 
+  .lang-btn {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: rgba(245,240,232,0.6);
+    font-size: 0.65rem;
+    padding: 3px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .lang-btn:hover { background: rgba(201,168,76,0.1); }
+
   .stats {
     display: flex;
     gap: 20px;
@@ -962,37 +977,40 @@
     <button class="title" onclick="confirmGoHome()">♠ SPIDER SOLITAIRE</button>
     <div class="streak-display" id="streak-display" style="display:none">
       <span class="streak-count">🔥<span id="stat-streak">0</span></span>
-      <span class="streak-label">連続</span>
+      <span class="streak-label" data-i18n="stat.streak">連続</span>
     </div>
-    <div class="stats">
-      <div class="stat-item">
-        <span class="stat-value" id="stat-moves">0</span>
-        <span>手数</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-moves">0</span>
+          <span data-i18n="stat.moves">手数</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-time">0:00</span>
+          <span data-i18n="stat.time">経過</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-score">500</span>
+          <span data-i18n="stat.score">スコア</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-cleared">0/8</span>
+          <span data-i18n="stat.cleared">完成</span>
+        </div>
       </div>
-      <div class="stat-item">
-        <span class="stat-value" id="stat-time">0:00</span>
-        <span>経過</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value" id="stat-score">500</span>
-        <span>スコア</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value" id="stat-cleared">0/8</span>
-        <span>完成</span>
-      </div>
+      <button id="lang-toggle" class="lang-btn" onclick="setLang(currentLang==='ja'?'en':'ja')">EN</button>
     </div>
   </header>
 
   <div class="toolbar">
     <div class="toolbar-row">
-      <button class="btn primary" onclick="confirmNewGame()">新しいゲーム</button>
-      <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()">📅 今日の問題</button>
-      <button class="btn" onclick="undoMove()">↩ 戻す</button>
-      <button class="btn" onclick="showRanking()">🏆 記録</button>
+      <button class="btn primary" onclick="confirmNewGame()" data-i18n="btn.newGame">新しいゲーム</button>
+      <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()" data-i18n="btn.today">📅 今日の問題</button>
+      <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
+      <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
     </div>
     <div class="difficulty-selector">
-      <span class="diff-label">難易度</span>
+      <span class="diff-label" data-i18n="diff.label">難易度</span>
       <button class="diff-btn" id="diff-1" onclick="confirmSetDifficulty(1)">1♠</button>
       <button class="diff-btn" id="diff-2" onclick="confirmSetDifficulty(2)">2♠</button>
       <button class="diff-btn active" id="diff-4" onclick="confirmSetDifficulty(4)">4♠</button>
@@ -1018,8 +1036,8 @@
 <!-- iOS PWA INSTALL BANNER -->
 <div id="pwa-banner">
   <div id="pwa-banner-text">
-    <strong>📲 ホーム画面に追加するとアプリとして使えます</strong>
-    <span class="pwa-hint">Safari の 共有ボタン → ホーム画面に追加</span>
+    <strong data-i18n="pwa.title">📲 ホーム画面に追加するとアプリとして使えます</strong>
+    <span class="pwa-hint" data-i18n="pwa.hint">Safari の 共有ボタン → ホーム画面に追加</span>
   </div>
   <button id="pwa-banner-close" onclick="dismissPwaBanner()">✕</button>
 </div>
@@ -1028,8 +1046,8 @@
 <div id="ai-bar">
   <div id="ai-resize-handle"></div>
   <div id="ai-quick-row">
-    <button class="ai-quick ai-hint-btn" onclick="showAllHints()">💡 ヒント</button>
-    <button class="ai-quick ai-consult-btn" onclick="askAi('盤面を分析して')">🤖 AIに相談</button>
+    <button class="ai-quick ai-hint-btn" onclick="showAllHints()" data-i18n="btn.hint">💡 ヒント</button>
+    <button class="ai-quick ai-consult-btn" onclick="askAi(t('ai.question'))" data-i18n="btn.consult">🤖 AIに相談</button>
   </div>
   <div id="ai-advice-box">
     <div id="ai-advice-inner">
@@ -1041,6 +1059,167 @@
 </div>
 
 <script>
+// ============================================================
+// I18N
+// ============================================================
+const I18N = {
+  ja: {
+    'stat.moves':'手数','stat.time':'経過','stat.score':'スコア','stat.cleared':'完成','stat.streak':'連続',
+    'btn.newGame':'新しいゲーム','btn.today':'📅 今日の問題','btn.undo':'↩ 戻す','btn.records':'🏆 記録',
+    'diff.label':'難易度','diff.1':'1スート（かんたん）','diff.2':'2スート（ふつう）','diff.4':'4スート（むずかしい）',
+    'btn.hint':'💡 ヒント','btn.consult':'🤖 AIに相談','ai.question':'盤面を分析して',
+    'pwa.title':'📲 ホーム画面に追加するとアプリとして使えます','pwa.hint':'Safari の 共有ボタン → ホーム画面に追加',
+    'foundation.complete':'K完成',
+    'stock.deal':'配る(残{0}回)','stock.empty':'補充なし',
+    'toast.cantMove':'その位置からは動かせません','toast.noTarget':'移動できません',
+    'toast.autoComplete':'自動完成中...','toast.cantPlace':'そこには置けません',
+    'toast.suitComplete':'🎉 {0} 完成！ +100点','toast.noStock':'空の列があると補充できません',
+    'toast.noUndo':'これ以上戻せません','toast.noMoves':'有効な手がありません。山札を補充しましょう。',
+    'toast.hintUsed':'💡 光っているカードを動かしましょう（-50点）',
+    'toast.retry':'🔄 同じ盤面で最初からスタート！','toast.notReady':'この機能は準備中です',
+    'toast.rewound':'⏪ {0}手前に戻りました！','toast.rewoundStart':'⏮ 最初の状態に戻しました',
+    'toast.streak':'🔥 {0}日連続クリア！','toast.thinking':'考え中...',
+    'toast.aiError':'エラーが発生しました','toast.netError':'通信エラーが発生しました。しばらく後に再試行してください。',
+    'toast.todayStart':'📅 {0} の問題スタート！',
+    'modal.today.title':'📅 今日の問題',
+    'modal.today.body':'今日 <strong style="color:var(--gold-light)">{0}</strong> の特別盤面です。<br>現在のゲームを中断して始めますか？',
+    'modal.today.start':'始める','modal.today.cancel':'キャンセル',
+    'modal.diff.title':'難易度を変更しますか？',
+    'modal.diff.body':'{0} に変更すると<br>現在のゲームは失われます。',
+    'modal.diff.confirm':'変更する','modal.diff.cancel':'キャンセル',
+    'modal.home.title':'トップページへ',
+    'modal.home.body':'ゲームの進行は保存されません。<br>トップページに戻りますか？',
+    'modal.home.yes':'はい','modal.home.no':'いいえ',
+    'modal.new.title':'⚠️ やり直しますか？',
+    'modal.new.body':'現在のゲームの進行は失われます。<br>本当に最初からやり直しますか？',
+    'modal.new.yes':'はい、やり直す','modal.new.no':'いいえ、続ける',
+    'modal.dead.title':'🚫 詰まっています',
+    'modal.dead.body':'有効な手がありません。<br>Undoで巻き戻すか、新しいゲームを始めましょう。',
+    'modal.dead.undo':'↩ Undoで戻す','modal.dead.continue':'そのまま続ける',
+    'modal.close':'閉じる',
+    'win.todayBadge':'📅 今日の問題クリア！','win.newRecord':'🏆 新記録！',
+    'win.title':'クリア！おめでとう',
+    'win.moves':'手数','win.movesVal':'{0}手','win.time':'タイム',
+    'win.score':'スコア','win.scoreVal':'{0}点','win.difficulty':'難易度','win.diffVal':'{0}スート',
+    'win.hints':'ヒント使用','win.hintsVal':'{0}回','win.problem':'問題','win.today':'今日の問題',
+    'win.share':'𝕏 ポストする','win.review':'📋 振り返る','win.next':'次の問題へ',
+    'best.title':'📊 {0}スート ベスト記録（{1}回クリア）',
+    'best.moves':'最少手数','best.movesVal':'{0}手','best.time':'最短タイム',
+    'best.score':'ベストスコア','best.scoreVal':'{0}点','best.thisScore':'今回のスコア','best.thisScoreVal':'{0}点',
+    'rank.1label':'1♠ 1スート','rank.2label':'2♠ 2スート','rank.4label':'4♠ 4スート',
+    'rank.noData':'まだクリア記録がありません',
+    'rank.clears':'クリア回数','rank.clearsVal':'{0}回',
+    'rank.bestMoves':'ベスト手数','rank.bestMovesVal':'{0}手',
+    'rank.bestTime':'ベストタイム','rank.bestScore':'ベストスコア','rank.bestScoreVal':'{0}点',
+    'rank.historyTitle':'直近のクリア履歴','rank.noHistory':'履歴なし',
+    'rank.colDate':'日付','rank.colMoves':'手数','rank.colTime':'タイム','rank.colScore':'スコア',
+    'rank.title':'🏆 記録','rank.movesVal':'{0}手','rank.scoreVal':'{0}点',
+    'review.title':'📋 振り返り',
+    'review.body':'全 <strong style="color:var(--gold-light)">{0}手</strong> のプレイを振り返れます。<br>「↩ 1手戻す」で手順を確認できます。<br>最初の状態まで戻して再挑戦も可能です。',
+    'review.undo':'↩ 1手戻す','review.rewind':'⏮ 最初に戻す',
+    'share.titleToday':'Spider Solitaire Pro 今日の問題クリア！','share.titleNormal':'Spider Solitaire Pro クリア！',
+    'share.difficulty':'難易度: {0}','share.stats':'🏆 {0}点  🃏 {1}手  ⏱ {2}',
+    'share.tagsToday':'#SpiderSolitaire #今日の問題','share.tagsNormal':'#SpiderSolitaire',
+    'share.diff.1':'1スート','share.diff.2':'2スート','share.diff.4':'4スート',
+    'board.title':'=== スパイダーソリティア 盤面情報 ===',
+    'board.difficulty':'難易度: {0}スート','board.moves':'手数: {0}手 | スコア: {1}',
+    'board.stock':'山札残り: {0}回 | フォンデーション完成: {1}/8',
+    'board.empty':'空き列: {0}列 | 裏向きカード合計: {1}枚',
+    'board.colsHeader':'--- 各列の状態（表向きカードは下→上の順） ---',
+    'board.emptyCol':'列{0}: 【空き列】','board.col':'列{0}: 裏向き{1}枚 | 表向き→ {2}',
+  },
+  en: {
+    'stat.moves':'Moves','stat.time':'Time','stat.score':'Score','stat.cleared':'Done','stat.streak':'Streak',
+    'btn.newGame':'New Game','btn.today':'📅 Daily','btn.undo':'↩ Undo','btn.records':'🏆 Records',
+    'diff.label':'Difficulty','diff.1':'1 Suit (Easy)','diff.2':'2 Suits (Normal)','diff.4':'4 Suits (Hard)',
+    'btn.hint':'💡 Hint','btn.consult':'🤖 Ask AI','ai.question':'Analyze the board',
+    'pwa.title':'📲 Add to Home Screen to use as an app','pwa.hint':'Tap Share → Add to Home Screen',
+    'foundation.complete':'Done',
+    'stock.deal':'Deal ({0} left)','stock.empty':'No more',
+    'toast.cantMove':'Cannot move from here','toast.noTarget':'No valid target',
+    'toast.autoComplete':'Auto-completing...','toast.cantPlace':'Cannot place here',
+    'toast.suitComplete':'🎉 {0} complete! +100pts','toast.noStock':'Cannot deal with empty columns',
+    'toast.noUndo':'Nothing to undo','toast.noMoves':'No valid moves. Deal from stock.',
+    'toast.hintUsed':'💡 Move the highlighted card (-50pts)',
+    'toast.retry':'🔄 Restarting from same board!','toast.notReady':'This feature is coming soon',
+    'toast.rewound':'⏪ Rewound {0} moves!','toast.rewoundStart':'⏮ Returned to start',
+    'toast.streak':'🔥 {0} day streak!','toast.thinking':'Thinking...',
+    'toast.aiError':'An error occurred','toast.netError':'Network error. Please try again later.',
+    'toast.todayStart':'📅 Daily puzzle {0} started!',
+    'modal.today.title':'📅 Daily Puzzle',
+    'modal.today.body':'Today\'s special board <strong style="color:var(--gold-light)">{0}</strong>.<br>Interrupt current game and start?',
+    'modal.today.start':'Start','modal.today.cancel':'Cancel',
+    'modal.diff.title':'Change Difficulty?',
+    'modal.diff.body':'Changing to {0} will<br>lose your current game.',
+    'modal.diff.confirm':'Change','modal.diff.cancel':'Cancel',
+    'modal.home.title':'Back to Home',
+    'modal.home.body':'Game progress will not be saved.<br>Return to the top page?',
+    'modal.home.yes':'Yes','modal.home.no':'No',
+    'modal.new.title':'⚠️ Start Over?',
+    'modal.new.body':'Current game will be lost.<br>Are you sure you want to restart?',
+    'modal.new.yes':'Yes, restart','modal.new.no':'No, keep playing',
+    'modal.dead.title':'🚫 No Moves',
+    'modal.dead.body':'No valid moves available.<br>Undo to go back or start a new game.',
+    'modal.dead.undo':'↩ Undo','modal.dead.continue':'Keep playing',
+    'modal.close':'Close',
+    'win.todayBadge':'📅 Daily Puzzle Clear!','win.newRecord':'🏆 New Record!',
+    'win.title':'You Win!',
+    'win.moves':'Moves','win.movesVal':'{0}','win.time':'Time',
+    'win.score':'Score','win.scoreVal':'{0}','win.difficulty':'Difficulty','win.diffVal':'{0} Suit(s)',
+    'win.hints':'Hints Used','win.hintsVal':'{0}','win.problem':'Puzzle','win.today':'Daily',
+    'win.share':'𝕏 Post','win.review':'📋 Review','win.next':'Next Puzzle',
+    'best.title':'📊 {0}-Suit Best ({1} clears)',
+    'best.moves':'Best Moves','best.movesVal':'{0}','best.time':'Best Time',
+    'best.score':'Best Score','best.scoreVal':'{0}','best.thisScore':'This Score','best.thisScoreVal':'{0}',
+    'rank.1label':'1♠ 1 Suit','rank.2label':'2♠ 2 Suits','rank.4label':'4♠ 4 Suits',
+    'rank.noData':'No records yet',
+    'rank.clears':'Clears','rank.clearsVal':'{0}',
+    'rank.bestMoves':'Best Moves','rank.bestMovesVal':'{0}',
+    'rank.bestTime':'Best Time','rank.bestScore':'Best Score','rank.bestScoreVal':'{0}',
+    'rank.historyTitle':'Recent Clear History','rank.noHistory':'No history',
+    'rank.colDate':'Date','rank.colMoves':'Moves','rank.colTime':'Time','rank.colScore':'Score',
+    'rank.title':'🏆 Records','rank.movesVal':'{0}','rank.scoreVal':'{0}',
+    'review.title':'📋 Review',
+    'review.body':'Review all <strong style="color:var(--gold-light)">{0} moves</strong>.<br>Use "↩ Undo" to step through.<br>You can go back to the start and retry.',
+    'review.undo':'↩ Undo','review.rewind':'⏮ Back to Start',
+    'share.titleToday':'Spider Solitaire Pro - Daily Clear!','share.titleNormal':'Spider Solitaire Pro - Clear!',
+    'share.difficulty':'Difficulty: {0}','share.stats':'🏆 {0}pts  🃏 {1} moves  ⏱ {2}',
+    'share.tagsToday':'#SpiderSolitaire #DailyPuzzle','share.tagsNormal':'#SpiderSolitaire',
+    'share.diff.1':'1 Suit','share.diff.2':'2 Suits','share.diff.4':'4 Suits',
+    'board.title':'=== Spider Solitaire - Board Info ===',
+    'board.difficulty':'Difficulty: {0} Suit(s)','board.moves':'Moves: {0} | Score: {1}',
+    'board.stock':'Stock: {0} remaining | Foundations: {1}/8',
+    'board.empty':'Empty cols: {0} | Face-down total: {1}',
+    'board.colsHeader':'--- Column states (face-up: bottom→top) ---',
+    'board.emptyCol':'Col{0}: [EMPTY]','board.col':'Col{0}: {1} face-down | face-up→ {2}',
+  }
+};
+
+let currentLang = localStorage.getItem('spider_lang') ||
+  (navigator.language.startsWith('ja') ? 'ja' : 'en');
+
+function t(key, ...args) {
+  const dict = I18N[currentLang] || I18N.ja;
+  let str = dict[key] ?? I18N.ja[key] ?? key;
+  args.forEach((a, i) => { str = str.replaceAll(`{${i}}`, a); });
+  return str;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('spider_lang', lang);
+  applyLang();
+  render();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
+}
+
 // ============================================================
 // DATA & STATE
 // ============================================================
@@ -1223,7 +1402,7 @@ function updateTodayStreak() {
   localStorage.setItem(STATS_KEY, JSON.stringify(stats));
 
   renderStreak();
-  setTimeout(() => showToast(`🔥 ${count}日連続クリア！`), 900);
+  setTimeout(() => showToast(t('toast.streak', count)), 900);
 }
 
 function renderStreak() {
@@ -1264,12 +1443,11 @@ function getTodaySeed() {
 function startTodayChallenge() {
   if (state.moves > 0 && !state.gameOver) {
     showModal(`
-      <h2>📅 今日の問題</h2>
-      <p style="margin-bottom:20px">今日 <strong style="color:var(--gold-light)">${getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')}</strong> の特別盤面です。<br>
-      現在のゲームを中断して始めますか？</p>
+      <h2>${t('modal.today.title')}</h2>
+      <p style="margin-bottom:20px">${t('modal.today.body', getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3'))}</p>
       <div class="btn-group">
-        <button class="btn primary" onclick="launchTodayChallenge()">始める</button>
-        <button class="btn" onclick="hideModal()">キャンセル</button>
+        <button class="btn primary" onclick="launchTodayChallenge()">${t('modal.today.start')}</button>
+        <button class="btn" onclick="hideModal()">${t('modal.today.cancel')}</button>
       </div>
     `);
   } else {
@@ -1306,7 +1484,7 @@ function launchTodayChallenge() {
   render();
   updateStats();
   updateTodayBadge();
-  showToast(`📅 ${getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')} の問題スタート！`);
+  showToast(t('toast.todayStart', getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')));
 }
 
 function updateTodayBadge() {
@@ -1321,17 +1499,17 @@ function updateTodayBadge() {
 
 function buildShareText(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday) {
   const diff = difficulty || 4;
-  const diffLabel = { 1: '1スート', 2: '2スート', 4: '4スート' }[diff] || `${diff}スート`;
+  const diffLabel = t(`share.diff.${diff}`) || String(diff);
   const bar = Math.round(Math.min(score, 1000) / 100);
   const gauge = '█'.repeat(bar) + '░'.repeat(10 - bar);
-  const title = isToday ? 'Spider Solitaire Pro 今日の問題クリア！' : 'Spider Solitaire Pro クリア！';
-  const tags = isToday ? '#SpiderSolitaire #今日の問題' : '#SpiderSolitaire';
+  const title = isToday ? t('share.titleToday') : t('share.titleNormal');
+  const tags = isToday ? t('share.tagsToday') : t('share.tagsNormal');
   const url = 'https://spider-solitaire-seven.vercel.app/spider-solitaire.html';
 
   return `${title}
-難易度: ${diffLabel}
+${t('share.difficulty', diffLabel)}
 ━━━━━━━━━━
-🏆 ${score}点  🃏 ${moves}手  ⏱ ${timeStr}
+${t('share.stats', score, moves, timeStr)}
 [${gauge}]
 ${url}
 ${tags}`;
@@ -1425,13 +1603,13 @@ function confirmSetDifficulty(n) {
     setDifficulty(n);
     return;
   }
-  const labels = { 1: '1スート（かんたん）', 2: '2スート（ふつう）', 4: '4スート（むずかしい）' };
+  const labels = { 1: t('diff.1'), 2: t('diff.2'), 4: t('diff.4') };
   showModal(`
-    <h2>難易度を変更しますか？</h2>
-    <p style="margin-bottom:24px">${labels[n]} に変更すると<br>現在のゲームは失われます。</p>
+    <h2>${t('modal.diff.title')}</h2>
+    <p style="margin-bottom:24px">${t('modal.diff.body', labels[n])}</p>
     <div class="btn-group">
-      <button class="btn danger" onclick="setDifficulty(${n})">変更する</button>
-      <button class="btn primary" onclick="hideModal()">キャンセル</button>
+      <button class="btn danger" onclick="setDifficulty(${n})">${t('modal.diff.confirm')}</button>
+      <button class="btn primary" onclick="hideModal()">${t('modal.diff.cancel')}</button>
     </div>
   `);
 }
@@ -1447,11 +1625,11 @@ function setDifficulty(n) {
 
 function confirmGoHome() {
   showModal(`
-    <h2>トップページへ</h2>
-    <p style="margin-bottom:24px">ゲームの進行は保存されません。<br>トップページに戻りますか？</p>
+    <h2>${t('modal.home.title')}</h2>
+    <p style="margin-bottom:24px">${t('modal.home.body')}</p>
     <div class="btn-group">
-      <button class="btn primary" onclick="location.href='index.html'">はい</button>
-      <button class="btn" onclick="hideModal()">いいえ</button>
+      <button class="btn primary" onclick="location.href='index.html'">${t('modal.home.yes')}</button>
+      <button class="btn" onclick="hideModal()">${t('modal.home.no')}</button>
     </div>
   `);
 }
@@ -1467,11 +1645,11 @@ function confirmNewGame() {
     return;
   }
   showModal(`
-    <h2>⚠️ やり直しますか？</h2>
-    <p style="margin-bottom:24px">現在のゲームの進行は失われます。<br>本当に最初からやり直しますか？</p>
+    <h2>${t('modal.new.title')}</h2>
+    <p style="margin-bottom:24px">${t('modal.new.body')}</p>
     <div class="btn-group">
-      <button class="btn danger" onclick="newGame()">はい、やり直す</button>
-      <button class="btn primary" onclick="hideModal()">いいえ、続ける</button>
+      <button class="btn danger" onclick="newGame()">${t('modal.new.yes')}</button>
+      <button class="btn primary" onclick="hideModal()">${t('modal.new.no')}</button>
     </div>
   `);
 }
@@ -1531,7 +1709,7 @@ function renderFoundations() {
     slot.className = 'foundation-slot' + (i < state.foundations.length ? ' filled' : '');
     if (i < state.foundations.length) {
       const f = state.foundations[i];
-      slot.innerHTML = `<span style="font-size:1.6rem;color:${isRed(f.suit)?'var(--red)':'var(--black)'}">${f.suit}</span><span class="foundation-count">K完成</span>`;
+      slot.innerHTML = `<span style="font-size:1.6rem;color:${isRed(f.suit)?'var(--red)':'var(--black)'}">${f.suit}</span><span class="foundation-count">${t('foundation.complete')}</span>`;
     } else {
       slot.textContent = '♤';
     }
@@ -1643,7 +1821,7 @@ function renderStock() {
 
     const count = document.createElement('div');
     count.className = 'stock-count';
-    count.textContent = `配る(残${state.stock.length}回)`;
+    count.textContent = t('stock.deal', state.stock.length);
     pile.appendChild(count);
 
     pile.addEventListener('click', dealFromStock);
@@ -1652,7 +1830,7 @@ function renderStock() {
     pile.style.borderRadius = '6px';
     const empty = document.createElement('div');
     empty.style.cssText = 'width:64px;height:88px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.7rem;';
-    empty.textContent = '補充なし';
+    empty.textContent = t('stock.empty');
     pile.appendChild(empty);
   }
 
@@ -1862,13 +2040,13 @@ function handleTap(ci, ki) {
   if (!col[ki] || !col[ki].faceUp) return;
 
   if (!isValidSequence(col, ki)) {
-    showToast('その位置からは動かせません');
+    showToast(t('toast.cantMove'));
     return;
   }
 
   const targets = findValidTargets(ci, ki);
   if (targets.length === 0) {
-    showToast('移動できません');
+    showToast(t('toast.noTarget'));
     return;
   }
 
@@ -1923,7 +2101,7 @@ function checkAutoFinish() {
   if (state.foundations.length >= 8) return;
 
   isAutoCompleting = true;
-  showToast('自動完成中...');
+  showToast(t('toast.autoComplete'));
   setTimeout(runAutoStep, 400);
 }
 
@@ -1982,11 +2160,11 @@ function isDeadEnd() {
 function checkDeadEnd() {
   if (!isDeadEnd()) return;
   showModal(`
-    <h2>🚫 詰まっています</h2>
-    <p style="margin-bottom:20px">有効な手がありません。<br>Undoで巻き戻すか、新しいゲームを始めましょう。</p>
+    <h2>${t('modal.dead.title')}</h2>
+    <p style="margin-bottom:20px">${t('modal.dead.body')}</p>
     <div class="btn-group">
-      <button class="btn primary" onclick="undoMove();hideModal()">↩ Undoで戻す</button>
-      <button class="btn" onclick="hideModal()">そのまま続ける</button>
+      <button class="btn primary" onclick="undoMove();hideModal()">${t('modal.dead.undo')}</button>
+      <button class="btn" onclick="hideModal()">${t('modal.dead.continue')}</button>
     </div>
   `);
 }
@@ -2001,7 +2179,7 @@ function moveSelected(toCol, animate = false) {
   // validate
   const movingRank = RANK_VAL[movingCards[0].rank];
   if (topOfTarget && RANK_VAL[topOfTarget.rank] !== movingRank + 1) {
-    showToast('そこには置けません');
+    showToast(t('toast.cantPlace'));
     selected = null;
     render();
     return;
@@ -2202,7 +2380,7 @@ function applySetComplete(colIdx, start, suit) {
   const c = state.columns[colIdx];
   if (c.length > 0 && !c[c.length - 1].faceUp) c[c.length - 1].faceUp = true;
 
-  showToast(`🎉 ${suit} 完成！ +100点`);
+  showToast(t('toast.suitComplete', suit));
   updateStats();
   render();
 
@@ -2217,7 +2395,7 @@ function dealFromStock() {
 
   const allHaveCards = state.columns.every(c => c.length > 0);
   if (!allHaveCards) {
-    showToast('空の列があると補充できません');
+    showToast(t('toast.noStock'));
     return;
   }
 
@@ -2326,7 +2504,7 @@ function saveHistory(type, data) {
 
 function undoMove() {
   if (state.history.length === 0) {
-    showToast('これ以上戻せません');
+    showToast(t('toast.noUndo'));
     return;
   }
 
@@ -2378,7 +2556,7 @@ function showHint() {
   const moves = findAllMoves();
 
   if (moves.length === 0) {
-    showToast('有効な手がありません。山札を補充しましょう。');
+    showToast(t('toast.noMoves'));
     return;
   }
 
@@ -2392,7 +2570,7 @@ function showHint() {
   render();
 
   setTimeout(clearHints, 3000);
-  showToast('💡 光っているカードを動かしましょう（-50点）');
+  showToast(t('toast.hintUsed'));
 }
 
 // AIバーの「ヒント」ボタン用 — 移動可能なカードをすべてハイライト（減点なし）
@@ -2401,7 +2579,7 @@ function showAllHints() {
   clearCoachHighlight();
   const moves = findAllMoves();
   if (moves.length === 0) {
-    showToast('有効な手がありません。山札を補充しましょう。');
+    showToast(t('toast.noMoves'));
     return;
   }
   // 各移動の起点カード（fromCol-fromKi）をすべて収集（重複除去）
@@ -2562,12 +2740,12 @@ function restartSameBoard() {
   };
   render();
   updateStats();
-  showToast('🔄 同じ盤面で最初からスタート！');
+  showToast(t('toast.retry'));
 }
 
 function showAdModal() {
   // 広告機能（将来対応）
-  showToast('この機能は準備中です');
+  showToast(t('toast.notReady'));
 }
 
 function executeRewind(steps) {
@@ -2576,7 +2754,7 @@ function executeRewind(steps) {
   state.adUsed++;
   state.score = Math.max(0, state.score - 20);
   updateStats();
-  showToast(`⏪ ${steps}手前に戻りました！`);
+  showToast(t('toast.rewound', steps));
 }
 
 // ============================================================
@@ -2600,12 +2778,12 @@ function showWin() {
 
   const todayBadge = state.isToday
     ? `<div style="background:rgba(255,200,50,0.2);border:1px solid rgba(255,200,50,0.5);border-radius:6px;padding:6px 12px;margin-bottom:12px;font-size:0.75rem;color:#ffd84d;">
-        📅 今日の問題クリア！
+        ${t('win.todayBadge')}
        </div>`
     : '';
 
   const newRecordBadge = newRecords.length > 0
-    ? `<div class="new-record-badge">🏆 新記録！</div>`
+    ? `<div class="new-record-badge">${t('win.newRecord')}</div>`
     : '';
 
   const prevBestMoves = newRecords.includes('moves') && record.clears > 1
@@ -2618,48 +2796,48 @@ function showWin() {
 
   const bestSection = `
     <div class="best-section">
-      <div class="best-section-title">📊 ${diff}スート ベスト記録（${record.clears}回クリア）</div>
+      <div class="best-section-title">${t('best.title', diff, record.clears)}</div>
       <div class="best-row">
         <div class="best-item">
-          <span class="b-label">最少手数</span>
-          <span class="${movesClass}">${record.bestMoves}手</span>
+          <span class="b-label">${t('best.moves')}</span>
+          <span class="${movesClass}">${t('best.movesVal', record.bestMoves)}</span>
         </div>
         <div class="best-item">
-          <span class="b-label">最短タイム</span>
+          <span class="b-label">${t('best.time')}</span>
           <span class="${timeClass}">${fmtTime(record.bestTime)}</span>
         </div>
         <div class="best-item">
-          <span class="b-label">ベストスコア</span>
-          <span class="${scoreClass}">${record.bestScore}点</span>
+          <span class="b-label">${t('best.score')}</span>
+          <span class="${scoreClass}">${t('best.scoreVal', record.bestScore)}</span>
         </div>
         <div class="best-item">
-          <span class="b-label">今回のスコア</span>
-          <span class="b-val">${state.score}点</span>
+          <span class="b-label">${t('best.thisScore')}</span>
+          <span class="b-val">${t('best.thisScoreVal', state.score)}</span>
         </div>
       </div>
     </div>`;
 
-  const shareBtn = `<button class="btn" style="background:#000;border-color:#333;color:#fff;font-weight:bold;letter-spacing:0.05em;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed || 0},${state.adUsed || 0},${diff},${state.isToday})">𝕏 ポストする</button>`;
+  const shareBtn = `<button class="btn" style="background:#000;border-color:#333;color:#fff;font-weight:bold;letter-spacing:0.05em;" onclick="shareResult(${state.moves},'${timeStr}',${state.score},${state.hintUsed || 0},${state.adUsed || 0},${diff},${state.isToday})">${t('win.share')}</button>`;
 
   showModal(`
     <div class="win-stars">🏆</div>
     ${todayBadge}
     ${newRecordBadge}
-    <h2>クリア！おめでとう</h2>
+    <h2>${t('win.title')}</h2>
     <div class="stats-grid">
-      <div><div class="s-label">手数</div><div class="s-val">${state.moves}手</div></div>
-      <div><div class="s-label">タイム</div><div class="s-val">${timeStr}</div></div>
-      <div><div class="s-label">スコア</div><div class="s-val">${state.score}点</div></div>
-      <div><div class="s-label">難易度</div><div class="s-val">${diff}スート</div></div>
-      <div><div class="s-label">ヒント使用</div><div class="s-val">${state.hintUsed}回</div></div>
-      <div><div class="s-label">問題</div><div class="s-val">${state.isToday ? '今日の問題' : `#${currentProblemIdx + 1}`}</div></div>
+      <div><div class="s-label">${t('win.moves')}</div><div class="s-val">${t('win.movesVal', state.moves)}</div></div>
+      <div><div class="s-label">${t('win.time')}</div><div class="s-val">${timeStr}</div></div>
+      <div><div class="s-label">${t('win.score')}</div><div class="s-val">${t('win.scoreVal', state.score)}</div></div>
+      <div><div class="s-label">${t('win.difficulty')}</div><div class="s-val">${t('win.diffVal', diff)}</div></div>
+      <div><div class="s-label">${t('win.hints')}</div><div class="s-val">${t('win.hintsVal', state.hintUsed)}</div></div>
+      <div><div class="s-label">${t('win.problem')}</div><div class="s-val">${state.isToday ? t('win.today') : `#${currentProblemIdx + 1}`}</div></div>
     </div>
     ${bestSection}
     <div class="btn-group">
       ${shareBtn}
-      <button class="btn" onclick="showReview()">📋 振り返る</button>
-      <button class="btn primary" onclick="newGame()">次の問題へ</button>
-      <button class="btn" onclick="hideModal()">閉じる</button>
+      <button class="btn" onclick="showReview()">${t('win.review')}</button>
+      <button class="btn primary" onclick="newGame()">${t('win.next')}</button>
+      <button class="btn" onclick="hideModal()">${t('modal.close')}</button>
     </div>
   `);
 }
@@ -2673,9 +2851,9 @@ function shareResult(moves, timeStr, score, hintUsed, adUsed, difficulty, isToda
 function showRanking() {
   const stats = loadStats();
   const diffs = [
-    { key: '1', label: '1♠ 1スート' },
-    { key: '2', label: '2♠ 2スート' },
-    { key: '4', label: '4♠ 4スート' },
+    { key: '1', label: t('rank.1label') },
+    { key: '2', label: t('rank.2label') },
+    { key: '4', label: t('rank.4label') },
   ];
 
   const tabButtons = diffs.map((d, i) =>
@@ -2686,27 +2864,27 @@ function showRanking() {
     const rec = stats[d.key];
     if (!rec || rec.clears === 0) {
       return `<div class="rank-panel${i === 0 ? ' active' : ''}" id="rank-panel-${i}">
-        <div class="rank-no-data">まだクリア記録がありません</div>
+        <div class="rank-no-data">${t('rank.noData')}</div>
       </div>`;
     }
 
     const summary = `
       <div class="rank-summary">
         <div class="rank-summary-item">
-          <div class="r-label">クリア回数</div>
-          <div class="r-val">${rec.clears}回</div>
+          <div class="r-label">${t('rank.clears')}</div>
+          <div class="r-val">${t('rank.clearsVal', rec.clears)}</div>
         </div>
         <div class="rank-summary-item">
-          <div class="r-label">ベスト手数</div>
-          <div class="r-val">${rec.bestMoves}手</div>
+          <div class="r-label">${t('rank.bestMoves')}</div>
+          <div class="r-val">${t('rank.bestMovesVal', rec.bestMoves)}</div>
         </div>
         <div class="rank-summary-item">
-          <div class="r-label">ベストタイム</div>
+          <div class="r-label">${t('rank.bestTime')}</div>
           <div class="r-val">${fmtTime(rec.bestTime)}</div>
         </div>
         <div class="rank-summary-item">
-          <div class="r-label">ベストスコア</div>
-          <div class="r-val">${rec.bestScore ?? '-'}点</div>
+          <div class="r-label">${t('rank.bestScore')}</div>
+          <div class="r-val">${t('rank.bestScoreVal', rec.bestScore ?? '-')}</div>
         </div>
       </div>`;
 
@@ -2714,17 +2892,17 @@ function showRanking() {
       ? [...rec.history].reverse().map(h =>
           `<tr>
             <td>${h.date}</td>
-            <td>${h.moves}手</td>
+            <td>${t('rank.movesVal', h.moves)}</td>
             <td>${fmtTime(h.time)}</td>
-            <td>${h.score}点</td>
+            <td>${t('rank.scoreVal', h.score)}</td>
           </tr>`
         ).join('')
-      : `<tr><td colspan="4" style="color:rgba(245,240,232,0.3);padding:16px">履歴なし</td></tr>`;
+      : `<tr><td colspan="4" style="color:rgba(245,240,232,0.3);padding:16px">${t('rank.noHistory')}</td></tr>`;
 
     const history = `
-      <div class="rank-history-title">直近のクリア履歴</div>
+      <div class="rank-history-title">${t('rank.historyTitle')}</div>
       <table class="rank-history-table">
-        <tr><th>日付</th><th>手数</th><th>タイム</th><th>スコア</th></tr>
+        <tr><th>${t('rank.colDate')}</th><th>${t('rank.colMoves')}</th><th>${t('rank.colTime')}</th><th>${t('rank.colScore')}</th></tr>
         ${historyRows}
       </table>`;
 
@@ -2734,11 +2912,11 @@ function showRanking() {
   }).join('');
 
   showModal(`
-    <h2>🏆 記録</h2>
+    <h2>${t('rank.title')}</h2>
     <div class="rank-tabs">${tabButtons}</div>
     ${panels}
     <div class="btn-group" style="margin-top:16px">
-      <button class="btn primary" onclick="hideModal()">閉じる</button>
+      <button class="btn primary" onclick="hideModal()">${t('modal.close')}</button>
     </div>
   `, true);
 }
@@ -2751,14 +2929,12 @@ function switchRankTab(idx) {
 function showReview() {
   const total = state.history.length;
   showModal(`
-    <h2>📋 振り返り</h2>
-    <p>全 <strong style="color:var(--gold-light)">${total}手</strong> のプレイを振り返れます。<br>
-    「↩ 1手戻す」で手順を確認できます。<br>
-    最初の状態まで戻して再挑戦も可能です。</p>
+    <h2>${t('review.title')}</h2>
+    <p>${t('review.body', total)}</p>
     <div class="btn-group">
-      <button class="btn" onclick="hideModal();undoMove()">↩ 1手戻す</button>
-      <button class="btn danger" onclick="rewindToStart()">⏮ 最初に戻す</button>
-      <button class="btn primary" onclick="hideModal()">閉じる</button>
+      <button class="btn" onclick="hideModal();undoMove()">${t('review.undo')}</button>
+      <button class="btn danger" onclick="rewindToStart()">${t('review.rewind')}</button>
+      <button class="btn primary" onclick="hideModal()">${t('modal.close')}</button>
     </div>
   `);
 }
@@ -2766,7 +2942,7 @@ function showReview() {
 function rewindToStart() {
   hideModal();
   while (state.history.length > 0) undoMove();
-  showToast('⏮ 最初の状態に戻しました');
+  showToast(t('toast.rewoundStart'));
 }
 
 // ============================================================
@@ -3046,21 +3222,21 @@ function buildBoardContext() {
   const totalFaceDown = state.columns.reduce((s, c) => s + c.filter(x => !x.faceUp).length, 0);
 
   const lines = [
-    '=== スパイダーソリティア 盤面情報 ===',
-    `難易度: ${state.difficulty}スート`,
-    `手数: ${state.moves}手 | スコア: ${state.score}`,
-    `山札残り: ${state.stock.length}回 | フォンデーション完成: ${state.foundations.length}/8`,
-    `空き列: ${emptyCols}列 | 裏向きカード合計: ${totalFaceDown}枚`,
+    t('board.title'),
+    t('board.difficulty', state.difficulty),
+    t('board.moves', state.moves, state.score),
+    t('board.stock', state.stock.length, state.foundations.length),
+    t('board.empty', emptyCols, totalFaceDown),
     '',
-    '--- 各列の状態（表向きカードは下→上の順） ---',
+    t('board.colsHeader'),
   ];
   state.columns.forEach((col, i) => {
     if (col.length === 0) {
-      lines.push(`列${i + 1}: 【空き列】`);
+      lines.push(t('board.emptyCol', i + 1));
     } else {
       const fd = col.filter(c => !c.faceUp).length;
       const fu = col.filter(c => c.faceUp).map(c => `${c.rank}${c.suit}`).join(' ');
-      lines.push(`列${i + 1}: 裏向き${fd}枚 | 表向き→ ${fu}`);
+      lines.push(t('board.col', i + 1, fd, fu));
     }
   });
   return lines.join('\n');
@@ -3076,19 +3252,19 @@ async function askAi(question) {
       ? 'rgba(201,168,76,0.3)' : '';
   });
 
-  text.textContent = '考え中...';
+  text.textContent = t('toast.thinking');
   box.classList.add('open');
 
   try {
     const res = await fetch('/api/ask-coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, boardContext: buildBoardContext() }),
+      body: JSON.stringify({ question, boardContext: buildBoardContext(), lang: currentLang }),
     });
     const data = await res.json();
-    text.textContent = data.reply || 'エラーが発生しました';
+    text.textContent = data.reply || t('toast.aiError');
   } catch (e) {
-    text.textContent = '通信エラーが発生しました。しばらく後に再試行してください。';
+    text.textContent = t('toast.netError');
   } finally {
     document.querySelectorAll('.ai-quick').forEach(b => b.style.background = '');
   }
@@ -3214,6 +3390,7 @@ function initPwaBanner() {
   }, 3000);
 }
 
+applyLang();
 initPwaBanner();
 
 // ============================================================

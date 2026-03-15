@@ -169,75 +169,161 @@
 
   <header>
     <div class="logo">Spider <span>Solitaire Pro</span></div>
-    <nav><a href="index.html">← トップへ</a></nav>
+    <nav style="display:flex;gap:12px;align-items:center">
+      <a href="index.html" data-i18n="nav.home">← トップへ</a>
+      <button id="lang-toggle" onclick="setLang()" style="background:none;border:1px solid rgba(201,168,76,0.4);color:rgba(245,240,232,0.6);font-size:0.65rem;padding:3px 7px;border-radius:4px;cursor:pointer;letter-spacing:0.08em;font-family:inherit;">EN</button>
+    </nav>
   </header>
 
   <main>
-    <h1>プライバシーポリシー</h1>
-    <p class="updated">最終更新日：2026年3月9日</p>
+    <h1 data-i18n="title">プライバシーポリシー</h1>
+    <p class="updated" data-i18n="updated">最終更新日：2026年3月9日</p>
 
     <section>
-      <h2>1. はじめに</h2>
-      <p>Spider Solitaire Pro（以下「本アプリ」）は、個人が開発・提供するブラウザゲームです。本ポリシーは、本アプリにおける情報の取り扱いについて説明します。</p>
+      <h2 data-i18n="s1.title">1. はじめに</h2>
+      <p data-i18n="s1.body">Spider Solitaire Pro（以下「本アプリ」）は、個人が開発・提供するブラウザゲームです。本ポリシーは、本アプリにおける情報の取り扱いについて説明します。</p>
     </section>
 
     <section>
-      <h2>2. 収集する情報</h2>
-      <p>本アプリは、サーバーへの個人情報の送信・収集を一切行いません。</p>
-      <p>以下の情報はお使いのデバイス上のみに保存されます（localStorage）：</p>
+      <h2 data-i18n="s2.title">2. 収集する情報</h2>
+      <p data-i18n="s2.p1">本アプリは、サーバーへの個人情報の送信・収集を一切行いません。</p>
+      <p data-i18n="s2.p2">以下の情報はお使いのデバイス上のみに保存されます（localStorage）：</p>
       <ul>
-        <li>ゲームのスコア・手数・クリアタイム</li>
-        <li>難易度別のクリア回数</li>
-        <li>今日の問題のクリア済みフラグ</li>
+        <li data-i18n="s2.li1">ゲームのスコア・手数・クリアタイム</li>
+        <li data-i18n="s2.li2">難易度別のクリア回数</li>
+        <li data-i18n="s2.li3">今日の問題のクリア済みフラグ</li>
       </ul>
-      <div class="note">これらのデータは外部へ送信されることなく、ブラウザのデータを削除することでいつでも消去できます。</div>
+      <div class="note" data-i18n="s2.note">これらのデータは外部へ送信されることなく、ブラウザのデータを削除することでいつでも消去できます。</div>
     </section>
 
     <section>
-      <h2>3. Google Fonts の使用</h2>
-      <p>本アプリはテキスト表示のために Google Fonts（Playfair Display・DM Mono）を使用しています。フォントの読み込み時に Google のサーバーへのリクエストが発生し、IPアドレス等の情報がGoogleに送信される場合があります。</p>
-      <p>Google のプライバシーポリシーについては <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">こちら</a> をご確認ください。</p>
-      <div class="note">オフラインでプレイする場合（PWAとしてインストール済みの場合）、キャッシュされたフォントを使用するためGoogleへのリクエストは発生しません。</div>
+      <h2 data-i18n="s3.title">3. Google Fonts の使用</h2>
+      <p data-i18n="s3.p1">本アプリはテキスト表示のために Google Fonts（Playfair Display・DM Mono）を使用しています。フォントの読み込み時に Google のサーバーへのリクエストが発生し、IPアドレス等の情報がGoogleに送信される場合があります。</p>
+      <p><span data-i18n="s3.p2a">Google のプライバシーポリシーについては</span> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" data-i18n="s3.link">こちら</a> <span data-i18n="s3.p2b">をご確認ください。</span></p>
+      <div class="note" data-i18n="s3.note">オフラインでプレイする場合（PWAとしてインストール済みの場合）、キャッシュされたフォントを使用するためGoogleへのリクエストは発生しません。</div>
     </section>
 
     <section>
-      <h2>4. Service Worker・キャッシュ</h2>
-      <p>本アプリはオフライン対応のためにService Workerを使用し、以下のファイルをデバイス上にキャッシュします：</p>
+      <h2 data-i18n="s4.title">4. Service Worker・キャッシュ</h2>
+      <p data-i18n="s4.p1">本アプリはオフライン対応のためにService Workerを使用し、以下のファイルをデバイス上にキャッシュします：</p>
       <ul>
-        <li>ゲームのHTMLファイル</li>
-        <li>アイコン・マニフェストファイル</li>
-        <li>Google Fontsのフォントファイル（初回アクセス後）</li>
+        <li data-i18n="s4.li1">ゲームのHTMLファイル</li>
+        <li data-i18n="s4.li2">アイコン・マニフェストファイル</li>
+        <li data-i18n="s4.li3">Google Fontsのフォントファイル（初回アクセス後）</li>
       </ul>
-      <p>キャッシュはブラウザのストレージ設定から削除できます。</p>
+      <p data-i18n="s4.p2">キャッシュはブラウザのストレージ設定から削除できます。</p>
     </section>
 
     <section>
-      <h2>5. 第三者への情報提供</h2>
-      <p>本アプリは第三者への個人情報の提供を行いません。</p>
+      <h2 data-i18n="s5.title">5. 第三者への情報提供</h2>
+      <p data-i18n="s5.body">本アプリは第三者への個人情報の提供を行いません。</p>
     </section>
 
     <section>
-      <h2>6. SNSシェア機能</h2>
-      <p>「今日の問題」クリア後にSNSシェアテキストを生成する機能があります。シェアの実行はユーザーの任意であり、本アプリが自動的に投稿することはありません。シェアされた情報の取り扱いは各SNSのプライバシーポリシーに準じます。</p>
+      <h2 data-i18n="s6.title">6. SNSシェア機能</h2>
+      <p data-i18n="s6.body">「今日の問題」クリア後にSNSシェアテキストを生成する機能があります。シェアの実行はユーザーの任意であり、本アプリが自動的に投稿することはありません。シェアされた情報の取り扱いは各SNSのプライバシーポリシーに準じます。</p>
     </section>
 
     <section>
-      <h2>7. お問い合わせ</h2>
-      <p>本ポリシーに関するご質問は、GitHubリポジトリの Issues よりお問い合わせください。</p>
+      <h2 data-i18n="s7.title">7. お問い合わせ</h2>
+      <p data-i18n="s7.body">本ポリシーに関するご質問は、GitHubリポジトリの Issues よりお問い合わせください。</p>
       <p><a href="https://github.com/atchanneler-design/spider-solitaire" target="_blank" rel="noopener">github.com/atchanneler-design/spider-solitaire</a></p>
     </section>
 
     <section>
-      <h2>8. 改定</h2>
-      <p>本ポリシーは必要に応じて改定することがあります。重要な変更がある場合は本ページ上部の更新日を変更します。</p>
+      <h2 data-i18n="s8.title">8. 改定</h2>
+      <p data-i18n="s8.body">本ポリシーは必要に応じて改定することがあります。重要な変更がある場合は本ページ上部の更新日を変更します。</p>
     </section>
 
   </main>
 
   <footer>
-    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="index.html">トップページ</a></p>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="index.html" data-i18n="footer.home">トップページ</a></p>
   </footer>
 
 </div>
+<script>
+const I18N_PRIVACY = {
+  ja: {
+    'nav.home':'← トップへ',
+    'title':'プライバシーポリシー','updated':'最終更新日：2026年3月9日',
+    's1.title':'1. はじめに',
+    's1.body':'Spider Solitaire Pro（以下「本アプリ」）は、個人が開発・提供するブラウザゲームです。本ポリシーは、本アプリにおける情報の取り扱いについて説明します。',
+    's2.title':'2. 収集する情報',
+    's2.p1':'本アプリは、サーバーへの個人情報の送信・収集を一切行いません。',
+    's2.p2':'以下の情報はお使いのデバイス上のみに保存されます（localStorage）：',
+    's2.li1':'ゲームのスコア・手数・クリアタイム','s2.li2':'難易度別のクリア回数',
+    's2.li3':'今日の問題のクリア済みフラグ',
+    's2.note':'これらのデータは外部へ送信されることなく、ブラウザのデータを削除することでいつでも消去できます。',
+    's3.title':'3. Google Fonts の使用',
+    's3.p1':'本アプリはテキスト表示のために Google Fonts（Playfair Display・DM Mono）を使用しています。フォントの読み込み時に Google のサーバーへのリクエストが発生し、IPアドレス等の情報がGoogleに送信される場合があります。',
+    's3.p2a':'Google のプライバシーポリシーについては','s3.link':'こちら','s3.p2b':'をご確認ください。',
+    's3.note':'オフラインでプレイする場合（PWAとしてインストール済みの場合）、キャッシュされたフォントを使用するためGoogleへのリクエストは発生しません。',
+    's4.title':'4. Service Worker・キャッシュ',
+    's4.p1':'本アプリはオフライン対応のためにService Workerを使用し、以下のファイルをデバイス上にキャッシュします：',
+    's4.li1':'ゲームのHTMLファイル','s4.li2':'アイコン・マニフェストファイル',
+    's4.li3':'Google Fontsのフォントファイル（初回アクセス後）',
+    's4.p2':'キャッシュはブラウザのストレージ設定から削除できます。',
+    's5.title':'5. 第三者への情報提供','s5.body':'本アプリは第三者への個人情報の提供を行いません。',
+    's6.title':'6. SNSシェア機能',
+    's6.body':'「今日の問題」クリア後にSNSシェアテキストを生成する機能があります。シェアの実行はユーザーの任意であり、本アプリが自動的に投稿することはありません。シェアされた情報の取り扱いは各SNSのプライバシーポリシーに準じます。',
+    's7.title':'7. お問い合わせ',
+    's7.body':'本ポリシーに関するご質問は、GitHubリポジトリの Issues よりお問い合わせください。',
+    's8.title':'8. 改定','s8.body':'本ポリシーは必要に応じて改定することがあります。重要な変更がある場合は本ページ上部の更新日を変更します。',
+    'footer.home':'トップページ',
+  },
+  en: {
+    'nav.home':'← Home',
+    'title':'Privacy Policy','updated':'Last updated: March 9, 2026',
+    's1.title':'1. Introduction',
+    's1.body':'Spider Solitaire Pro is a browser game developed and provided by an individual. This policy explains how information is handled in the app.',
+    's2.title':'2. Information Collected',
+    's2.p1':'This app does not transmit or collect any personal information to servers.',
+    's2.p2':'The following data is stored only on your device (localStorage):',
+    's2.li1':'Game score, move count, and clear time','s2.li2':'Clear count per difficulty level',
+    's2.li3':'Daily puzzle completion flag',
+    's2.note':'This data is never sent externally and can be deleted at any time by clearing your browser data.',
+    's3.title':'3. Google Fonts',
+    's3.p1':'This app uses Google Fonts (Playfair Display, DM Mono) for text rendering. When fonts load, a request is made to Google\'s servers, which may transmit information such as your IP address.',
+    's3.p2a':'For Google\'s privacy policy, see','s3.link':'here','s3.p2b':'.',
+    's3.note':'When playing offline (if installed as a PWA), cached fonts are used and no request is made to Google.',
+    's4.title':'4. Service Worker & Caching',
+    's4.p1':'This app uses a Service Worker for offline support, caching the following files on your device:',
+    's4.li1':'Game HTML files','s4.li2':'Icon and manifest files',
+    's4.li3':'Google Fonts files (after first load)',
+    's4.p2':'Cache can be deleted from your browser\'s storage settings.',
+    's5.title':'5. Third-Party Sharing','s5.body':'This app does not share personal information with third parties.',
+    's6.title':'6. Social Sharing',
+    's6.body':'After clearing the Daily Puzzle, the app can generate a share text for social media. Sharing is always optional and the app never posts automatically. Information shared is subject to each platform\'s privacy policy.',
+    's7.title':'7. Contact',
+    's7.body':'For questions about this policy, please open an issue in the GitHub repository.',
+    's8.title':'8. Revisions','s8.body':'This policy may be revised as needed. Significant changes will be reflected in the updated date at the top of this page.',
+    'footer.home':'Top Page',
+  }
+};
+
+(function() {
+  let lang = localStorage.getItem('spider_lang') ||
+    (navigator.language.startsWith('ja') ? 'ja' : 'en');
+
+  function applyLang() {
+    const dict = I18N_PRIVACY[lang] || I18N_PRIVACY.ja;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = dict[el.dataset.i18n] ?? el.textContent;
+    });
+    const btn = document.getElementById('lang-toggle');
+    if (btn) btn.textContent = lang === 'ja' ? 'EN' : 'JP';
+    document.documentElement.lang = lang;
+  }
+
+  window.setLang = function() {
+    lang = lang === 'ja' ? 'en' : 'ja';
+    localStorage.setItem('spider_lang', lang);
+    applyLang();
+  };
+
+  applyLang();
+})();
+</script>
 </body>
 </html>

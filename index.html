@@ -334,9 +334,10 @@
 
   <header>
     <div class="logo">Spider <span>Solitaire Pro</span></div>
-    <nav style="display:flex;gap:16px">
-      <a href="blog/index.html">ブログ</a>
-      <a href="privacy.html">プライバシー</a>
+    <nav style="display:flex;gap:16px;align-items:center">
+      <a href="blog/index.html" data-i18n="nav.blog">ブログ</a>
+      <a href="privacy.html" data-i18n="nav.privacy">プライバシー</a>
+      <button id="lang-toggle" onclick="setLang()" style="background:none;border:1px solid rgba(201,168,76,0.4);color:rgba(245,240,232,0.6);font-size:0.65rem;padding:3px 7px;border-radius:4px;cursor:pointer;letter-spacing:0.08em;font-family:inherit;">EN</button>
     </nav>
   </header>
 
@@ -346,25 +347,25 @@
       <img src="icon.svg" alt="Spider Solitaire Pro">
     </div>
     <h1>Spider<br>Solitaire Pro</h1>
-    <p>AIコーチと一緒にプレイして、<br>
+    <p data-i18n-html="hero.desc">AIコーチと一緒にプレイして、<br>
        一緒に上手くなる。<br>
        毎日同じ盤面に挑む「今日の問題」で腕を競おう。</p>
-    <a href="spider-solitaire.html" class="btn-play">AIと一緒にプレイ</a>
+    <a href="spider-solitaire.html" class="btn-play" data-i18n="cta.play">AIと一緒にプレイ</a>
   </section>
 
   <hr class="divider">
 
   <!-- AI SECTION -->
   <section class="ai-section">
-    <h2>AIコーチとともに上手くなる</h2>
+    <h2 data-i18n="ai.heading">AIコーチとともに上手くなる</h2>
     <div class="ai-highlight">
       <div class="ai-icon">🤖</div>
-      <h3>詰まったら、AIに相談</h3>
+      <h3 data-i18n="ai.subheading">詰まったら、AIに相談</h3>
       <ul>
-        <li><span class="check">✦</span>盤面の状況を自動分析。「良い」「厳しい」をひと言で判定</li>
-        <li><span class="check">✦</span>次の3〜5手の具体的な方針を番号付きで提示</li>
-        <li><span class="check">✦</span>やってはいけない手・見落としやすいポイントも解説</li>
-        <li><span class="check">✦</span>ヒント機能で移動できるカードをハイライト表示</li>
+        <li><span class="check">✦</span><span data-i18n="ai.li1">盤面の状況を自動分析。「良い」「厳しい」をひと言で判定</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li2">次の3〜5手の具体的な方針を番号付きで提示</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li3">やってはいけない手・見落としやすいポイントも解説</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li4">ヒント機能で移動できるカードをハイライト表示</span></li>
       </ul>
     </div>
   </section>
@@ -373,27 +374,27 @@
 
   <!-- FEATURES -->
   <section class="features">
-    <h2>特徴</h2>
+    <h2 data-i18n="features.heading">特徴</h2>
     <div class="feature-grid">
       <div class="feature-card">
         <div class="icon">📅</div>
-        <h3>今日の問題</h3>
-        <p>毎日同じ盤面に全員が挑戦。SNSでスコアをシェア</p>
+        <h3 data-i18n="feat.daily.title">今日の問題</h3>
+        <p data-i18n="feat.daily.desc">毎日同じ盤面に全員が挑戦。SNSでスコアをシェア</p>
       </div>
       <div class="feature-card">
         <div class="icon">↩️</div>
-        <h3>無制限Undo</h3>
-        <p>何手でも巻き戻せる。クリア後の振り返りにも対応</p>
+        <h3 data-i18n="feat.undo.title">無制限Undo</h3>
+        <p data-i18n="feat.undo.desc">何手でも巻き戻せる。クリア後の振り返りにも対応</p>
       </div>
       <div class="feature-card">
         <div class="icon">💡</div>
-        <h3>ヒント機能</h3>
-        <p>移動できるカードを全件ハイライト。次の一手に迷ったらすぐ確認</p>
+        <h3 data-i18n="feat.hint.title">ヒント機能</h3>
+        <p data-i18n="feat.hint.desc">移動できるカードを全件ハイライト。次の一手に迷ったらすぐ確認</p>
       </div>
       <div class="feature-card">
         <div class="icon">🏆</div>
-        <h3>スコア記録</h3>
-        <p>難易度別クリア回数・最高スコアをローカル保存</p>
+        <h3 data-i18n="feat.score.title">スコア記録</h3>
+        <p data-i18n="feat.score.desc">難易度別クリア回数・最高スコアをローカル保存</p>
       </div>
     </div>
   </section>
@@ -402,22 +403,22 @@
 
   <!-- SUITS -->
   <section class="suits-section">
-    <h2>3つの難易度</h2>
+    <h2 data-i18n="suits.heading">3つの難易度</h2>
     <div class="suit-cards">
       <div class="suit-card">
         <div class="suits">♠</div>
         <div class="level">EASY</div>
-        <div class="label">1スート</div>
+        <div class="label" data-i18n="suits.1">1スート</div>
       </div>
       <div class="suit-card">
         <div class="suits">♠♥</div>
         <div class="level">NORMAL</div>
-        <div class="label">2スート</div>
+        <div class="label" data-i18n="suits.2">2スート</div>
       </div>
       <div class="suit-card">
         <div class="suits">♠♥♦♣</div>
         <div class="level">HARD</div>
-        <div class="label">4スート</div>
+        <div class="label" data-i18n="suits.4">4スート</div>
       </div>
     </div>
   </section>
@@ -426,14 +427,80 @@
 
   <!-- CTA BOTTOM -->
   <section class="cta-bottom">
-    <a href="spider-solitaire.html" class="btn-play">AIと一緒にプレイ</a>
-    <p>ブラウザで動作 · インストール不要 · 無料</p>
+    <a href="spider-solitaire.html" class="btn-play" data-i18n="cta.play">AIと一緒にプレイ</a>
+    <p data-i18n="cta.note">ブラウザで動作 · インストール不要 · 無料</p>
   </section>
 
   <footer>
-    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="privacy.html">プライバシーポリシー</a></p>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="privacy.html" data-i18n="footer.privacy">プライバシーポリシー</a></p>
   </footer>
 
 </div>
+<script>
+const I18N_PAGE = {
+  ja: {
+    'nav.blog':'ブログ','nav.privacy':'プライバシー',
+    'hero.desc':'AIコーチと一緒にプレイして、<br>一緒に上手くなる。<br>毎日同じ盤面に挑む「今日の問題」で腕を競おう。',
+    'cta.play':'AIと一緒にプレイ',
+    'ai.heading':'AIコーチとともに上手くなる','ai.subheading':'詰まったら、AIに相談',
+    'ai.li1':'盤面の状況を自動分析。「良い」「厳しい」をひと言で判定',
+    'ai.li2':'次の3〜5手の具体的な方針を番号付きで提示',
+    'ai.li3':'やってはいけない手・見落としやすいポイントも解説',
+    'ai.li4':'ヒント機能で移動できるカードをハイライト表示',
+    'features.heading':'特徴',
+    'feat.daily.title':'今日の問題','feat.daily.desc':'毎日同じ盤面に全員が挑戦。SNSでスコアをシェア',
+    'feat.undo.title':'無制限Undo','feat.undo.desc':'何手でも巻き戻せる。クリア後の振り返りにも対応',
+    'feat.hint.title':'ヒント機能','feat.hint.desc':'移動できるカードを全件ハイライト。次の一手に迷ったらすぐ確認',
+    'feat.score.title':'スコア記録','feat.score.desc':'難易度別クリア回数・最高スコアをローカル保存',
+    'suits.heading':'3つの難易度','suits.1':'1スート','suits.2':'2スート','suits.4':'4スート',
+    'cta.note':'ブラウザで動作 · インストール不要 · 無料',
+    'footer.privacy':'プライバシーポリシー',
+  },
+  en: {
+    'nav.blog':'Blog','nav.privacy':'Privacy',
+    'hero.desc':'Play with an AI coach,<br>get better together.<br>Challenge the same daily board as everyone else.',
+    'cta.play':'Play with AI',
+    'ai.heading':'Improve with an AI Coach','ai.subheading':'Stuck? Ask the AI',
+    'ai.li1':'Auto-analyzes the board. One-word verdict: "Good", "Manageable", or "Tough"',
+    'ai.li2':'Presents a numbered plan for the next 3–5 moves',
+    'ai.li3':'Explains moves to avoid and easy-to-miss pitfalls',
+    'ai.li4':'Hint mode highlights all movable cards instantly',
+    'features.heading':'Features',
+    'feat.daily.title':'Daily Puzzle','feat.daily.desc':'Everyone tackles the same board each day. Share your score on social media.',
+    'feat.undo.title':'Unlimited Undo','feat.undo.desc':'Rewind as many moves as you like. Review your game after clearing.',
+    'feat.hint.title':'Hint Mode','feat.hint.desc':'Highlights all movable cards. Instant help when you\'re not sure what to do next.',
+    'feat.score.title':'Score Records','feat.score.desc':'Saves clear count and best score per difficulty, locally.',
+    'suits.heading':'3 Difficulty Levels','suits.1':'1 Suit','suits.2':'2 Suits','suits.4':'4 Suits',
+    'cta.note':'Runs in browser · No install · Free',
+    'footer.privacy':'Privacy Policy',
+  }
+};
+
+(function() {
+  let lang = localStorage.getItem('spider_lang') ||
+    (navigator.language.startsWith('ja') ? 'ja' : 'en');
+
+  function applyLang() {
+    const dict = I18N_PAGE[lang] || I18N_PAGE.ja;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = dict[el.dataset.i18n] ?? el.textContent;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      el.innerHTML = dict[el.dataset.i18nHtml] ?? el.innerHTML;
+    });
+    const btn = document.getElementById('lang-toggle');
+    if (btn) btn.textContent = lang === 'ja' ? 'EN' : 'JP';
+    document.documentElement.lang = lang;
+  }
+
+  window.setLang = function() {
+    lang = lang === 'ja' ? 'en' : 'ja';
+    localStorage.setItem('spider_lang', lang);
+    applyLang();
+  };
+
+  applyLang();
+})();
+</script>
 </body>
 </html>
