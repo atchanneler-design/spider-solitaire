@@ -1007,6 +1007,7 @@
       <button class="btn primary" onclick="confirmNewGame()" data-i18n="btn.newGame">新しいゲーム</button>
       <button class="btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.15)" onclick="startTodayChallenge()" data-i18n="btn.today">📅 今日の問題</button>
       <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
+      <button id="btn-giveup" class="btn danger" onclick="confirmGiveUp()" data-i18n="btn.giveup" style="display:none">🏳 ギブアップ</button>
       <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
     </div>
     <div class="difficulty-selector">
@@ -1065,7 +1066,8 @@
 const I18N = {
   ja: {
     'stat.moves':'手数','stat.time':'経過','stat.score':'スコア','stat.cleared':'完成','stat.streak':'連続',
-    'btn.newGame':'新しいゲーム','btn.today':'📅 今日の問題','btn.undo':'↩ 戻す','btn.records':'🏆 記録',
+    'btn.newGame':'新しいゲーム','btn.today':'📅 今日の問題','btn.undo':'↩ 戻す','btn.records':'🏆 記録','btn.giveup':'🏳 ギブアップ',
+    'modal.giveup.title':'🏳 ギブアップ','modal.giveup.yes':'ギブアップする','modal.giveup.no':'続ける',
     'diff.label':'難易度','diff.1':'1スート（かんたん）','diff.2':'2スート（ふつう）','diff.4':'4スート（むずかしい）',
     'btn.hint':'💡 ヒント','btn.consult':'🤖 AIに相談','ai.question':'盤面を分析して',
     'pwa.title':'📲 ホーム画面に追加するとアプリとして使えます','pwa.hint':'Safari の 共有ボタン → ホーム画面に追加',
@@ -1130,7 +1132,8 @@ const I18N = {
   },
   en: {
     'stat.moves':'Moves','stat.time':'Time','stat.score':'Score','stat.cleared':'Done','stat.streak':'Streak',
-    'btn.newGame':'New Game','btn.today':'📅 Daily','btn.undo':'↩ Undo','btn.records':'🏆 Records',
+    'btn.newGame':'New Game','btn.today':'📅 Daily','btn.undo':'↩ Undo','btn.records':'🏆 Records','btn.giveup':'🏳 Give Up',
+    'modal.giveup.title':'🏳 Give Up','modal.giveup.yes':'Give Up','modal.giveup.no':'Keep Playing',
     'diff.label':'Difficulty','diff.1':'1 Suit (Easy)','diff.2':'2 Suits (Normal)','diff.4':'4 Suits (Hard)',
     'btn.hint':'💡 Hint','btn.consult':'🤖 Ask AI','ai.question':'Analyze the board',
     'pwa.title':'📲 Add to Home Screen to use as an app','pwa.hint':'Tap Share → Add to Home Screen',
@@ -1709,6 +1712,29 @@ function confirmNewGame() {
       <button class="btn primary" onclick="hideModal()">${t('modal.new.no')}</button>
     </div>
   `);
+}
+
+function confirmGiveUp() {
+  const bodyText = currentLang === 'en'
+    ? `End the game and review your play?<br>${state.moves} moves to look back on.`
+    : `ゲームを終了して振り返りますか？<br>${state.moves}手のプレイを確認できます。`;
+  showModal(`
+    <h2>${t('modal.giveup.title')}</h2>
+    <p style="margin-bottom:20px">${bodyText}</p>
+    <div class="btn-group">
+      <button class="btn danger" onclick="executeGiveUp()">${t('modal.giveup.yes')}</button>
+      <button class="btn primary" onclick="hideModal()">${t('modal.giveup.no')}</button>
+    </div>
+  `);
+}
+
+function executeGiveUp() {
+  hideModal();
+  state.gameOver = true;
+  clearInterval(state.timerInterval);
+  saveGameState();
+  gtag('event', 'game_giveup', { difficulty: state.difficulty, moves: state.moves });
+  showReview('giveup');
 }
 
 function newGame(problemIdx = null) {
@@ -3037,6 +3063,11 @@ function updateStats() {
   document.getElementById('stat-moves').textContent = state.moves;
   document.getElementById('stat-score').textContent = state.score;
   document.getElementById('stat-cleared').textContent = `${state.cleared}/8`;
+  // ギブアップボタンの表示切り替え
+  const giveupBtn = document.getElementById('btn-giveup');
+  if (giveupBtn) {
+    giveupBtn.style.display = (state.moves >= 1 && !state.gameOver) ? '' : 'none';
+  }
   saveGameState();
 }
 
