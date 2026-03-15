@@ -1249,6 +1249,62 @@ let selected = null;      // {colIdx, cardIdx}
 let hintCards = [];       // [fromKey] only — hint shows source card only
 let validTargets = [];    // list of "ci-ki" keys for valid drop targets
 let isDealing = false;    // animation lock for deal-from-stock
+
+// ── 振り返り用履歴（undo消費されない） ──────────────────────────
+let gameHistory = [];
+
+function calcMetrics() {
+  return {
+    hiddenCards: state.columns.reduce((s, col) => s + col.filter(c => !c.faceUp).length, 0),
+    emptyColumns: state.columns.filter(col => col.length === 0).length,
+    score: state.score,
+  };
+}
+
+function pushGameHistory(entry) {
+  // 上限1000件：先頭（手0）は保持しつつ古い差分を削除
+  if (gameHistory.length >= 1000) {
+    gameHistory.splice(1, 1);
+  }
+  gameHistory.push(entry);
+}
+
+function makeGameHistoryEntry(type, description, changedCols) {
+  const entry = {
+    moveNumber: state.moves,
+    type,
+    description,
+    changedCols,
+    stockLength: state.stock.length,
+    foundationsLength: state.foundations.length,
+    metrics: calcMetrics(),
+  };
+  // 50手ごとにチェックポイント（フルスナップショット）を保存
+  if (state.moves % 50 === 0) {
+    entry.fullSnapshot = {
+      columns: state.columns.map(col => col.map(c => ({...c}))),
+      stockLength: state.stock.length,
+      foundationsLength: state.foundations.length,
+    };
+  }
+  return entry;
+}
+
+function initGameHistory() {
+  gameHistory = [];
+  // 手0：フルスナップショット
+  gameHistory.push({
+    moveNumber: 0,
+    type: 'start',
+    description: currentLang === 'en' ? 'Game start' : 'ゲーム開始',
+    fullSnapshot: {
+      columns: state.columns.map(col => col.map(c => ({...c}))),
+      stockLength: state.stock.length,
+      foundationsLength: state.foundations.length,
+    },
+    metrics: calcMetrics(),
+  });
+}
 let isAutoCompleting = false; // オート完成中フラグ
 let dragState = null;     // ドラッグ状態
 const DRAG_THRESHOLD = 6; // ドラッグ判定ピクセル
@@ -1483,6 +1539,7 @@ function launchTodayChallenge() {
 
   render();
   updateStats();
+  initGameHistory();
   updateTodayBadge();
   showToast(t('toast.todayStart', getTodayDateString().replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3')));
 }
@@ -1687,6 +1744,7 @@ function newGame(problemIdx = null) {
   hideModal();
   render();
   updateStats();
+  initGameHistory();
   gtag('event', 'game_start', { difficulty: currentDifficulty });
 }
 
@@ -2194,6 +2252,11 @@ function moveSelected(toCol, animate = false) {
     }
   }
 
+  // 振り返り用：移動の説明文（移動前に生成）
+  const _reviewMoveDesc = currentLang === 'en'
+    ? `Col${fromCol + 1}→Col${toCol + 1}: ${movingCards[0].rank}${movingCards[0].suit}`
+    : `列${fromCol + 1}→列${toCol + 1}: ${movingCards[0].rank}${movingCards[0].suit}`;
+
   // save history
   saveHistory('move', {
     fromCol, fromKi, toCol,
@@ -2217,6 +2280,12 @@ function moveSelected(toCol, animate = false) {
   state.score = Math.max(0, state.score - 1);
   selected = null;
   validTargets = [];
+
+  // 振り返り用：差分保存
+  pushGameHistory(makeGameHistoryEntry('move', _reviewMoveDesc, {
+    [fromCol]: state.columns[fromCol].map(c => ({...c})),
+    [toCol]:   state.columns[toCol].map(c => ({...c})),
+  }));
 
   const afterMove = () => {
     checkCompletedSet(toCol);
@@ -2376,6 +2445,10 @@ function applySetComplete(colIdx, start, suit) {
   state.foundations.push({ suit });
   state.cleared++;
   state.score += 100;
+  // 振り返り用：スート完成の差分保存
+  const _completeDesc = currentLang === 'en' ? `${suit} suit complete` : `${suit}スート完成`;
+  pushGameHistory(makeGameHistoryEntry('complete', _completeDesc,
+    { [colIdx]: state.columns[colIdx].map(c => ({...c})) }));
 
   const c = state.columns[colIdx];
   if (c.length > 0 && !c[c.length - 1].faceUp) c[c.length - 1].faceUp = true;
@@ -2412,6 +2485,11 @@ function dealFromStock() {
     batch.forEach((card, i) => state.columns[i].push({ ...card, faceUp: true }));
     state.moves++;
     state.score = Math.max(0, state.score - 1);
+    const _dealDesc1 = currentLang === 'en'
+      ? `Deal from stock (${state.stock.length} remaining)`
+      : `山札を配る（残り${state.stock.length}回）`;
+    pushGameHistory(makeGameHistoryEntry('deal', _dealDesc1,
+      Object.fromEntries(state.columns.map((col, i) => [i, col.map(c => ({...c}))]))));
     updateStats();
     render();
     return;
@@ -2424,6 +2502,11 @@ function dealFromStock() {
   batch.forEach((card, i) => state.columns[i].push({ ...card, faceUp: true }));
   state.moves++;
   state.score = Math.max(0, state.score - 1);
+  const _dealDesc2 = currentLang === 'en'
+    ? `Deal from stock (${state.stock.length} remaining)`
+    : `山札を配る（残り${state.stock.length}回）`;
+  pushGameHistory(makeGameHistoryEntry('deal', _dealDesc2,
+    Object.fromEntries(state.columns.map((col, i) => [i, col.map(c => ({...c}))]))));
   updateStats();
   render();
 
@@ -2546,6 +2629,8 @@ function undoMove() {
 
   updateStats();
   render();
+  // 振り返り用：undo分の履歴を削除（手0は保持）
+  if (gameHistory.length > 1) gameHistory.pop();
 }
 
 // ============================================================
