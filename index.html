@@ -384,7 +384,9 @@
     .play-choice:hover { border-color: rgba(201,168,76,0.5); background: rgba(0,0,0,0.3); }
     .pc-icon { font-size: 1.5rem; flex-shrink: 0; width: 36px; text-align: center; }
     .pc-body { flex: 1; }
-    .pc-title { display: block; color: var(--gold-light); font-size: 0.88rem; margin-bottom: 3px; }
+    .pc-title-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+    .pc-title { color: var(--gold-light); font-size: 0.88rem; }
+    .pc-suits { color: var(--gold-light); font-size: 0.85rem; opacity: 0.65; }
     .pc-desc  { display: block; color: rgba(245,240,232,0.45); font-size: 0.72rem; }
     .play-choice.today-choice { border-color: rgba(255,200,50,0.25); }
     .play-choice.today-choice .pc-title { color: #ffd84d; }
@@ -511,24 +513,30 @@
       </div>
       <div class="play-choices">
         <button class="play-choice" onclick="selectPlay(1,'normal')">
-          <span class="pc-icon">♠</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.easy">簡単</span>
-            <span class="pc-desc" data-i18n="play.easy.desc">1スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.easy">かんたん</span>
+              <span class="pc-suits">♠</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.easy.desc">1スート — 1種類のスーツ</span>
           </span>
         </button>
         <button class="play-choice" onclick="selectPlay(2,'normal')">
-          <span class="pc-icon">♠♥</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.normal">普通</span>
-            <span class="pc-desc" data-i18n="play.normal.desc">2スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.normal">ふつう</span>
+              <span class="pc-suits">♠♥</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.normal.desc">2スート — 2種類のスーツ</span>
           </span>
         </button>
         <button class="play-choice" onclick="selectPlay(4,'normal')">
-          <span class="pc-icon">♠♥♦♣</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.hard">難しい</span>
-            <span class="pc-desc" data-i18n="play.hard.desc">4スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.hard">むずかしい</span>
+              <span class="pc-suits">♠♥♦♣</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.hard.desc">4スート — 4種類すべて</span>
           </span>
         </button>
         <button class="play-choice today-choice" onclick="showTodayStep()">
@@ -548,24 +556,30 @@
       </div>
       <div class="play-choices">
         <button class="play-choice" onclick="selectPlay(1,'today')">
-          <span class="pc-icon">♠</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.easy">簡単</span>
-            <span class="pc-desc" data-i18n="play.easy.desc">1スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.easy">かんたん</span>
+              <span class="pc-suits">♠</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.easy.desc">1スート — 1種類のスーツ</span>
           </span>
         </button>
         <button class="play-choice" onclick="selectPlay(2,'today')">
-          <span class="pc-icon">♠♥</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.normal">普通</span>
-            <span class="pc-desc" data-i18n="play.normal.desc">2スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.normal">ふつう</span>
+              <span class="pc-suits">♠♥</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.normal.desc">2スート — 2種類のスーツ</span>
           </span>
         </button>
         <button class="play-choice" onclick="selectPlay(4,'today')">
-          <span class="pc-icon">♠♥♦♣</span>
           <span class="pc-body">
-            <span class="pc-title" data-i18n="play.hard">難しい</span>
-            <span class="pc-desc" data-i18n="play.hard.desc">4スート</span>
+            <span class="pc-title-row">
+              <span class="pc-title" data-i18n="play.hard">むずかしい</span>
+              <span class="pc-suits">♠♥♦♣</span>
+            </span>
+            <span class="pc-desc" data-i18n="play.hard.desc">4スート — 4種類すべて</span>
           </span>
         </button>
       </div>
@@ -593,9 +607,9 @@ const I18N_PAGE = {
     'cta.note':'ブラウザで動作 · インストール不要 · 無料',
     'footer.privacy':'プライバシーポリシー',
     'play.title':'難易度を選ぶ',
-    'play.easy':'簡単','play.easy.desc':'1スート — 1種類のスーツ',
-    'play.normal':'普通','play.normal.desc':'2スート — 2種類のスーツ',
-    'play.hard':'難しい','play.hard.desc':'4スート — 4種類すべて',
+    'play.easy':'かんたん','play.easy.desc':'1スート — 1種類のスーツ',
+    'play.normal':'ふつう','play.normal.desc':'2スート — 2種類のスーツ',
+    'play.hard':'むずかしい','play.hard.desc':'4スート — 4種類すべて',
     'play.today':'今日の問題','play.today.desc':'全員が同じ盤面に挑戦',
     'play.today.title':'📅 今日の問題\n難易度を選ぶ',
     'play.back':'← 戻る',
