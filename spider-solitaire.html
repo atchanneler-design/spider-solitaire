@@ -387,24 +387,24 @@
     top: 0; left: 0; right: 0;
     height: 28px;
     display: flex;
-    align-items: center;
-    padding: 0 5px;
+    align-items: flex-start;
+    padding: 2px 4px 0;
     gap: 1px;
     overflow: hidden;
   }
   .card-top-rank {
-    font-size: 1.15rem;
+    font-size: 0.95rem;
     font-weight: 800;
     line-height: 1;
-    letter-spacing: -1.5px;
+    letter-spacing: -1px;
     flex-shrink: 0;
   }
   .card-top-rank.rank-10 {
-    font-size: 0.85rem;
-    letter-spacing: -1px;
+    font-size: 0.75rem;
+    letter-spacing: -0.5px;
   }
   .card-top-suit {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     line-height: 1;
     flex-shrink: 0;
   }
@@ -1723,7 +1723,7 @@ function renderColumns() {
   // --- dynamic card offset: compress if tallest column doesn't fit ---
   const CARD_H = 100;
   const DEFAULT_FD = 14, DEFAULT_FU = 30;
-  const MIN_FD = 7,      MIN_FU = 14;
+  const MIN_FD = 7,      MIN_FU = 16;
   const availH = el.clientHeight || Math.floor(window.innerHeight * 0.5);
 
   let minScale = 1.0;
