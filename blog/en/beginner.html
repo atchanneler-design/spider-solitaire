@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spider Solitaire for Beginners - Easy Step-by-Step Guide | Spider Solitaire Pro</title>
+  <meta name="description" content="New to Spider Solitaire? This beginner's guide explains everything in plain language — how to start, what to focus on, common mistakes to avoid, and how to use hints and AI help.">
+  <link rel="canonical" href="https://spider-solitaire-seven.vercel.app/blog/en/beginner.html">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/en/beginner.html">
+  <meta property="og:title"       content="Spider Solitaire for Beginners - Easy Step-by-Step Guide">
+  <meta property="og:description" content="New to Spider Solitaire? Learn the basics step by step — start at 1 Suit, understand key concepts, avoid common mistakes, and use hints and AI to improve fast.">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Spider Solitaire for Beginners - Easy Step-by-Step Guide">
+  <meta name="twitter:description" content="Beginner's guide to Spider Solitaire. Start at 1 Suit, key concepts explained simply, avoid common mistakes.">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 6px; }
+    .info-box {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 10px; padding: 20px; margin: 20px 0;
+    }
+    .info-box h3 { margin-top: 0; }
+    .step-box {
+      display: flex; gap: 16px; align-items: flex-start;
+      background: rgba(0,0,0,0.15); border-radius: 10px;
+      padding: 16px 20px; margin: 12px 0;
+    }
+    .step-num {
+      font-family: 'Playfair Display', serif; font-size: 1.4rem;
+      color: var(--gold); flex-shrink: 0; line-height: 1;
+      min-width: 28px;
+    }
+    .step-content h3 { margin-top: 0; font-size: 0.85rem; }
+    .step-content p { margin-bottom: 0; }
+    .cta-inline {
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0;
+    }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play {
+      display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark);
+      font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; border-radius: 8px; transition: background 0.2s;
+    }
+    .btn-play:hover { background: var(--gold-light); }
+    .feature-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;
+    }
+    .feature-card-sm {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .feature-card-sm .icon { font-size: 1.3rem; margin-bottom: 6px; }
+    .feature-card-sm h3 { margin: 0 0 6px; font-size: 0.82rem; }
+    .feature-card-sm p { font-size: 0.78rem; margin: 0; }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+    @media (max-width: 480px) { .feature-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../spider-solitaire.html">Play</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../../index.html">Home</a> &rsaquo; Beginner's Guide</p>
+    <span class="tag">Beginner</span>
+    <h1>Spider Solitaire for Beginners<br>— Easy Step-by-Step Guide</h1>
+    <p class="lead">If you've just discovered Spider Solitaire and aren't sure where to start, you're in the right place. This beginner's guide explains everything in plain language — no card game jargon, no assumed knowledge. By the end, you'll understand the goal, know how to make your first moves, and have a clear path to winning your first game. The best part: Spider Solitaire Pro includes an AI coach that will help you every step of the way.</p>
+
+    <article>
+
+      <section>
+        <h2>Start at 1 Suit — Always</h2>
+        <p>Spider Solitaire comes in three difficulty levels: 1 Suit, 2 Suits, and 4 Suits. As a beginner, <strong style="color:var(--gold-light)">always start at 1 Suit (Easy)</strong>. Here's why:</p>
+        <ul>
+          <li>All cards are the same suit (♠), so you don't need to worry about mixing suits</li>
+          <li>Any sequence of descending cards can be moved as a group</li>
+          <li>The game is significantly more manageable, letting you focus on learning the core mechanics</li>
+          <li>Even experienced players enjoy 1-Suit for a relaxing, winnable game</li>
+        </ul>
+        <p>Once you've won at 1 Suit a few times and understand the rhythm of the game, you can move up to 2 Suits. 4 Suits is genuinely challenging — many players play for years before winning at that level.</p>
+
+        <div class="info-box">
+          <h3>How to set difficulty in Spider Solitaire Pro</h3>
+          <p>At the top of the screen, you'll see three buttons labeled 1♠, 2♠, and 4♠. Tap 1♠ to select 1-Suit mode. The selected difficulty is shown in gold. You can change difficulty at any time to start a new game.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Understanding the Goal in Simple Terms</h2>
+        <p>Here's the goal of Spider Solitaire in one sentence: <strong style="color:var(--gold-light)">arrange all the cards into 8 complete sets, each going from King to Ace in the same suit.</strong></p>
+        <p>A "complete set" means having K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2, A all in one column, all the same suit. When that happens, those 13 cards automatically disappear from the board and move to the completion area at the top. Do that 8 times and you win.</p>
+        <p>The board has 10 columns with cards stacked face-down (you can't see them) and face-up (you can see and move them). Your job is to gradually uncover all the hidden cards and organize everything into those 8 complete sets.</p>
+      </section>
+
+      <section>
+        <h2>Your First 5 Moves: A Walkthrough</h2>
+        <p>When you start a new game, here's a simple routine to follow for your first few moves:</p>
+
+        <div class="step-box">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Look at all 10 columns</h3>
+            <p>Take a moment to see which face-up cards are showing. Don't rush — Spider Solitaire rewards observation.</p>
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Find a move that flips a hidden card</h3>
+            <p>If moving a card would make the card below it flip face-up, that's usually a great move. Hidden cards are your biggest unknown — uncover them as fast as possible.</p>
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Build sequences going downward</h3>
+            <p>Place lower-ranking cards on top of higher-ranking cards (e.g., put a 5 on a 6). This builds the sequences you need to complete the game.</p>
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h3>If you're stuck, tap 💡 Hint</h3>
+            <p>The Hint button highlights every card you can currently move. It's free to use and has no penalty. Use it whenever you can't spot a move.</p>
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h3>Don't deal from stock until you have to</h3>
+            <p>The stack of cards in the top-left corner is your stock pile. You'll use it eventually, but try to exhaust your current moves first. Dealing too early can create problems.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Key Concepts Explained Simply</h2>
+
+        <h3>Face-Down vs Face-Up Cards</h3>
+        <p>Cards showing their back (face-down) cannot be seen or moved. Cards showing their face (face-up) can be moved. When you move a face-up card away from the bottom of a stack, the card below it flips face-up. Uncovering hidden cards is one of your main goals throughout the game.</p>
+
+        <h3>The Stock Pile</h3>
+        <p>In the top-left corner, you'll see a stack of cards. This is the stock pile. When you tap it, one card is added to each of the 10 columns. You can do this 5 times total. Important: <strong style="color:var(--gold-light)">you can't deal from the stock if any column is empty</strong> — fill the empty column first.</p>
+
+        <h3>Empty Columns</h3>
+        <p>If you move all the cards out of a column, it becomes empty. Empty columns are valuable — you can temporarily store any card there, which helps you rearrange other columns. Don't fill them carelessly.</p>
+
+        <h3>Moving Multiple Cards</h3>
+        <p>In 1-Suit mode, if you have a sequence like 7, 6, 5, 4 stacked in order in a column, you can move all 4 cards at once onto an 8. This is one of the things that makes 1-Suit mode much easier than higher difficulties.</p>
+      </section>
+
+      <div class="cta-inline">
+        <p>Ready to try your first game?<br>Start at 1 Suit — the AI coach is there to help whenever you need it.</p>
+        <a href="../../spider-solitaire.html" class="btn-play">Play Spider Solitaire Free</a>
+      </div>
+
+      <section>
+        <h2>Your Best Tools: Hint and AI Coach</h2>
+        <p>Spider Solitaire Pro has two features that make it uniquely beginner-friendly:</p>
+
+        <div class="feature-row">
+          <div class="feature-card-sm">
+            <div class="icon">💡</div>
+            <h3>Hint</h3>
+            <p>Highlights all movable cards. Free to use, no penalty. Perfect when you can't spot a move.</p>
+          </div>
+          <div class="feature-card-sm">
+            <div class="icon">🤖</div>
+            <h3>Ask AI</h3>
+            <p>Powered by Claude AI. Analyzes your board and gives specific move suggestions with reasoning.</p>
+          </div>
+        </div>
+
+        <h3>How to Use Hint as a Beginner</h3>
+        <p>Tap the 💡 Hint button whenever you feel stuck. All cards you can currently move will glow. This removes one of the biggest frustrations for new players — not knowing what you can do. Use Hint freely without guilt; it's designed to help you learn.</p>
+
+        <h3>How to Use Ask AI as a Beginner</h3>
+        <p>When you're not just stuck but genuinely confused about what the best move is, tap 🤖 Ask AI. The AI will analyze your specific board and tell you:</p>
+        <ul>
+          <li>How good or bad your current position is</li>
+          <li>What your most important priority should be right now</li>
+          <li>A step-by-step plan for your next few moves</li>
+          <li>Any traps or risky moves to avoid</li>
+        </ul>
+        <p>Think of it as having a knowledgeable friend looking over your shoulder. Instead of just telling you "move the 6 to the 7," the AI explains <em>why</em> — which helps you build your own instincts over time.</p>
+      </section>
+
+      <section>
+        <h2>Common Beginner Mistakes (and How to Fix Them)</h2>
+
+        <h3>Mistake 1: Moving cards without thinking</h3>
+        <p>New players often move the first card they notice without considering whether it's a good move. Instead, scan the whole board before each move. Ask: "Will this move flip a hidden card? Will it help me build a sequence?"</p>
+
+        <h3>Mistake 2: Dealing from stock too early</h3>
+        <p>When you can't immediately see a move, it's tempting to deal from stock. But usually there are valid moves you haven't noticed yet. Use the 💡 Hint button first — if no moves are highlighted, then it's a good time to deal.</p>
+
+        <h3>Mistake 3: Filling empty columns randomly</h3>
+        <p>When a column opens up, don't rush to fill it with just any card. Empty columns are a resource. Only move something into an empty column when you have a specific reason — like needing to temporarily store a card to reorganize another column.</p>
+
+        <h3>Mistake 4: Not using Undo</h3>
+        <p>Many beginners forget that Undo is available and unlimited. If a move makes things worse, go back and try something different. There's no penalty for using Undo. It's one of the most important tools for learning the game.</p>
+
+        <h3>Mistake 5: Giving up too early</h3>
+        <p>Spider Solitaire can look hopeless when the board is messy, but there's often a path through. Before giving up, try the AI coach — it might see a route you missed. The game is not over until there are literally no valid moves and the stock is empty.</p>
+      </section>
+
+      <section>
+        <h2>Building Good Habits from Day One</h2>
+        <p>The best way to improve at Spider Solitaire is to build a few consistent habits early on. These will carry you from beginner to intermediate:</p>
+        <ol>
+          <li><strong style="color:var(--gold-light)">Scan the whole board before each move</strong> — don't just react to the first move you see</li>
+          <li><strong style="color:var(--gold-light)">Always ask "does this flip a hidden card?"</strong> — if yes, it's almost certainly a good move</li>
+          <li><strong style="color:var(--gold-light)">Use Hint when stuck, Undo when wrong</strong> — both tools are there to help, use them</li>
+          <li><strong style="color:var(--gold-light)">Think of the stock as a last resort</strong> — exhaust your options before dealing</li>
+          <li><strong style="color:var(--gold-light)">Play the Daily Puzzle</strong> — every day you get a fresh board, and scores reset so you can always start fresh</li>
+        </ol>
+        <p>Even playing just a few games a day, you'll find yourself spotting opportunities faster and winning more consistently within a couple of weeks.</p>
+
+        <div class="info-box">
+          <h3>Daily Puzzle: Perfect for Beginners</h3>
+          <p>Spider Solitaire Pro's Daily Puzzle gives everyone the same board to play each day. It's a great way to challenge yourself regularly without the pressure of a formal game. After solving a daily puzzle, you can share your score on social media and compare with others.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>What's Next: Moving Up to 2 Suits</h2>
+        <p>Once you've won at 1 Suit several times and feel comfortable with the flow of the game, try 2 Suits. The key difference is that cards won't automatically form a movable group unless they're the same suit. You'll need to think more carefully about which cards to stack together.</p>
+        <p>The same principles apply — uncover face-down cards, protect empty columns, don't deal too early — but the board is much less forgiving. Don't be discouraged if it takes many attempts to win your first 2-Suit game. That's completely normal.</p>
+        <p>When you're ready to go deeper into strategy for harder difficulties, check out our <a href="strategy.html" style="color:var(--gold-light)">Spider Solitaire Strategy Tips</a> guide.</p>
+      </section>
+
+    </article>
+
+    <div class="nav-links">
+      <a href="how-to-play.html">→ Rules Guide</a>
+      <a href="strategy.html">→ Strategy Tips</a>
+      <a href="../../spider-solitaire.html">→ Play Now</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../../index.html">Home</a> &nbsp;|&nbsp; <a href="../../privacy.html">Privacy</a></p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Play Spider Solitaire - Complete Guide | Spider Solitaire Pro</title>
+  <meta name="description" content="Learn how to play Spider Solitaire with this complete guide. Covers rules, card movement, dealing from stock, difficulty levels, and scoring. Free to play online.">
+  <link rel="canonical" href="https://spider-solitaire-seven.vercel.app/blog/en/how-to-play.html">
+  <meta name="theme-color" content="#1a5c38">
+  <meta property="og:type"        content="article">
+  <meta property="og:url"         content="https://spider-solitaire-seven.vercel.app/blog/en/how-to-play.html">
+  <meta property="og:title"       content="How to Play Spider Solitaire - Complete Guide">
+  <meta property="og:description" content="Learn how to play Spider Solitaire with this complete guide. Rules, card movement, difficulty levels, and scoring explained clearly.">
+  <meta property="og:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="How to Play Spider Solitaire - Complete Guide">
+  <meta name="twitter:description" content="Complete Spider Solitaire rules guide. Learn card movement, dealing from stock, difficulty levels, and scoring.">
+  <meta name="twitter:image"       content="https://spider-solitaire-seven.vercel.app/ogp.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257236028180431" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green: #1a5c38; --green-light: #236b44; --green-dark: #0f3a22;
+      --gold: #c9a84c; --gold-light: #e8c96a; --cream: #f5f0e8;
+    }
+    body {
+      background: radial-gradient(ellipse at center, var(--green-light) 0%, var(--green-dark) 100%);
+      min-height: 100vh; font-family: 'DM Mono', monospace; color: var(--cream);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold-light); }
+    .logo span { color: var(--cream); font-size: 0.9em; }
+    header nav { display: flex; gap: 16px; }
+    header nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; }
+    header nav a:hover { opacity: 1; }
+    main { padding: 40px 24px 64px; }
+    .breadcrumb { font-size: 0.72rem; opacity: 0.5; margin-bottom: 24px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .tag { font-size: 0.65rem; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); border-radius: 3px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2rem); color: var(--gold-light); line-height: 1.3; margin-bottom: 16px; }
+    .lead { font-size: 0.9rem; line-height: 1.9; opacity: 0.8; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    article section { margin-bottom: 40px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 14px; padding-left: 12px; border-left: 3px solid var(--gold); }
+    h3 { font-size: 0.9rem; color: var(--gold-light); margin: 20px 0 10px; }
+    p { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; margin-bottom: 14px; }
+    ul, ol { padding-left: 1.4em; margin-bottom: 14px; }
+    li { font-size: 0.85rem; line-height: 1.9; opacity: 0.85; }
+    .info-box {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 10px; padding: 20px; margin: 20px 0;
+    }
+    .info-box h3 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.82rem; }
+    th { background: rgba(201,168,76,0.15); color: var(--gold); padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(201,168,76,0.3); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); opacity: 0.85; }
+    .cta-inline {
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 10px; padding: 20px; text-align: center; margin: 32px 0;
+    }
+    .cta-inline p { opacity: 0.8; margin-bottom: 12px; }
+    .btn-play {
+      display: inline-block; padding: 12px 32px; background: var(--gold); color: var(--green-dark);
+      font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; border-radius: 8px; transition: background 0.2s;
+    }
+    .btn-play:hover { background: var(--gold-light); }
+    .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(201,168,76,0.15); }
+    .nav-links a { font-size: 0.8rem; color: var(--gold); text-decoration: none; opacity: 0.8; }
+    .nav-links a:hover { opacity: 1; }
+    footer { text-align: center; padding: 24px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(201,168,76,0.2); font-size: 0.75rem; opacity: 0.6; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Spider <span>Solitaire Pro</span></div>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../spider-solitaire.html">Play</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="../../index.html">Home</a> &rsaquo; How to Play</p>
+    <span class="tag">Rules</span>
+    <h1>How to Play Spider Solitaire<br>— Complete Guide</h1>
+    <p class="lead">Spider Solitaire is one of the most popular single-player card games in the world, famous for being pre-installed on Windows for decades. It looks complex at first glance, but once you understand the core rules, it becomes a deeply satisfying puzzle of planning and patience. This complete guide walks you through everything — from card layout and movement rules to difficulty levels and scoring — so you can start playing with confidence.</p>
+
+    <article>
+
+      <section>
+        <h2>Objective of the Game</h2>
+        <p>The goal of Spider Solitaire is to <strong style="color:var(--gold-light)">build 8 complete sequences of cards</strong>, each running from King (K) down to Ace (A) in the same suit. Once a complete 13-card sequence is formed, it is automatically removed to the foundation area at the top of the screen.</p>
+        <p>The game is won when all 8 sequences have been completed and removed. With 104 cards in play across 10 columns, achieving this requires careful planning, strategic thinking, and a good understanding of how to manage your tableau.</p>
+      </section>
+
+      <section>
+        <h2>Card Setup and Layout</h2>
+
+        <h3>The Deck</h3>
+        <p>Spider Solitaire uses <strong style="color:var(--gold-light)">two standard 52-card decks combined, totaling 104 cards</strong>. The specific suits used depend on the difficulty level you choose, but the total card count is always 104.</p>
+
+        <h3>Initial Deal</h3>
+        <p>At the start of each game, 54 of the 104 cards are dealt face-down across 10 columns in the tableau:</p>
+        <ul>
+          <li>Columns 1–4 (leftmost): 6 cards each = 24 cards total</li>
+          <li>Columns 5–10 (rightmost): 5 cards each = 30 cards total</li>
+          <li>Only the top card of each column is turned face-up</li>
+          <li>The remaining 50 cards form the stock pile, split into 5 bundles of 10</li>
+        </ul>
+
+        <div class="info-box">
+          <h3>The Stock Pile</h3>
+          <p>The 5 bundles in the stock pile can each be dealt to refill the tableau. When you deal from stock, one card is added to each of the 10 columns simultaneously. However, <strong style="color:var(--gold-light)">you cannot deal from stock if any column is empty</strong> — you must fill empty columns before dealing.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Moving Cards</h2>
+
+        <h3>Basic Movement</h3>
+        <p>Any face-up card can be moved onto another face-up card, as long as the destination card is <strong style="color:var(--gold-light)">exactly one rank higher</strong> than the card being moved. For example, a 6 can be placed on a 7. Suits do not need to match for a basic move — you can place a red 6 on a black 7.</p>
+
+        <h3>Moving Multiple Cards at Once</h3>
+        <p>You can move a sequence of multiple cards together in one action, but only if <strong style="color:var(--gold-light)">all cards in the sequence share the same suit and are in consecutive descending order</strong>. A mixed-suit run (e.g., 7♠ 6♥ 5♠) cannot be moved as a group — each card would need to be moved individually.</p>
+        <p>This rule is crucial to strategy. Building same-suit sequences is always more powerful than mixed-suit stacks, because it gives you the flexibility to move multiple cards at once and eventually form a completed set.</p>
+
+        <h3>Empty Columns</h3>
+        <p>When all cards are removed from a column, it becomes an empty column. <strong style="color:var(--gold-light)">Any card or valid sequence can be moved into an empty column.</strong> Empty columns are extremely valuable — they act as temporary storage that allows you to reorganize other columns. Experienced players protect their empty columns and use them strategically.</p>
+
+        <div class="info-box">
+          <h3>Tap or Click to Move</h3>
+          <p>In Spider Solitaire Pro, you can move cards by tapping or clicking. If a valid destination exists, the card will automatically move to the best target. You can also drag cards directly to your preferred column for full control.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Completing a Sequence</h2>
+        <p>When you successfully build a complete sequence — <strong style="color:var(--gold-light)">K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2, A — all in the same suit</strong> in a single column — the 13 cards are automatically moved to the foundation area and removed from play. You score +100 points for each completed sequence.</p>
+        <p>The column that had the completed sequence now has its top card (if any) flipped face-up, potentially opening new moves. Completing a sequence is a major milestone that often unlocks a cascade of new possibilities.</p>
+      </section>
+
+      <section>
+        <h2>Difficulty Levels</h2>
+        <p>Spider Solitaire comes in three difficulty levels, determined by how many different suits are used. The more suits in play, the harder it is to form same-suit sequences.</p>
+
+        <table>
+          <tr>
+            <th>Difficulty</th>
+            <th>Suits Used</th>
+            <th>Card Composition</th>
+            <th>Challenge</th>
+          </tr>
+          <tr>
+            <td>1 Suit (Easy)</td>
+            <td>♠ only</td>
+            <td>104 spades</td>
+            <td>★☆☆</td>
+          </tr>
+          <tr>
+            <td>2 Suits (Normal)</td>
+            <td>♠ ♥</td>
+            <td>52 spades + 52 hearts</td>
+            <td>★★☆</td>
+          </tr>
+          <tr>
+            <td>4 Suits (Hard)</td>
+            <td>♠ ♥ ♦ ♣</td>
+            <td>26 of each suit</td>
+            <td>★★★</td>
+          </tr>
+        </table>
+
+        <p>In <strong style="color:var(--gold-light)">1-Suit mode</strong>, every card is the same suit, so any descending run can be moved as a group. This makes the game much more manageable and is ideal for learning the rules. In <strong style="color:var(--gold-light)">4-Suit mode</strong>, mixed-suit stacks form constantly and moving groups becomes rare, making it one of the most challenging card games available. Most players start at 1 Suit and work their way up.</p>
+      </section>
+
+      <section>
+        <h2>Scoring System</h2>
+        <p>The scoring system in Spider Solitaire Pro rewards efficiency:</p>
+        <ul>
+          <li><strong style="color:var(--gold-light)">Starting score: 1,000 points</strong></li>
+          <li>Each move costs −1 point</li>
+          <li>Each completed sequence earns +100 points</li>
+          <li>Completing all 8 sequences wins the game</li>
+        </ul>
+        <p>Your final score depends on how few moves you used. A player who clears the board in 200 moves scores higher than one who clears it in 400 moves. Minimizing wasted moves and planning ahead is the key to high scores.</p>
+        <p>In Spider Solitaire Pro, your best scores are saved by difficulty level, so you can always try to beat your personal records.</p>
+      </section>
+
+      <section>
+        <h2>Using Undo</h2>
+        <p>Spider Solitaire Pro features <strong style="color:var(--gold-light)">unlimited Undo</strong>. You can step back as many moves as you like, all the way to the beginning of the game. This makes the game more accessible — mistakes are never permanent, and you can always try a different path.</p>
+        <p>Don't be afraid to use Undo frequently, especially while learning. Going back a few moves and trying a different sequence is how you develop your strategic instincts over time.</p>
+      </section>
+
+      <section>
+        <h2>The AI Coach</h2>
+        <p>Spider Solitaire Pro includes a built-in AI coach powered by Claude (Anthropic). When you're stuck or unsure what to do next, you have two options:</p>
+        <ul>
+          <li><strong style="color:var(--gold-light)">💡 Hint</strong> — highlights all cards that can currently be moved, with no score penalty</li>
+          <li><strong style="color:var(--gold-light)">🤖 Ask AI</strong> — the AI analyzes your board and gives a detailed plan: board assessment, top priority, next 3–5 moves, and risks to watch out for</li>
+        </ul>
+        <p>The AI coach is especially useful when you feel stuck and can't see any good moves. It won't play for you, but it will help you understand the position and think more clearly about your options.</p>
+      </section>
+
+      <div class="cta-inline">
+        <p>Now that you know the rules, put them into practice.<br>The AI coach will guide you whenever you get stuck.</p>
+        <a href="../../spider-solitaire.html" class="btn-play">Play Spider Solitaire Free</a>
+      </div>
+
+      <section>
+        <h2>Quick-Start Tips</h2>
+        <p>Before you jump in, here are a few tips that will immediately improve your first session:</p>
+        <ol>
+          <li><strong style="color:var(--gold-light)">Start at 1 Suit.</strong> Get comfortable with the mechanics before adding more suits.</li>
+          <li><strong style="color:var(--gold-light)">Uncover face-down cards first.</strong> The more face-up cards you have, the more options you have.</li>
+          <li><strong style="color:var(--gold-light)">Build same-suit sequences whenever possible.</strong> Mixed stacks are hard to break apart later.</li>
+          <li><strong style="color:var(--gold-light)">Guard your empty columns.</strong> Don't fill them with random cards — use them to reorganize.</li>
+          <li><strong style="color:var(--gold-light)">Think before dealing from stock.</strong> Each deal reduces your future flexibility.</li>
+        </ol>
+        <p>For a deeper dive into strategy, see our <a href="strategy.html" style="color:var(--gold-light)">Spider Solitaire Strategy Tips</a> guide.</p>
+      </section>
+
+    </article>
+
+    <div class="nav-links">
+      <a href="strategy.html">→ Strategy Tips</a>
+      <a href="beginner.html">→ Beginner's Guide</a>
+      <a href="../../spider-solitaire.html">→ Play Now</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Spider Solitaire Pro &nbsp;|&nbsp; <a href="../../index.html">Home</a> &nbsp;|&nbsp; <a href="../../privacy.html">Privacy</a></p>
+  </footer>
+</div>
+</body>
+</html>
