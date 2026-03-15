@@ -3221,7 +3221,31 @@ function buildBoardContext() {
   const emptyCols = state.columns.filter(c => c.length === 0).length;
   const totalFaceDown = state.columns.reduce((s, c) => s + c.filter(x => !x.faceUp).length, 0);
 
+  const rulesJa = [
+    '【スパイダーソリティアの移動ルール】',
+    '- 表向きのカードのみ移動可能',
+    '- 移動できるのは「連続した降順の表向きカード」のみ',
+    '- 異スーツ混在でも降順であれば移動可能',
+    '- ただし複数枚まとめて移動できるのは同スーツ連続の場合のみ',
+    '- 空き列にはどのカードでも移動可能',
+    '- 必ず上記ルールを守った手のみアドバイスすること',
+    '- 移動不可能な手は絶対に提案しないこと',
+    '',
+  ];
+  const rulesEn = [
+    '[Spider Solitaire Movement Rules]',
+    '- Only face-up cards can be moved',
+    '- Only consecutive descending face-up cards can be moved as a group',
+    '- Mixed-suit sequences can be moved if they are in descending order (one card at a time)',
+    '- Multiple cards can only be moved together if they form a same-suit consecutive sequence',
+    '- Any card or valid sequence can be moved to an empty column',
+    '- Only suggest moves that strictly follow these rules',
+    '- Never propose an illegal move',
+    '',
+  ];
+
   const lines = [
+    ...(currentLang === 'en' ? rulesEn : rulesJa),
     t('board.title'),
     t('board.difficulty', state.difficulty),
     t('board.moves', state.moves, state.score),
