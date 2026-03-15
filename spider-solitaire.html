@@ -1055,10 +1055,11 @@
   .rv-ai-jump-chip.current { border-color: var(--gold); background: rgba(201,168,76,0.28); font-weight: 700; }
   /* ⑤ フッター：固定表示 */
   .rv-footer {
-    padding: 10px 16px; display: flex; justify-content: center;
+    padding: 10px 12px; display: flex; justify-content: center; gap: 8px;
     flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.1); background: #000;
     position: sticky; bottom: 0;
   }
+  .rv-footer .btn { flex: 1; max-width: 200px; font-size: 0.75rem; }
 </style>
 </head>
 <body>
@@ -3330,7 +3331,10 @@ function buildReviewHTML(result, turningPoints, currentIdx, entry) {
         return `<div class="rv-ai-jumps"><span class="rv-ai-jumps-label">${label}</span>${chips}</div>`;
       })()}
     </div>
-    <div class="rv-footer"><button class="btn primary" id="rv-newgame-btn">${isEn ? 'New Game' : '新しいゲームを始める'}</button></div>`;
+    <div class="rv-footer">
+      <button class="btn" id="rv-retry-btn">${isEn ? '🔄 Retry Same Board' : '🔄 同じ盤面で再挑戦'}</button>
+      <button class="btn primary" id="rv-newgame-btn">${isEn ? 'New Game' : '新しいゲーム'}</button>
+    </div>`;
 }
 
 function bindReviewEvents() {
@@ -3350,6 +3354,7 @@ function bindReviewEvents() {
   document.querySelectorAll('.rv-ai-jump-chip[data-jump]').forEach(el => {
     el.addEventListener('click', () => { reviewState.currentIdx = parseInt(el.dataset.jump); refreshReview(); });
   });
+  document.getElementById('rv-retry-btn')?.addEventListener('click', () => retryGame());
   document.getElementById('rv-newgame-btn')?.addEventListener('click', () => { overlay.style.display = 'none'; newGame(); });
   renderPreviewBoard(getHistoryEntry(reviewState.currentIdx));
   const cached = reviewAiCache[reviewState.currentIdx];
@@ -3364,6 +3369,16 @@ function refreshReview() {
   const entry = getHistoryEntry(reviewState.currentIdx);
   overlay.innerHTML = buildReviewHTML(reviewState.result, reviewState.turningPoints, reviewState.currentIdx, entry);
   bindReviewEvents();
+}
+
+function retryGame() {
+  const overlay = document.getElementById('review-overlay');
+  if (overlay) overlay.style.display = 'none';
+  if (state.isToday) {
+    launchTodayChallenge();
+  } else {
+    newGame(currentProblemIdx);
+  }
 }
 
 function showReview(result = 'giveup') {
