@@ -1077,13 +1077,8 @@
   }
   .ss-title {
     font-family: 'Playfair Display', serif;
-    color: var(--gold-light); font-size: clamp(2rem, 9vw, 2.6rem);
-    letter-spacing: 5px; text-align: center; line-height: 1.15;
-  }
-  .ss-subtitle {
-    font-family: 'Playfair Display', serif;
-    color: var(--gold-light); font-size: 1.3rem; letter-spacing: 10px;
-    text-align: center; margin-top: -14px;
+    color: var(--gold-light); font-size: clamp(2rem, 8vw, 3rem);
+    text-align: center; line-height: 1.2;
   }
   .ss-diff-label {
     font-size: 0.62rem; color: rgba(245,240,232,0.35); letter-spacing: 3px;
@@ -1244,10 +1239,7 @@
 <!-- START SCREEN -->
 <div id="start-screen" style="display:none">
   <div class="ss-inner">
-    <div style="text-align:center">
-      <div class="ss-title">SPIDER<br>SOLITAIRE</div>
-      <div class="ss-subtitle">PRO</div>
-    </div>
+    <div class="ss-title">Spider<br>Solitaire Pro</div>
     <p class="ss-diff-label" data-i18n="ss.diff.label">難易度</p>
     <div class="ss-diff-row">
       <button class="ss-diff-btn" id="ss-1" onclick="selectStartDiff(1)">
