@@ -247,15 +247,17 @@
   }
 
   .foundation-slot {
-    width: 68px;
-    height: 52px;
+    height: 40px;
+    width: auto;
+    aspect-ratio: 7 / 10;
+    flex-shrink: 0;
     border: 2px dashed rgba(201,168,76,0.35);
-    border-radius: 5px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.15);
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: rgba(201,168,76,0.4);
     position: relative;
     overflow: hidden;
@@ -268,9 +270,9 @@
 
   .foundation-count {
     position: absolute;
-    bottom: 4px;
-    right: 6px;
-    font-size: 0.65rem;
+    bottom: 2px;
+    right: 3px;
+    font-size: 0.55rem;
     color: var(--gold);
     opacity: 0.8;
   }
@@ -308,15 +310,15 @@
   /* 列番号（各列内に埋め込み） */
   .col-label {
     position: absolute;
-    top: -2px;
+    top: 1px;
     left: 0;
     right: 0;
     text-align: center;
     font-size: 0.65rem;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.55);
     line-height: 1.4;
     pointer-events: none;
-    z-index: 0;
+    z-index: 200;
   }
 
   /* CARD -------------------------------------------------------- */
