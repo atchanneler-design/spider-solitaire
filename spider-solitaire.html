@@ -1451,6 +1451,7 @@ function loadGameState() {
     render();
     updateStats();
     updateTimer();
+    initGameHistory(); // 復元後の盤面をgameHistoryの起点として記録
     return true;
   } catch(e) {
     return false;
@@ -3141,6 +3142,17 @@ function getHistoryEntry(moveNumber) {
   let checkpoint = gameHistory[0];
   for (const entry of gameHistory) {
     if (entry.fullSnapshot && entry.moveNumber <= moveNumber) checkpoint = entry;
+  }
+  // fullSnapshot がない場合（ゲーム途中でリロードした場合など）は現在の盤面をスナップショットとして使う
+  if (!checkpoint.fullSnapshot) {
+    checkpoint = {
+      moveNumber: checkpoint.moveNumber,
+      fullSnapshot: {
+        columns: state.columns.map(col => col.map(c => ({...c}))),
+        stockLength: state.stock.length,
+        foundationsLength: state.foundations.length,
+      },
+    };
   }
   let columns = checkpoint.fullSnapshot.columns.map(col => col.map(c => ({...c})));
   let stockLength = checkpoint.fullSnapshot.stockLength;
