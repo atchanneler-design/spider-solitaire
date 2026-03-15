@@ -3292,6 +3292,96 @@ function showReview(result = 'giveup') {
   refreshReview();
 }
 
+function buildReviewContext(entry, prevEntry, moveNumber) {
+  const isEn = currentLang === 'en';
+  const total = gameHistory.length > 0 ? gameHistory[gameHistory.length - 1].moveNumber : 0;
+  const resultLabel = reviewState?.result === 'clear'
+    ? (isEn ? 'Clear' : 'クリア') : (isEn ? 'Give Up' : 'ギブアップ');
+  const lines = isEn ? [
+    '[Review Analysis Mode]',
+    `Total moves: ${total}`,
+    `Result: ${resultLabel}`,
+    `Completed suits: ${state.foundations.length}/8`,
+    '',
+    `[Move in focus: Move ${moveNumber}]`,
+    `Move: ${entry?.description || 'Game start'}`,
+    `Empty cols: ${prevEntry?.metrics?.emptyColumns ?? '?'}→${entry?.metrics?.emptyColumns ?? '?'}`,
+    `Face-down cards: ${prevEntry?.metrics?.hiddenCards ?? '?'}→${entry?.metrics?.hiddenCards ?? '?'}`,
+    `Score: ${prevEntry?.metrics?.score ?? '?'}→${entry?.metrics?.score ?? '?'}`,
+    '',
+    '[Board before this move]',
+  ] : [
+    '【振り返り分析モード】',
+    `総手数: ${total}手`,
+    `結果: ${resultLabel}`,
+    `完成スート: ${state.foundations.length}/8`,
+    '',
+    `【注目している手: 手${moveNumber}】`,
+    `手の内容: ${entry?.description || 'ゲーム開始'}`,
+    `空き列: ${prevEntry?.metrics?.emptyColumns ?? '?'}→${entry?.metrics?.emptyColumns ?? '?'}`,
+    `裏向きカード: ${prevEntry?.metrics?.hiddenCards ?? '?'}→${entry?.metrics?.hiddenCards ?? '?'}`,
+    `スコア: ${prevEntry?.metrics?.score ?? '?'}→${entry?.metrics?.score ?? '?'}`,
+    '',
+    '【この手前の盤面】',
+  ];
+  const src = prevEntry?.columns || entry?.columns;
+  if (src) {
+    src.forEach((col, i) => {
+      if (col.length === 0) {
+        lines.push(isEn ? `Col${i+1}: [EMPTY]` : `列${i+1}: 【空き列】`);
+      } else {
+        const fd = col.filter(c => !c.faceUp).length;
+        const fu = col.filter(c => c.faceUp).map(c => `${c.rank}${c.suit}`).join(' ');
+        lines.push(isEn
+          ? `Col${i+1}: ${fd} face-down | face-up→ ${fu}`
+          : `列${i+1}: 裏向き${fd}枚 | 表向き→ ${fu}`);
+      }
+    });
+  }
+  return lines.join('\n');
+}
+
+async function callReviewAi(moveNumber) {
+  if (reviewAiCache[moveNumber]) {
+    const el = document.getElementById('review-ai-text');
+    if (el) { el.textContent = reviewAiCache[moveNumber]; el.style.display = 'block'; }
+    return;
+  }
+  const aiBtn  = document.getElementById('rv-ai-btn');
+  const loading = document.getElementById('rv-ai-loading');
+  const aiText  = document.getElementById('review-ai-text');
+  if (aiBtn)    aiBtn.disabled = true;
+  if (loading)  loading.style.display = 'block';
+  if (aiText)   aiText.style.display  = 'none';
+
+  const entry     = getHistoryEntry(moveNumber);
+  const prevEntry = moveNumber > 0 ? getHistoryEntry(moveNumber - 1) : null;
+  const boardContext = buildReviewContext(entry, prevEntry, moveNumber);
+  const question = currentLang === 'en'
+    ? 'Please give me a review of this move.' : '振り返りアドバイスをください';
+
+  try {
+    const res = await fetch('/api/ask-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, boardContext, lang: currentLang, mode: 'review' }),
+    });
+    const data = await res.json();
+    const reply = data.reply || (currentLang === 'en' ? 'No response from AI.' : 'AIからの応答がありませんでした');
+    reviewAiCache[moveNumber] = reply;
+    if (aiText) { aiText.textContent = reply; aiText.style.display = 'block'; }
+  } catch (err) {
+    console.error('callReviewAi error:', err);
+    if (aiText) {
+      aiText.textContent = currentLang === 'en' ? 'Error occurred.' : 'エラーが発生しました';
+      aiText.style.display = 'block';
+    }
+  } finally {
+    if (aiBtn)   aiBtn.disabled = false;
+    if (loading) loading.style.display = 'none';
+  }
+}
+
 function rewindToStart() {
   hideModal();
   while (state.history.length > 0) undoMove();
