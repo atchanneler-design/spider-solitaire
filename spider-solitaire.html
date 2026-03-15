@@ -385,26 +385,27 @@
   .card-top {
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 28px;
+    height: 32px;
     display: flex;
-    align-items: flex-start;
-    padding: 2px 4px 0;
+    align-items: center;
+    padding: 0 3px;
     gap: 1px;
     overflow: hidden;
   }
   .card-top-rank {
-    font-size: 0.95rem;
-    font-weight: 800;
+    font-size: 1.25rem;
+    font-weight: 900;
     line-height: 1;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
     flex-shrink: 0;
   }
   .card-top-rank.rank-10 {
-    font-size: 0.75rem;
+    font-size: 1.0rem;
     letter-spacing: -0.5px;
   }
   .card-top-suit {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
+    font-weight: 900;
     line-height: 1;
     flex-shrink: 0;
   }
@@ -423,12 +424,12 @@
     line-height: 1;
     opacity: 0.92;
   }
-  .card.card-front .card-top-rank { font-size: 1.25rem; letter-spacing: -1.5px; }
-  .card.card-front .card-top-rank.rank-10 { font-size: 0.85rem; letter-spacing: -1px; }
-  .card.card-front .card-top-suit { font-size: 1.2rem; }
+  .card.card-front .card-top-rank { font-size: 1.55rem; letter-spacing: -0.5px; }
+  .card.card-front .card-top-rank.rank-10 { font-size: 1.15rem; letter-spacing: -0.5px; }
+  .card.card-front .card-top-suit { font-size: 1.4rem; }
 
-  .red   { color: #cc1111; }
-  .black { color: #111111; }
+  .red   { color: #dd0000; }
+  .black { color: #000; }
 
   /* STOCK */
   .stock-area {
