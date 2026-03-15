@@ -969,6 +969,74 @@
     .stats { gap: 10px; }
     header { padding: 8px 12px; }
   }
+
+  /* ── Review Overlay ─────────────────────────────────────── */
+  #review-overlay { font-family: 'DM Mono', monospace; color: var(--cream); }
+  .rv-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; background: rgba(0,0,0,0.4);
+    border-bottom: 1px solid rgba(201,168,76,0.3); flex-shrink: 0;
+  }
+  .rv-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--gold-light); }
+  .rv-subtitle { font-size: 0.7rem; opacity: 0.6; margin-top: 2px; }
+  .rv-close {
+    background: none; border: 1px solid rgba(255,255,255,0.25);
+    color: var(--cream); font-size: 1rem; width: 34px; height: 34px;
+    border-radius: 50%; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rv-timeline {
+    display: flex; gap: 8px; padding: 8px 14px; overflow-x: auto;
+    flex-shrink: 0; background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .rv-timeline::-webkit-scrollbar { display: none; }
+  .rv-tp {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 10px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+    cursor: pointer; flex-shrink: 0; min-width: 58px; font-size: 0.62rem;
+    background: rgba(255,255,255,0.04); transition: border-color 0.15s, background 0.15s;
+  }
+  .rv-tp.active { border-color: var(--gold); background: rgba(201,168,76,0.18); }
+  .rv-tp .tp-icon { font-size: 1rem; line-height: 1; }
+  .rv-tp .tp-move { color: var(--gold); font-weight: 700; font-size: 0.65rem; }
+  .rv-tp .tp-reason { opacity: 0.7; text-align: center; max-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.58rem; }
+  .rv-nav {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+    flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .rv-nav-btn {
+    background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light); font-size: 1rem; width: 44px; height: 44px;
+    border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  }
+  .rv-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .rv-move-info { flex: 1; text-align: center; }
+  .rv-move-num { font-size: 0.7rem; color: var(--gold); margin-bottom: 2px; }
+  .rv-move-desc { font-size: 0.75rem; opacity: 0.85; }
+  .rv-board-wrap { flex: 1; overflow: hidden; position: relative; min-height: 120px; }
+  .rv-board-inner { position: absolute; width: 720px; transform-origin: top left; }
+  .rv-preview-foundations {
+    display: flex; gap: 4px; justify-content: center; padding: 4px 8px;
+    background: rgba(0,0,0,0.25); border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .rv-preview-columns {
+    display: flex; gap: 3px; padding: 0 4px; align-items: flex-start; margin-top: 10px;
+  }
+  .rv-ai-section {
+    padding: 10px 16px; flex-shrink: 0;
+    border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.15);
+  }
+  #review-ai-text {
+    margin-top: 10px; font-size: 0.78rem; line-height: 1.7;
+    opacity: 0.9; white-space: pre-wrap; display: none;
+  }
+  #rv-ai-loading { margin-top: 8px; font-size: 0.72rem; opacity: 0.55; display: none; }
+  .rv-footer {
+    padding: 10px 16px; display: flex; justify-content: center; gap: 10px;
+    flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.2);
+  }
 </style>
 </head>
 <body>
@@ -3037,17 +3105,191 @@ function switchRankTab(idx) {
   document.querySelectorAll('.rank-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
 }
 
-function showReview() {
-  const total = state.history.length;
-  showModal(`
-    <h2>${t('review.title')}</h2>
-    <p>${t('review.body', total)}</p>
-    <div class="btn-group">
-      <button class="btn" onclick="hideModal();undoMove()">${t('review.undo')}</button>
-      <button class="btn danger" onclick="rewindToStart()">${t('review.rewind')}</button>
-      <button class="btn primary" onclick="hideModal()">${t('modal.close')}</button>
+// ── 振り返り画面 ────────────────────────────────────────────
+let reviewState = null;
+let reviewAiCache = {};
+
+function detectTurningPoints() {
+  const tps = [];
+  for (let i = 1; i < gameHistory.length; i++) {
+    const prev = gameHistory[i - 1].metrics;
+    const curr = gameHistory[i].metrics;
+    if (curr.emptyColumns > prev.emptyColumns) {
+      tps.push({ moveNumber: gameHistory[i].moveNumber, type: 'good', icon: '✅',
+        reason: currentLang === 'en' ? 'Empty col' : '空き列確保' });
+    }
+    if (curr.emptyColumns === 0 && prev.emptyColumns > 0) {
+      tps.push({ moveNumber: gameHistory[i].moveNumber, type: 'bad', icon: '⚠️',
+        reason: currentLang === 'en' ? 'No empty col' : '空き列消滅' });
+    }
+    if (prev.hiddenCards - curr.hiddenCards >= 3) {
+      tps.push({ moveNumber: gameHistory[i].moveNumber, type: 'key', icon: '⭐',
+        reason: currentLang === 'en'
+          ? `Flip ${prev.hiddenCards - curr.hiddenCards}`
+          : `裏${prev.hiddenCards - curr.hiddenCards}枚めくり` });
+    }
+    if (gameHistory[i].type === 'complete') {
+      tps.push({ moveNumber: gameHistory[i].moveNumber, type: 'good', icon: '🎉',
+        reason: currentLang === 'en' ? 'Suit done' : 'スート完成' });
+    }
+  }
+  return tps;
+}
+
+function getHistoryEntry(moveNumber) {
+  if (gameHistory.length === 0) return null;
+  let checkpoint = gameHistory[0];
+  for (const entry of gameHistory) {
+    if (entry.fullSnapshot && entry.moveNumber <= moveNumber) checkpoint = entry;
+  }
+  let columns = checkpoint.fullSnapshot.columns.map(col => col.map(c => ({...c})));
+  let stockLength = checkpoint.fullSnapshot.stockLength;
+  let foundationsLength = checkpoint.fullSnapshot.foundationsLength;
+  for (const entry of gameHistory) {
+    if (entry.moveNumber <= checkpoint.moveNumber) continue;
+    if (entry.moveNumber > moveNumber) break;
+    if (entry.changedCols) {
+      Object.entries(entry.changedCols).forEach(([ci, cards]) => {
+        columns[parseInt(ci)] = cards.map(c => ({...c}));
+      });
+    }
+    if (entry.stockLength !== undefined) stockLength = entry.stockLength;
+    if (entry.foundationsLength !== undefined) foundationsLength = entry.foundationsLength;
+  }
+  const histEntry = gameHistory.find(e => e.moveNumber === moveNumber) || gameHistory[gameHistory.length - 1];
+  return { columns, stockLength, foundationsLength, ...histEntry };
+}
+
+function renderPreviewBoard(entry) {
+  if (!entry) return;
+  const CARD_H = 100, DEFAULT_FD = 14, DEFAULT_FU = 30, MIN_FD = 7, MIN_FU = 16, availH = 360;
+  let minScale = 1.0;
+  entry.columns.forEach(col => {
+    const nfd = col.filter(c => !c.faceUp).length;
+    const nfu = col.filter(c =>  c.faceUp).length;
+    const needed = nfd * DEFAULT_FD + nfu * DEFAULT_FU;
+    if (needed > 0 && availH > CARD_H) { const sc = (availH - CARD_H) / needed; if (sc < minScale) minScale = sc; }
+  });
+  const FD = Math.max(MIN_FD, Math.floor(DEFAULT_FD * minScale));
+  const FU = Math.max(MIN_FU, Math.floor(DEFAULT_FU * minScale));
+
+  // Foundations
+  const fEl = document.querySelector('.rv-preview-foundations');
+  if (fEl) {
+    fEl.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const s = document.createElement('div');
+      s.className = 'foundation-slot' + (i < entry.foundationsLength ? ' filled' : '');
+      s.style.cssText = 'width:38px;height:52px;font-size:1rem;';
+      s.textContent = i < entry.foundationsLength ? '♠' : '♤';
+      fEl.appendChild(s);
+    }
+  }
+  // Columns
+  const cEl = document.querySelector('.rv-preview-columns');
+  if (!cEl) return;
+  cEl.innerHTML = '';
+  entry.columns.forEach(col => {
+    const colEl = document.createElement('div');
+    colEl.style.cssText = 'flex:1;min-width:0;max-width:72px;position:relative;min-height:120px;';
+    const slot = document.createElement('div'); slot.className = 'column-slot'; colEl.appendChild(slot);
+    let top = 0;
+    col.forEach((card, ki) => {
+      const isFront = (ki === col.length - 1);
+      const el = document.createElement('div');
+      el.className = 'card' + (!card.faceUp ? ' face-down' : '') + (isFront && card.faceUp ? ' card-front' : '');
+      el.style.cssText = `top:${top}px;z-index:${ki+1};position:absolute;width:100%;height:${CARD_H}px;`;
+      if (card.faceUp) {
+        const r = isRed(card.suit); const cls = r ? 'red' : 'black';
+        el.innerHTML = `<div class="card-top"><span class="card-top-rank ${cls}${card.rank==='10'?' rank-10':''}">${card.rank}</span><span class="card-top-suit ${cls}">${card.suit}</span></div><span class="card-center-suit ${cls}">${card.suit}</span>`;
+      }
+      top += card.faceUp ? FU : FD;
+      colEl.appendChild(el);
+    });
+    colEl.style.height = (top + CARD_H) + 'px';
+    cEl.appendChild(colEl);
+  });
+  // Scale
+  const inner = document.querySelector('.rv-board-inner');
+  const wrap  = document.querySelector('.rv-board-wrap');
+  if (inner && wrap) {
+    const wW = wrap.clientWidth || 375;
+    const scale = Math.min(0.58, (wW - 8) / 720);
+    inner.style.transform = `scale(${scale})`;
+    inner.style.marginLeft = Math.max(0, (wW - 720 * scale) / 2) + 'px';
+    const maxColH = Math.max(...entry.columns.map(col => {
+      return col.filter(c => !c.faceUp).length * FD + col.filter(c => c.faceUp).length * FU + CARD_H;
+    }), 120);
+    wrap.style.height = Math.ceil((maxColH + 80) * scale) + 'px';
+  }
+}
+
+function buildReviewHTML(result, turningPoints, currentIdx, entry) {
+  const totalMoves = gameHistory.length > 0 ? gameHistory[gameHistory.length - 1].moveNumber : 0;
+  const isEn = currentLang === 'en';
+  const resultLabel = result === 'clear' ? (isEn ? 'Clear' : 'クリア') : (isEn ? 'Give Up' : 'ギブアップ');
+  const timelineHTML = turningPoints.length === 0
+    ? `<div style="font-size:0.7rem;opacity:0.5;padding:4px 0">${isEn ? 'No turning points' : 'ターニングポイントなし'}</div>`
+    : turningPoints.map(tp => `<div class="rv-tp${tp.moveNumber === currentIdx ? ' active' : ''}" data-move="${tp.moveNumber}"><span class="tp-icon">${tp.icon}</span><span class="tp-move">${isEn?'M':'手'}${tp.moveNumber}</span><span class="tp-reason">${tp.reason}</span></div>`).join('');
+  const descText = entry?.description || (isEn ? 'Game start' : 'ゲーム開始');
+  const moveLabel = isEn ? `Move ${currentIdx} / ${totalMoves}` : `手${currentIdx} / ${totalMoves}`;
+  return `
+    <div class="rv-header">
+      <div><div class="rv-title">${isEn ? 'Game Review' : 'ゲーム振り返り'}</div><div class="rv-subtitle">${state.moves}${isEn?' moves':'手'} / ${resultLabel}</div></div>
+      <button class="rv-close" id="rv-close-btn">✕</button>
     </div>
-  `);
+    <div class="rv-timeline">${timelineHTML}</div>
+    <div class="rv-nav">
+      <button class="rv-nav-btn" id="rv-prev"${currentIdx <= 0 ? ' disabled' : ''}>◀</button>
+      <div class="rv-move-info"><div class="rv-move-num">${moveLabel}</div><div class="rv-move-desc">${descText}</div></div>
+      <button class="rv-nav-btn" id="rv-next"${currentIdx >= totalMoves ? ' disabled' : ''}>▶</button>
+    </div>
+    <div class="rv-board-wrap"><div class="rv-board-inner"><div class="rv-preview-foundations"></div><div class="rv-preview-columns"></div></div></div>
+    <div class="rv-ai-section">
+      <button class="btn" id="rv-ai-btn">${isEn ? '🤖 Review this move' : '🤖 この手を振り返る'}</button>
+      <div id="rv-ai-loading">${isEn ? 'Thinking…' : '考え中…'}</div>
+      <div id="review-ai-text"></div>
+    </div>
+    <div class="rv-footer"><button class="btn primary" id="rv-newgame-btn">${isEn ? 'New Game' : '新しいゲームを始める'}</button></div>`;
+}
+
+function bindReviewEvents() {
+  const totalMoves = gameHistory.length > 0 ? gameHistory[gameHistory.length - 1].moveNumber : 0;
+  const overlay = document.getElementById('review-overlay');
+  document.getElementById('rv-close-btn')?.addEventListener('click', () => { overlay.style.display = 'none'; });
+  document.querySelectorAll('.rv-tp[data-move]').forEach(el => {
+    el.addEventListener('click', () => { reviewState.currentIdx = parseInt(el.dataset.move); refreshReview(); });
+  });
+  document.getElementById('rv-prev')?.addEventListener('click', () => {
+    if (reviewState.currentIdx > 0) { reviewState.currentIdx--; refreshReview(); }
+  });
+  document.getElementById('rv-next')?.addEventListener('click', () => {
+    if (reviewState.currentIdx < totalMoves) { reviewState.currentIdx++; refreshReview(); }
+  });
+  document.getElementById('rv-ai-btn')?.addEventListener('click', () => callReviewAi(reviewState.currentIdx));
+  document.getElementById('rv-newgame-btn')?.addEventListener('click', () => { overlay.style.display = 'none'; newGame(); });
+  renderPreviewBoard(getHistoryEntry(reviewState.currentIdx));
+  const cached = reviewAiCache[reviewState.currentIdx];
+  if (cached) {
+    const aiText = document.getElementById('review-ai-text');
+    if (aiText) { aiText.textContent = cached; aiText.style.display = 'block'; }
+  }
+}
+
+function refreshReview() {
+  const overlay = document.getElementById('review-overlay');
+  const entry = getHistoryEntry(reviewState.currentIdx);
+  overlay.innerHTML = buildReviewHTML(reviewState.result, reviewState.turningPoints, reviewState.currentIdx, entry);
+  bindReviewEvents();
+}
+
+function showReview(result = 'giveup') {
+  reviewAiCache = {};
+  const overlay = document.getElementById('review-overlay');
+  overlay.style.display = 'flex';
+  const turningPoints = detectTurningPoints();
+  reviewState = { result, turningPoints, currentIdx: turningPoints.length > 0 ? turningPoints[0].moveNumber : 0 };
+  refreshReview();
 }
 
 function rewindToStart() {
@@ -3582,5 +3824,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<div id="review-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:200;flex-direction:column;overflow:hidden;"></div>
 </body>
 </html>
