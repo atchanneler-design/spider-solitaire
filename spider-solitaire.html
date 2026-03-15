@@ -999,9 +999,19 @@
     background: rgba(255,255,255,0.04); transition: border-color 0.15s, background 0.15s;
   }
   .rv-tp.active { border-color: var(--gold); background: rgba(201,168,76,0.18); }
+  .rv-tp.has-ai::after { content: '🤖'; display: block; font-size: 0.55rem; line-height: 1; margin-top: 2px; }
   .rv-tp .tp-icon { font-size: 1rem; line-height: 1; }
   .rv-tp .tp-move { color: var(--gold); font-weight: 700; font-size: 0.65rem; }
   .rv-tp .tp-reason { opacity: 0.7; text-align: center; max-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.58rem; }
+  .rv-ai-jumps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+  .rv-ai-jumps-label { font-size: 0.65rem; opacity: 0.55; }
+  .rv-ai-jump-chip {
+    background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 4px; padding: 3px 9px; font-size: 0.68rem; color: var(--gold);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .rv-ai-jump-chip:hover { background: rgba(201,168,76,0.25); }
+  .rv-ai-jump-chip.current { border-color: var(--gold); background: rgba(201,168,76,0.28); font-weight: 700; }
   .rv-nav {
     display: flex; align-items: center; gap: 8px; padding: 8px 14px;
     flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -1072,9 +1082,8 @@
 
   <div class="toolbar">
     <div class="toolbar-row">
-      <button class="btn primary" onclick="confirmNewGame()" data-i18n="btn.newGame">新しいゲーム</button>
+      <button id="btn-giveup" class="btn danger" onclick="confirmGiveUp()" data-i18n="btn.giveup">🏳 ギブアップ</button>
       <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
-      <button id="btn-giveup" class="btn danger" onclick="confirmGiveUp()" data-i18n="btn.giveup" style="display:none">🏳 ギブアップ</button>
       <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
     </div>
     <div class="difficulty-selector">
@@ -1784,15 +1793,20 @@ function confirmNewGame() {
 }
 
 function confirmGiveUp() {
+  const title = currentLang === 'en' ? 'Give Up?' : 'ギブアップしますか？';
   const bodyText = currentLang === 'en'
-    ? `End the game and review your play?<br>${state.moves} moves to look back on.`
-    : `ゲームを終了して振り返りますか？<br>${state.moves}手のプレイを確認できます。`;
+    ? `You've made ${state.moves} moves. What would you like to do?`
+    : `${state.moves}手のプレイを終了します。どうしますか？`;
+  const btnReview  = currentLang === 'en' ? '📋 Review Play' : '📋 振り返る';
+  const btnNewGame = currentLang === 'en' ? '🎮 New Game'   : '🎮 新しいゲームへ';
+  const btnKeep    = currentLang === 'en' ? 'Keep Playing'  : '続ける';
   showModal(`
-    <h2>${t('modal.giveup.title')}</h2>
+    <h2>${title}</h2>
     <p style="margin-bottom:20px">${bodyText}</p>
-    <div class="btn-group">
-      <button class="btn danger" onclick="executeGiveUp()">${t('modal.giveup.yes')}</button>
-      <button class="btn primary" onclick="hideModal()">${t('modal.giveup.no')}</button>
+    <div class="btn-group" style="flex-direction:column;gap:10px">
+      <button class="btn danger"  style="width:100%" onclick="executeGiveUp()">${btnReview}</button>
+      <button class="btn primary" style="width:100%" onclick="giveUpAndNewGame()">${btnNewGame}</button>
+      <button class="btn"         style="width:100%" onclick="hideModal()">${btnKeep}</button>
     </div>
   `);
 }
@@ -1804,6 +1818,14 @@ function executeGiveUp() {
   saveGameState();
   gtag('event', 'game_giveup', { difficulty: state.difficulty, moves: state.moves });
   showReview('giveup');
+}
+
+function giveUpAndNewGame() {
+  hideModal();
+  state.gameOver = true;
+  clearInterval(state.timerInterval);
+  gtag('event', 'game_giveup', { difficulty: state.difficulty, moves: state.moves });
+  newGame();
 }
 
 function newGame(problemIdx = null) {
@@ -3242,7 +3264,7 @@ function buildReviewHTML(result, turningPoints, currentIdx, entry) {
   const resultLabel = result === 'clear' ? (isEn ? 'Clear' : 'クリア') : (isEn ? 'Give Up' : 'ギブアップ');
   const timelineHTML = turningPoints.length === 0
     ? `<div style="font-size:0.7rem;opacity:0.5;padding:4px 0">${isEn ? 'No turning points' : 'ターニングポイントなし'}</div>`
-    : turningPoints.map(tp => `<div class="rv-tp${tp.moveNumber === currentIdx ? ' active' : ''}" data-move="${tp.moveNumber}"><span class="tp-icon">${tp.icon}</span><span class="tp-move">${isEn?'M':'手'}${tp.moveNumber}</span><span class="tp-reason">${tp.reason}</span></div>`).join('');
+    : turningPoints.map(tp => `<div class="rv-tp${tp.moveNumber === currentIdx ? ' active' : ''}${reviewAiCache[tp.moveNumber] ? ' has-ai' : ''}" data-move="${tp.moveNumber}"><span class="tp-icon">${tp.icon}</span><span class="tp-move">${isEn?'M':'手'}${tp.moveNumber}</span><span class="tp-reason">${tp.reason}</span></div>`).join('');
   const descText = entry?.description || (isEn ? 'Game start' : 'ゲーム開始');
   const moveLabel = isEn ? `Move ${currentIdx} / ${totalMoves}` : `手${currentIdx} / ${totalMoves}`;
   return `
@@ -3261,6 +3283,13 @@ function buildReviewHTML(result, turningPoints, currentIdx, entry) {
       <button class="btn" id="rv-ai-btn">${isEn ? '🤖 Review this move' : '🤖 この手を振り返る'}</button>
       <div id="rv-ai-loading">${isEn ? 'Thinking…' : '考え中…'}</div>
       <div id="review-ai-text"></div>
+      ${(() => {
+        const cached = Object.keys(reviewAiCache).map(Number).sort((a,b) => a-b);
+        if (cached.length === 0) return '';
+        const label = isEn ? 'AI advised:' : 'AIアドバイス済み:';
+        const chips = cached.map(m => `<div class="rv-ai-jump-chip${m === currentIdx ? ' current' : ''}" data-jump="${m}">${isEn?'M':'手'}${m}</div>`).join('');
+        return `<div class="rv-ai-jumps"><span class="rv-ai-jumps-label">${label}</span>${chips}</div>`;
+      })()}
     </div>
     <div class="rv-footer"><button class="btn primary" id="rv-newgame-btn">${isEn ? 'New Game' : '新しいゲームを始める'}</button></div>`;
 }
@@ -3279,6 +3308,9 @@ function bindReviewEvents() {
     if (reviewState.currentIdx < totalMoves) { reviewState.currentIdx++; refreshReview(); }
   });
   document.getElementById('rv-ai-btn')?.addEventListener('click', () => callReviewAi(reviewState.currentIdx));
+  document.querySelectorAll('.rv-ai-jump-chip[data-jump]').forEach(el => {
+    el.addEventListener('click', () => { reviewState.currentIdx = parseInt(el.dataset.jump); refreshReview(); });
+  });
   document.getElementById('rv-newgame-btn')?.addEventListener('click', () => { overlay.style.display = 'none'; newGame(); });
   renderPreviewBoard(getHistoryEntry(reviewState.currentIdx));
   const cached = reviewAiCache[reviewState.currentIdx];
@@ -3407,11 +3439,9 @@ function updateStats() {
   document.getElementById('stat-moves').textContent = state.moves;
   document.getElementById('stat-score').textContent = state.score;
   document.getElementById('stat-cleared').textContent = `${state.cleared}/8`;
-  // ギブアップボタンの表示切り替え
+  // ギブアップボタンの表示切り替え（ゲーム中のみ表示）
   const giveupBtn = document.getElementById('btn-giveup');
-  if (giveupBtn) {
-    giveupBtn.style.display = (state.moves >= 1 && !state.gameOver) ? '' : 'none';
-  }
+  if (giveupBtn) giveupBtn.style.display = state.gameOver ? 'none' : '';
   saveGameState();
 }
 
