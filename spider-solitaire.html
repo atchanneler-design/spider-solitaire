@@ -1060,6 +1060,89 @@
     position: sticky; bottom: 0;
   }
   .rv-footer .btn { flex: 1; max-width: 200px; font-size: 0.75rem; }
+
+  /* START SCREEN */
+  #start-screen {
+    position: fixed; inset: 0; z-index: 300;
+    background: radial-gradient(ellipse at center, #236b44 0%, #0f3a22 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+  }
+  #start-screen::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .ss-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 24px; padding: 40px 28px; width: 100%; max-width: 360px;
+  }
+  .ss-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light); font-size: clamp(2rem, 9vw, 2.6rem);
+    letter-spacing: 5px; text-align: center; line-height: 1.15;
+  }
+  .ss-subtitle {
+    color: rgba(201,168,76,0.5); font-size: 0.75rem; letter-spacing: 6px;
+    text-align: center; margin-top: -18px;
+  }
+  .ss-diff-label {
+    font-size: 0.62rem; color: rgba(245,240,232,0.35); letter-spacing: 3px;
+    text-align: center; margin-bottom: -12px; width: 100%;
+  }
+  .ss-diff-row {
+    display: flex; gap: 10px; width: 100%;
+  }
+  .ss-diff-btn {
+    flex: 1; padding: 14px 6px;
+    border: 1px solid rgba(201,168,76,0.25); border-radius: 8px;
+    background: rgba(0,0,0,0.2); color: rgba(245,240,232,0.55);
+    font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ss-diff-btn:active { transform: scale(0.96); }
+  .ss-diff-btn.active {
+    border-color: var(--gold); background: rgba(201,168,76,0.18);
+    color: var(--gold-light); box-shadow: 0 0 12px rgba(201,168,76,0.2);
+  }
+  .ss-diff-sub { font-size: 0.6rem; font-weight: 400; opacity: 0.7; letter-spacing: 0.5px; }
+  .ss-action-col {
+    display: flex; flex-direction: column; gap: 10px; width: 100%;
+  }
+  .ss-start-btn {
+    width: 100%; padding: 16px;
+    background: rgba(201,168,76,0.28); border: 1px solid var(--gold);
+    color: var(--gold-light); font-family: 'DM Mono', monospace;
+    font-size: 0.95rem; font-weight: 700;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 3px; -webkit-tap-highlight-color: transparent;
+  }
+  .ss-start-btn:active { background: rgba(201,168,76,0.45); transform: scale(0.98); }
+  .ss-today-btn {
+    width: 100%; padding: 13px;
+    border: 1px solid rgba(255,200,50,0.45); background: rgba(255,200,50,0.08);
+    color: #ffd84d; font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
+  }
+  .ss-today-btn:active { background: rgba(255,200,50,0.22); transform: scale(0.98); }
+  .ss-resume-btn {
+    width: 100%; padding: 13px;
+    border: 1px solid rgba(74,158,255,0.4); background: rgba(74,158,255,0.07);
+    color: rgba(74,158,255,0.85); font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
+  }
+  .ss-resume-btn:active { background: rgba(74,158,255,0.2); transform: scale(0.98); }
+  .ss-lang-btn {
+    background: none; border: 1px solid rgba(201,168,76,0.3);
+    color: rgba(245,240,232,0.45); font-size: 0.65rem; padding: 4px 10px;
+    border-radius: 4px; cursor: pointer; letter-spacing: 0.1em;
+    -webkit-tap-highlight-color: transparent;
+  }
 </style>
 </head>
 <body>
@@ -1099,12 +1182,9 @@
       <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
       <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
     </div>
-    <div class="difficulty-selector">
-      <span class="diff-label" data-i18n="diff.label">難易度</span>
-      <button class="diff-btn" id="diff-1" onclick="confirmSetDifficulty(1)">1♠</button>
-      <button class="diff-btn" id="diff-2" onclick="confirmSetDifficulty(2)">2♠</button>
-      <button class="diff-btn active" id="diff-4" onclick="confirmSetDifficulty(4)">4♠</button>
-      <button class="diff-btn" style="border-color:rgba(255,200,50,0.6);color:#ffd84d;background:rgba(255,200,50,0.1)" onclick="startTodayChallenge()" data-i18n="btn.today">📅</button>
+    <div class="toolbar-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:4px">
+      <button class="btn" style="flex:1" onclick="newGame()" data-i18n="btn.newGame">新しいゲーム</button>
+      <button class="btn" onclick="showStartScreen()" data-i18n="btn.settings">⚙️ 設定</button>
     </div>
   </div>
 
@@ -1146,6 +1226,34 @@
       <span id="ai-advice-text"></span>
       <button id="ai-advice-close" onclick="closeAdvice()">✕</button>
     </div>
+  </div>
+</div>
+
+<!-- START SCREEN -->
+<div id="start-screen" style="display:none">
+  <div class="ss-inner">
+    <div style="text-align:center">
+      <div class="ss-title">SPIDER<br>SOLITAIRE</div>
+      <div class="ss-subtitle">PRO</div>
+    </div>
+    <p class="ss-diff-label" data-i18n="ss.diff.label">難易度</p>
+    <div class="ss-diff-row">
+      <button class="ss-diff-btn" id="ss-1" onclick="selectStartDiff(1)">
+        1♠<span class="ss-diff-sub" data-i18n="ss.easy">かんたん</span>
+      </button>
+      <button class="ss-diff-btn" id="ss-2" onclick="selectStartDiff(2)">
+        2♠<span class="ss-diff-sub" data-i18n="ss.normal">ふつう</span>
+      </button>
+      <button class="ss-diff-btn" id="ss-4" onclick="selectStartDiff(4)">
+        4♠<span class="ss-diff-sub" data-i18n="ss.hard">むずかしい</span>
+      </button>
+    </div>
+    <div class="ss-action-col">
+      <button class="ss-start-btn" onclick="startFromScreen()" data-i18n="ss.start">GAME START</button>
+      <button class="ss-today-btn" onclick="startTodayFromScreen()" data-i18n="ss.today">📅 今日の問題</button>
+      <button class="ss-resume-btn" id="ss-resume-btn" onclick="hideStartScreen()" style="display:none" data-i18n="ss.resume">▶ ゲームを再開</button>
+    </div>
+    <button class="ss-lang-btn" id="ss-lang-toggle" onclick="setLang(currentLang==='ja'?'en':'ja')">EN</button>
   </div>
 </div>
 
@@ -1219,6 +1327,9 @@ const I18N = {
     'board.empty':'空き列: {0}列 | 裏向きカード合計: {1}枚',
     'board.colsHeader':'--- 各列の状態（表向きカードは下→上の順） ---',
     'board.emptyCol':'列{0}: 【空き列】','board.col':'列{0}: 裏向き{1}枚 | 表向き→ {2}',
+    'ss.diff.label':'難易度','ss.easy':'かんたん','ss.normal':'ふつう','ss.hard':'むずかしい',
+    'ss.start':'GAME START','ss.today':'📅 今日の問題','ss.resume':'▶ ゲームを再開',
+    'btn.settings':'⚙️ 設定',
   },
   en: {
     'stat.moves':'Moves','stat.time':'Time','stat.score':'Score','stat.cleared':'Done','stat.streak':'Streak',
@@ -1285,6 +1396,9 @@ const I18N = {
     'board.empty':'Empty cols: {0} | Face-down total: {1}',
     'board.colsHeader':'--- Column states (face-up: bottom→top) ---',
     'board.emptyCol':'Col{0}: [EMPTY]','board.col':'Col{0}: {1} face-down | face-up→ {2}',
+    'ss.diff.label':'DIFFICULTY','ss.easy':'Easy','ss.normal':'Normal','ss.hard':'Hard',
+    'ss.start':'GAME START','ss.today':'📅 Today\'s Challenge','ss.resume':'▶ Resume',
+    'btn.settings':'⚙️ Settings',
   }
 };
 
@@ -1311,6 +1425,8 @@ function applyLang() {
   });
   const btn = document.getElementById('lang-toggle');
   if (btn) btn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
+  const ssBtn = document.getElementById('ss-lang-toggle');
+  if (ssBtn) ssBtn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
 }
 
 // ============================================================
@@ -1410,6 +1526,7 @@ const DRAG_THRESHOLD = 6; // ドラッグ判定ピクセル
 const STATS_KEY = 'spider_stats_v1';
 const GAME_STATE_KEY = 'spider_game_v1';
 const GAME_HISTORY_KEY = 'spider_history_v1';
+const DIFFICULTY_KEY = 'spider_difficulty_v1';
 
 // ゲーム状態をlocalStorageに保存
 function saveGameState() {
@@ -1650,13 +1767,7 @@ function launchTodayChallenge() {
 }
 
 function updateTodayBadge() {
-  // 今日の問題プレイ中はボタンを光らせる
-  const btn = document.querySelector('.toolbar-row .btn:nth-child(2)');
-  if (btn) {
-    btn.style.background = state.isToday
-      ? 'rgba(255,200,50,0.35)'
-      : 'rgba(255,200,50,0.15)';
-  }
+  // 今日の問題バッジはスタート画面に移動したため何もしない
 }
 
 function buildShareText(moves, timeStr, score, hintUsed, adUsed, difficulty, isToday) {
@@ -1783,6 +1894,44 @@ function setDifficulty(n) {
     if (btn) btn.classList.toggle('active', i === n);
   });
   newGame();
+}
+
+// ============================================================
+// START SCREEN
+// ============================================================
+function showStartScreen() {
+  [1, 2, 4].forEach(n => {
+    document.getElementById(`ss-${n}`)?.classList.toggle('active', n === currentDifficulty);
+  });
+  const hasGame = state.columns.length > 0 && !state.gameOver;
+  const resumeBtn = document.getElementById('ss-resume-btn');
+  if (resumeBtn) resumeBtn.style.display = hasGame ? '' : 'none';
+  const ssBtn = document.getElementById('ss-lang-toggle');
+  if (ssBtn) ssBtn.textContent = currentLang === 'ja' ? 'EN' : 'JP';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+
+function hideStartScreen() {
+  document.getElementById('start-screen').style.display = 'none';
+}
+
+function selectStartDiff(n) {
+  currentDifficulty = n;
+  [1, 2, 4].forEach(i => {
+    document.getElementById(`ss-${i}`)?.classList.toggle('active', i === n);
+  });
+}
+
+function startFromScreen() {
+  localStorage.setItem(DIFFICULTY_KEY, String(currentDifficulty));
+  hideStartScreen();
+  newGame();
+}
+
+function startTodayFromScreen() {
+  localStorage.setItem(DIFFICULTY_KEY, String(currentDifficulty));
+  hideStartScreen();
+  launchTodayChallenge();
 }
 
 function confirmGoHome() {
@@ -3932,9 +4081,11 @@ function onAiResizeEnd() {
 // ============================================================
 // START
 // ============================================================
-// 中断セーブがあれば復元、なければ新規ゲーム
+// 中断セーブがあれば復元、なければスタート画面を表示
 if (!loadGameState()) {
-  newGame(0);
+  const savedDiff = parseInt(localStorage.getItem(DIFFICULTY_KEY) || '');
+  if (savedDiff === 1 || savedDiff === 2 || savedDiff === 4) currentDifficulty = savedDiff;
+  showStartScreen();
 }
 renderStreak();
 initAiResize();
