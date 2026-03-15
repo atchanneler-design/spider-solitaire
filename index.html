@@ -335,7 +335,7 @@
   <header>
     <div class="logo">Spider <span>Solitaire Pro</span></div>
     <nav style="display:flex;gap:16px;align-items:center">
-      <a href="blog/index.html" data-i18n="nav.blog">ブログ</a>
+      <a id="nav-blog-link" href="blog/index.html" data-i18n="nav.blog">ブログ</a>
       <a href="privacy.html" data-i18n="nav.privacy">プライバシー</a>
       <a href="contact.html" data-i18n="nav.contact">お問い合わせ</a>
       <button id="lang-toggle" onclick="setLang()" style="background:none;border:1px solid rgba(201,168,76,0.4);color:rgba(245,240,232,0.6);font-size:0.65rem;padding:3px 7px;border-radius:4px;cursor:pointer;letter-spacing:0.08em;font-family:inherit;">EN</button>
@@ -491,6 +491,8 @@ const I18N_PAGE = {
     });
     const btn = document.getElementById('lang-toggle');
     if (btn) btn.textContent = lang === 'ja' ? 'EN' : 'JP';
+    const blogLink = document.getElementById('nav-blog-link');
+    if (blogLink) blogLink.href = lang === 'en' ? 'blog/en/index.html' : 'blog/index.html';
     document.documentElement.lang = lang;
   }
 
