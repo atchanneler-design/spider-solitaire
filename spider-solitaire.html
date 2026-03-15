@@ -152,12 +152,9 @@
 
   /* TOOLBAR */
   .toolbar {
-    display: flex;
-    flex-direction: column;
     padding: 8px 20px;
     background: rgba(0,0,0,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    gap: 6px;
   }
 
   .toolbar-row {
@@ -485,7 +482,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 400;
     backdrop-filter: blur(4px);
   }
 
@@ -1137,12 +1134,22 @@
     letter-spacing: 1px; -webkit-tap-highlight-color: transparent;
   }
   .ss-resume-btn:active { background: rgba(74,158,255,0.2); transform: scale(0.98); }
+  .ss-footer-row {
+    display: flex; align-items: center; gap: 16px;
+  }
   .ss-lang-btn {
     background: none; border: 1px solid rgba(201,168,76,0.3);
     color: rgba(245,240,232,0.45); font-size: 0.65rem; padding: 4px 10px;
     border-radius: 4px; cursor: pointer; letter-spacing: 0.1em;
     -webkit-tap-highlight-color: transparent;
   }
+  .ss-records-link {
+    background: none; border: none; color: rgba(245,240,232,0.4);
+    font-size: 0.72rem; cursor: pointer; font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px; padding: 4px 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ss-records-link:active { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -1180,10 +1187,6 @@
     <div class="toolbar-row">
       <button id="btn-giveup" class="btn danger" onclick="confirmGiveUp()" data-i18n="btn.giveup">🏳 ギブアップ</button>
       <button class="btn" onclick="undoMove()" data-i18n="btn.undo">↩ 戻す</button>
-      <button class="btn" onclick="showRanking()" data-i18n="btn.records">🏆 記録</button>
-    </div>
-    <div class="toolbar-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:4px">
-      <button class="btn" style="flex:1" onclick="newGame()" data-i18n="btn.newGame">新しいゲーム</button>
       <button class="btn" onclick="showStartScreen()" data-i18n="btn.settings">⚙️ 設定</button>
     </div>
   </div>
@@ -1253,7 +1256,10 @@
       <button class="ss-today-btn" onclick="startTodayFromScreen()" data-i18n="ss.today">📅 今日の問題</button>
       <button class="ss-resume-btn" id="ss-resume-btn" onclick="hideStartScreen()" style="display:none" data-i18n="ss.resume">▶ ゲームを再開</button>
     </div>
-    <button class="ss-lang-btn" id="ss-lang-toggle" onclick="setLang(currentLang==='ja'?'en':'ja')">EN</button>
+    <div class="ss-footer-row">
+      <button class="ss-lang-btn" id="ss-lang-toggle" onclick="setLang(currentLang==='ja'?'en':'ja')">EN</button>
+      <button class="ss-records-link" onclick="showRanking()" data-i18n="ss.records">🏆 記録</button>
+    </div>
   </div>
 </div>
 
@@ -1329,7 +1335,7 @@ const I18N = {
     'board.emptyCol':'列{0}: 【空き列】','board.col':'列{0}: 裏向き{1}枚 | 表向き→ {2}',
     'ss.diff.label':'難易度','ss.easy':'かんたん','ss.normal':'ふつう','ss.hard':'むずかしい',
     'ss.start':'GAME START','ss.today':'📅 今日の問題','ss.resume':'▶ ゲームを再開',
-    'btn.settings':'⚙️ 設定',
+    'ss.records':'🏆 記録','btn.settings':'⚙️ 設定',
   },
   en: {
     'stat.moves':'Moves','stat.time':'Time','stat.score':'Score','stat.cleared':'Done','stat.streak':'Streak',
@@ -1398,7 +1404,7 @@ const I18N = {
     'board.emptyCol':'Col{0}: [EMPTY]','board.col':'Col{0}: {1} face-down | face-up→ {2}',
     'ss.diff.label':'DIFFICULTY','ss.easy':'Easy','ss.normal':'Normal','ss.hard':'Hard',
     'ss.start':'GAME START','ss.today':'📅 Today\'s Challenge','ss.resume':'▶ Resume',
-    'btn.settings':'⚙️ Settings',
+    'ss.records':'🏆 Records','btn.settings':'⚙️ Settings',
   }
 };
 
