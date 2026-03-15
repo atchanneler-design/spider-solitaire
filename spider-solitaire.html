@@ -466,11 +466,12 @@
 
   .stock-count {
     position: absolute;
-    bottom: 4px;
+    bottom: 3px;
     width: 100%;
     text-align: center;
-    color: rgba(245,240,232,0.6);
-    font-size: 0.65rem;
+    color: rgba(245,240,232,0.85);
+    font-size: 0.62rem;
+    line-height: 1.35;
   }
 
   /* MODAL */
@@ -2016,7 +2017,9 @@ function renderStock() {
 
     const count = document.createElement('div');
     count.className = 'stock-count';
-    count.textContent = t('stock.deal', state.stock.length);
+    const dealLine = currentLang === 'en' ? 'Deal' : '配る';
+    const leftLine = currentLang === 'en' ? `${state.stock.length} left` : `残${state.stock.length}回`;
+    count.innerHTML = `${dealLine}<br>${leftLine}`;
     pile.appendChild(count);
 
     pile.addEventListener('click', dealFromStock);
