@@ -361,12 +361,12 @@
     <h2 data-i18n="ai.heading">AIコーチとともに上手くなる</h2>
     <div class="ai-highlight">
       <div class="ai-icon">🤖</div>
-      <h3 data-i18n="ai.subheading">詰まったら、AIに相談</h3>
+      <h3 data-i18n="ai.subheading">プレイ中もクリア後も、AIが一緒に考える</h3>
       <ul>
-        <li><span class="check">✦</span><span data-i18n="ai.li1">盤面の状況を自動分析。「良い」「厳しい」をひと言で判定</span></li>
-        <li><span class="check">✦</span><span data-i18n="ai.li2">次の3〜5手の具体的な方針を番号付きで提示</span></li>
-        <li><span class="check">✦</span><span data-i18n="ai.li3">やってはいけない手・見落としやすいポイントも解説</span></li>
-        <li><span class="check">✦</span><span data-i18n="ai.li4">ヒント機能で移動できるカードをハイライト表示</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li1">盤面を分析して「状況」「次の一手」「その手で何が変わるか」を解説</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li2">正解を押しつけず、考え方の視点を伝えるコーチングスタイル</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li3">クリア後・ギブアップ後に全手を振り返り。AIがターニングポイントを解説</span></li>
+        <li><span class="check">✦</span><span data-i18n="ai.li4">振り返りのAI解説は「この手の評価」「代替案」「次に活かせる教訓」の3点セット</span></li>
       </ul>
     </div>
   </section>
@@ -388,9 +388,9 @@
         <p data-i18n="feat.undo.desc">何手でも巻き戻せる。クリア後の振り返りにも対応</p>
       </div>
       <div class="feature-card">
-        <div class="icon">💡</div>
-        <h3 data-i18n="feat.hint.title">ヒント機能</h3>
-        <p data-i18n="feat.hint.desc">移動できるカードを全件ハイライト。次の一手に迷ったらすぐ確認</p>
+        <div class="icon">📋</div>
+        <h3 data-i18n="feat.review.title">振り返り機能</h3>
+        <p data-i18n="feat.review.desc">全手のプレイをAIとともに振り返る。ターニングポイントで教訓を学ぼう</p>
       </div>
       <div class="feature-card">
         <div class="icon">🏆</div>
@@ -443,15 +443,15 @@ const I18N_PAGE = {
     'nav.blog':'ブログ','nav.privacy':'プライバシー','nav.contact':'お問い合わせ',
     'hero.desc':'AIコーチと一緒にプレイして、<br>一緒に上手くなる。<br>毎日同じ盤面に挑む「今日の問題」で腕を競おう。',
     'cta.play':'AIと一緒にプレイ',
-    'ai.heading':'AIコーチとともに上手くなる','ai.subheading':'詰まったら、AIに相談',
-    'ai.li1':'盤面の状況を自動分析。「良い」「厳しい」をひと言で判定',
-    'ai.li2':'次の3〜5手の具体的な方針を番号付きで提示',
-    'ai.li3':'やってはいけない手・見落としやすいポイントも解説',
-    'ai.li4':'ヒント機能で移動できるカードをハイライト表示',
+    'ai.heading':'AIコーチとともに上手くなる','ai.subheading':'プレイ中もクリア後も、AIが一緒に考える',
+    'ai.li1':'盤面を分析して「状況」「次の一手」「その手で何が変わるか」を解説',
+    'ai.li2':'正解を押しつけず、考え方の視点を伝えるコーチングスタイル',
+    'ai.li3':'クリア後・ギブアップ後に全手を振り返り。AIがターニングポイントを解説',
+    'ai.li4':'振り返りのAI解説は「この手の評価」「代替案」「次に活かせる教訓」の3点セット',
     'features.heading':'特徴',
     'feat.daily.title':'今日の問題','feat.daily.desc':'毎日同じ盤面に全員が挑戦。SNSでスコアをシェア',
     'feat.undo.title':'無制限Undo','feat.undo.desc':'何手でも巻き戻せる。クリア後の振り返りにも対応',
-    'feat.hint.title':'ヒント機能','feat.hint.desc':'移動できるカードを全件ハイライト。次の一手に迷ったらすぐ確認',
+    'feat.review.title':'振り返り機能','feat.review.desc':'全手のプレイをAIとともに振り返る。ターニングポイントで教訓を学ぼう',
     'feat.score.title':'スコア記録','feat.score.desc':'難易度別クリア回数・最高スコアをローカル保存',
     'suits.heading':'3つの難易度','suits.1':'1スート','suits.2':'2スート','suits.4':'4スート',
     'cta.note':'ブラウザで動作 · インストール不要 · 無料',
@@ -461,15 +461,15 @@ const I18N_PAGE = {
     'nav.blog':'Blog','nav.privacy':'Privacy','nav.contact':'Contact',
     'hero.desc':'Play with an AI coach,<br>get better together.<br>Challenge the same daily board as everyone else.',
     'cta.play':'Play with AI',
-    'ai.heading':'Improve with an AI Coach','ai.subheading':'Stuck? Ask the AI',
-    'ai.li1':'Auto-analyzes the board. One-word verdict: "Good", "Manageable", or "Tough"',
-    'ai.li2':'Presents a numbered plan for the next 3–5 moves',
-    'ai.li3':'Explains moves to avoid and easy-to-miss pitfalls',
-    'ai.li4':'Hint mode highlights all movable cards instantly',
+    'ai.heading':'Improve with an AI Coach','ai.subheading':'AI coaches you — during play and after',
+    'ai.li1':'Analyzes the board: "Situation", "Your Next Move", and "What Changes"',
+    'ai.li2':'Coaching style — teaches you how to think, not just what to do',
+    'ai.li3':'Review every move after clearing or giving up, with AI commentary on turning points',
+    'ai.li4':'Review breakdown: move evaluation, better alternative, and lesson to remember',
     'features.heading':'Features',
     'feat.daily.title':'Daily Puzzle','feat.daily.desc':'Everyone tackles the same board each day. Share your score on social media.',
     'feat.undo.title':'Unlimited Undo','feat.undo.desc':'Rewind as many moves as you like. Review your game after clearing.',
-    'feat.hint.title':'Hint Mode','feat.hint.desc':'Highlights all movable cards. Instant help when you\'re not sure what to do next.',
+    'feat.review.title':'Game Review','feat.review.desc':'Review every move with AI. Learn from turning points and improve your game.',
     'feat.score.title':'Score Records','feat.score.desc':'Saves clear count and best score per difficulty, locally.',
     'suits.heading':'3 Difficulty Levels','suits.1':'1 Suit','suits.2':'2 Suits','suits.4':'4 Suits',
     'cta.note':'Runs in browser · No install · Free',
