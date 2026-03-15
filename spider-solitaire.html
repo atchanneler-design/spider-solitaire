@@ -87,7 +87,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 6px 14px;
     background: rgba(0,0,0,0.25);
     border-bottom: 1px solid rgba(201,168,76,0.3);
   }
@@ -95,11 +95,11 @@
   .title {
     font-family: 'Playfair Display', serif;
     color: var(--gold-light);
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     letter-spacing: 2px;
     background: none;
     border: none;
-    padding: 8px 4px;
+    padding: 4px 4px;
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -123,13 +123,13 @@
 
   .stats {
     display: flex;
-    gap: 20px;
+    gap: 12px;
     color: rgba(245,240,232,0.8);
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 
   .stat-item { display: flex; flex-direction: column; align-items: center; }
-  .stat-value { color: var(--gold-light); font-size: 1rem; font-weight: 500; }
+  .stat-value { color: var(--gold-light); font-size: 0.85rem; font-weight: 500; }
 
   .streak-display {
     display: flex;
@@ -222,8 +222,8 @@
   #game-area {
     display: flex;
     flex-direction: column;
-    padding: 12px 6px;
-    gap: 8px;
+    padding: 4px 4px;
+    gap: 2px;
     flex: 1;
     min-height: 0;
   }
@@ -233,14 +233,14 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 8px;
-    padding: 0 4px;
-    margin-bottom: 4px;
+    gap: 6px;
+    padding: 0 2px;
+    margin-bottom: 2px;
   }
 
   #foundations {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     flex: 1;
     justify-content: flex-end;
     flex-wrap: nowrap;
@@ -248,14 +248,14 @@
 
   .foundation-slot {
     width: 68px;
-    height: 100px;
+    height: 52px;
     border: 2px dashed rgba(201,168,76,0.35);
-    border-radius: 6px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.15);
-    font-size: 1.4rem;
+    font-size: 1rem;
     color: rgba(201,168,76,0.4);
     position: relative;
     overflow: hidden;
@@ -284,7 +284,7 @@
     flex: 1;
     min-height: 0;
     align-items: flex-start;
-    margin-top: 18px;
+    margin-top: 6px;
   }
 
   .column {
@@ -437,8 +437,8 @@
   }
 
   .stock-pile {
-    width: 68px;
-    height: 100px;
+    width: 52px;
+    height: 52px;
     border-radius: 6px;
     position: relative;
     cursor: pointer;
@@ -446,8 +446,8 @@
 
   .stock-card {
     position: absolute;
-    width: 68px;
-    height: 100px;
+    width: 52px;
+    height: 52px;
     background: repeating-linear-gradient(
       135deg,
       #1a5c38,
@@ -965,9 +965,9 @@
   ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
 
   @media (max-width: 600px) {
-    .title { font-size: 1rem; }
-    .stats { gap: 10px; }
-    header { padding: 8px 12px; }
+    .title { font-size: 0.95rem; letter-spacing: 1px; }
+    .stats { gap: 8px; }
+    header { padding: 5px 10px; }
   }
 
   /* ── Review Overlay ─────────────────────────────────────── */
@@ -1902,29 +1902,41 @@ function renderFoundations() {
 function renderColumns() {
   const el = document.getElementById('columns');
 
-  // --- dynamic card offset: compress if tallest column doesn't fit ---
+  // --- dynamic card offsets ---
   const CARD_H = 100;
-  const DEFAULT_FD = 14, DEFAULT_FU = 30;
-  const MIN_FD = 7,      MIN_FU = 16;
-  const availH = el.clientHeight || Math.floor(window.innerHeight * 0.5);
+  const DEFAULT_FD = 14;
+  const FACE_UP_OFFSET = 30;   // 表向きオフセットは常に固定
+  const MIN_FD = 5;
+  const availH = el.clientHeight || Math.floor(window.innerHeight * 0.55);
 
-  let minScale = 1.0;
-  state.columns.forEach(col => {
-    const nfd = col.filter(c => !c.faceUp).length;
-    const nfu = col.filter(c =>  c.faceUp).length;
-    const needed = nfd * DEFAULT_FD + nfu * DEFAULT_FU;
-    if (needed > 0 && availH > CARD_H) {
-      const scale = (availH - CARD_H) / needed;
-      if (scale < minScale) minScale = scale;
-    }
-  });
-  const FACE_DOWN_OFFSET = Math.max(MIN_FD, Math.floor(DEFAULT_FD * minScale));
-  const FACE_UP_OFFSET   = Math.max(MIN_FU, Math.floor(DEFAULT_FU * minScale));
+  // 列のカード総数に応じた裏向きオフセット（段階的圧縮）
+  function thresholdFd(total) {
+    if (total <= 10) return DEFAULT_FD;                    // 通常 (14px)
+    if (total <= 15) return Math.round(DEFAULT_FD * 0.6); // 60% (8px)
+    return Math.round(DEFAULT_FD * 0.4);                  // 40% (6px)
+  }
+
+  // 安全網: threshold後も収まらない列があれば FD のみ追加スケール
+  let fdScale = 1.0;
+  if (availH > CARD_H) {
+    state.columns.forEach(col => {
+      const nfd = col.filter(c => !c.faceUp).length;
+      const nfu = col.filter(c =>  c.faceUp).length;
+      if (nfd === 0) return;
+      const fd = thresholdFd(col.length);
+      const availForFd = availH - CARD_H - nfu * FACE_UP_OFFSET;
+      if (availForFd > 0 && nfd * fd > availForFd) {
+        fdScale = Math.min(fdScale, availForFd / (nfd * fd));
+      }
+    });
+  }
   // --- end dynamic offset ---
 
   el.innerHTML = '';
 
   state.columns.forEach((col, ci) => {
+    const FD = Math.max(MIN_FD, Math.round(thresholdFd(col.length) * fdScale));
+
     const colEl = document.createElement('div');
     colEl.className = 'column';
     colEl.dataset.colIdx = ci;
@@ -1972,7 +1984,7 @@ function renderColumns() {
         cardEl.addEventListener('pointerdown', e => onPointerDown(e, ci, ki));
       }
 
-      top += card.faceUp ? FACE_UP_OFFSET : FACE_DOWN_OFFSET;
+      top += card.faceUp ? FACE_UP_OFFSET : FD;
       colEl.appendChild(cardEl);
     });
 
@@ -2011,7 +2023,7 @@ function renderStock() {
     pile.style.border = '2px dashed rgba(255,255,255,0.1)';
     pile.style.borderRadius = '6px';
     const empty = document.createElement('div');
-    empty.style.cssText = 'width:64px;height:88px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.7rem;';
+    empty.style.cssText = 'width:48px;height:44px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:0.6rem;';
     empty.textContent = t('stock.empty');
     pile.appendChild(empty);
   }
