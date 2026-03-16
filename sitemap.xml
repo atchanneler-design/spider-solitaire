@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Top page -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/</loc>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Game -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/spider-solitaire.html</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Privacy / Contact -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/privacy.html</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/contact.html</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+
+  <!-- Blog (ja) index -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://spider-solitaire-seven.vercel.app/blog/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spider-solitaire-seven.vercel.app/blog/en/"/>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Blog (ja) articles -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/strategy.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/beginner.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/rules.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/ai-improvement.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/difficulty.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/focus.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Blog (en) index -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spider-solitaire-seven.vercel.app/blog/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://spider-solitaire-seven.vercel.app/blog/"/>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Blog (en) articles -->
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/en/strategy.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/en/beginner.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/en/how-to-play.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+</urlset>
