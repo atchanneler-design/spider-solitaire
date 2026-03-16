@@ -1510,6 +1510,7 @@ function makeGameHistoryEntry(type, description, changedCols) {
   if (state.moves % 50 === 0) {
     entry.fullSnapshot = {
       columns: state.columns.map(col => col.map(c => ({...c}))),
+      stock: state.stock.map(pile => pile.map(c => ({...c}))),
       stockLength: state.stock.length,
       foundationsLength: state.foundations.length,
     };
@@ -1526,6 +1527,7 @@ function initGameHistory() {
     description: currentLang === 'en' ? 'Game start' : 'ゲーム開始',
     fullSnapshot: {
       columns: state.columns.map(col => col.map(c => ({...c}))),
+      stock: state.stock.map(pile => pile.map(c => ({...c}))),
       stockLength: state.stock.length,
       foundationsLength: state.foundations.length,
     },
@@ -3417,6 +3419,9 @@ function getHistoryEntry(moveNumber) {
     };
   }
   let columns = checkpoint.fullSnapshot.columns.map(col => col.map(c => ({...c})));
+  let stock = checkpoint.fullSnapshot.stock
+    ? checkpoint.fullSnapshot.stock.map(pile => pile.map(c => ({...c})))
+    : [];
   let stockLength = checkpoint.fullSnapshot.stockLength;
   let foundationsLength = checkpoint.fullSnapshot.foundationsLength;
   for (const entry of gameHistory) {
@@ -3427,11 +3432,12 @@ function getHistoryEntry(moveNumber) {
         columns[parseInt(ci)] = cards.map(c => ({...c}));
       });
     }
+    if (entry.type === 'deal' && stock.length > 0) stock.pop();
     if (entry.stockLength !== undefined) stockLength = entry.stockLength;
     if (entry.foundationsLength !== undefined) foundationsLength = entry.foundationsLength;
   }
   const histEntry = gameHistory.find(e => e.moveNumber === moveNumber) || gameHistory[gameHistory.length - 1];
-  return { columns, stockLength, foundationsLength, ...histEntry };
+  return { columns, stock, stockLength, foundationsLength, ...histEntry };
 }
 
 function renderPreviewBoard(entry) {
@@ -3651,6 +3657,16 @@ function buildReviewContext(entry, prevEntry, moveNumber) {
           ? `Col${i+1} hidden (bottom→top): ${hidden.join(' ')}`
           : `列${i+1}の裏向き（下から順）: ${hidden.join(' ')}`);
       }
+    });
+  }
+
+  const srcStock = prevEntry?.stock ?? entry?.stock;
+  if (srcStock && srcStock.length > 0) {
+    srcStock.forEach((pile, i) => {
+      const cards = pile.map(c => `${c.rank}${c.suit}`).join(' ');
+      lines.push(isEn
+        ? `Remaining stock deal ${i + 1}: ${cards}`
+        : `残り手札${i + 1}回目: ${cards}`);
     });
   }
 
