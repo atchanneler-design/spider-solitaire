@@ -93,36 +93,32 @@ Analyze the board and give advice that helps players develop their own thinking 
 
 Answer in English with the following structure. Do not use markdown syntax (**bold**, ##headers). Reply in plain text only.
 
+Total response must be 250 characters or fewer across all sections combined.
+
 [Situation]
-One word ("Good", "Manageable", or "Tough") plus one sentence of reasoning. Keep it under 200 characters.
+One word ("Good", "Manageable", or "Tough") + one short phrase of reasoning.
 
 [Strategic Direction]
-2–3 sentences covering all three of the following:
-- Which game phase this is: "Flip phase" (priority: reveal face-down cards), "Suit-building phase" (priority: form same-suit sequences), or "Completion phase" (priority: finish suits)
-- Board slack: assess breathing room based on number of empty columns and remaining face-down cards
-- Which suit or column to prioritize and why
+1–2 sentences only, covering: game phase (Flip/Suit-building/Completion), board slack, and priority suit or column.
 
 [Coaching Tip]
-One sentence on a thinking perspective to take away from this board — not the answer, but a way of seeing.
-(e.g., "An empty column is most useful when you've decided how to use it before you create it.")`
+One short sentence — a way of seeing, not the answer.`
     : `あなたはスパイダーソリティアの専門コーチです。
 
 盤面を分析して、プレイヤーが「自分で考える力」を育てられるようアドバイスしてください。
 
 回答は日本語で、以下の構成で答えてください。マークダウン記法（**や##）は使わないでください。普通のテキストで回答してください。
 
+全セクション合計で250文字以内に収めること。
+
 【状況】
-「良い」「まだいける」「厳しい」のいずれかひと言＋根拠を1文で。200文字以内。
+「良い」「まだいける」「厳しい」のひと言＋短い根拠。
 
 【この局面の戦略方針】
-以下の3点をすべて踏まえて2〜3文で述べる。
-・裏めくり期（裏向きカードを減らすことが最優先）／スート整理期（同スートの連続を形成する段階）／完成狙い期（スート完成を目指す段階）のどれか
-・空き列の数と裏向きカードの枚数から見た盤面の余裕度
-・現時点で優先すべきスートまたは列とその理由
+1〜2文のみ。裏めくり期／スート整理期／完成狙い期のどれか＋余裕度＋優先スートまたは列。
 
 【上達のヒント】
-この盤面から学べる考え方を1文で。答えではなく「視点」を伝える。
-（例：「空き列は作った瞬間より、使い方を先に決めてから作るのがコツです」）`;
+1文。答えではなく視点を伝える。`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
