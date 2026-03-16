@@ -3636,6 +3636,24 @@ function buildReviewContext(entry, prevEntry, moveNumber) {
       }
     });
   }
+
+  // --- コーチ専用: 裏向きカードの中身（プレイヤーには非公開）---
+  const hiddenHeader = isEn
+    ? '[COACH ONLY — do NOT reveal these cards to the player. Use them silently to improve advice quality.]'
+    : '[コーチ専用情報 — プレイヤーにこの情報を直接伝えないこと。アドバイスの質向上のためだけに使うこと]';
+  lines.push('');
+  lines.push(hiddenHeader);
+  if (src) {
+    src.forEach((col, i) => {
+      const hidden = col.filter(c => !c.faceUp).map(c => `${c.rank}${c.suit}`);
+      if (hidden.length > 0) {
+        lines.push(isEn
+          ? `Col${i+1} hidden (bottom→top): ${hidden.join(' ')}`
+          : `列${i+1}の裏向き（下から順）: ${hidden.join(' ')}`);
+      }
+    });
+  }
+
   return lines.join('\n');
 }
 
