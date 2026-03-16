@@ -2045,7 +2045,7 @@ function newGame(problemIdx = null) {
   clearHints();
   selected = null;
   if (problemIdx === null) {
-    currentProblemIdx = (currentProblemIdx + 1) % PROBLEM_SEEDS.length;
+    currentProblemIdx = Math.floor(Math.random() * PROBLEM_SEEDS.length);
   } else {
     currentProblemIdx = problemIdx;
   }
