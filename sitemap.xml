@@ -85,6 +85,11 @@
 
   <!-- Blog (en) articles -->
   <url>
+    <loc>https://spider-solitaire-seven.vercel.app/blog/en/ai-solitaire.html</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://spider-solitaire-seven.vercel.app/blog/en/strategy.html</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
