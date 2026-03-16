@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spider-solitaire-v45';
+const CACHE_NAME = 'spider-solitaire-v46';
 const FONT_CACHE_NAME = 'spider-solitaire-fonts-v1';
 
 // App Shell: オフラインでも動作させるファイル一覧

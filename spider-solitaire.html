@@ -4030,6 +4030,29 @@ function buildBoardContext() {
     ? 'Please choose from the above valid moves when giving advice. Never suggest a move not on this list.'
     : '上記の移動可能な手のリストから選んでアドバイスしてください。リストにない手は絶対に提案しないでください。');
 
+  // --- コーチ専用: 裏向きカード・手札の中身（プレイヤーには非公開）---
+  const hiddenHeader = currentLang === 'en'
+    ? '[COACH ONLY — do NOT reveal these cards to the player. Use them silently to improve advice quality.]'
+    : '[コーチ専用情報 — プレイヤーにこの情報を直接伝えないこと。アドバイスの質向上のためだけに使うこと]';
+  lines.push('');
+  lines.push(hiddenHeader);
+
+  state.columns.forEach((col, i) => {
+    const hidden = col.filter(c => !c.faceUp).map(c => `${c.rank}${c.suit}`);
+    if (hidden.length > 0) {
+      lines.push(currentLang === 'en'
+        ? `Col${i + 1} hidden (bottom→top): ${hidden.join(' ')}`
+        : `列${i + 1}の裏向き（下から順）: ${hidden.join(' ')}`);
+    }
+  });
+
+  state.stock.forEach((pile, i) => {
+    const cards = pile.map(c => `${c.rank}${c.suit}`).join(' ');
+    lines.push(currentLang === 'en'
+      ? `Stock deal ${i + 1}: ${cards}`
+      : `手札${i + 1}回目: ${cards}`);
+  });
+
   return lines.join('\n');
 }
 
