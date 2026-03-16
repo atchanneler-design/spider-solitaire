@@ -2110,8 +2110,9 @@ function renderColumns() {
   // --- dynamic card offsets ---
   const CARD_H = 100;
   const DEFAULT_FD = 14;
-  const FACE_UP_OFFSET = 30;   // 表向きオフセットは常に固定
+  const FACE_UP_OFFSET = 30;
   const MIN_FD = 5;
+  const MIN_FU = 22;  // 表向き最小オフセット（ランク＋スートが見える下限）
   const availH = el.clientHeight || Math.floor(window.innerHeight * 0.55);
 
   // 列のカード総数に応じた裏向きオフセット（段階的圧縮）
@@ -2121,7 +2122,7 @@ function renderColumns() {
     return Math.round(DEFAULT_FD * 0.4);                  // 40% (6px)
   }
 
-  // 安全網: threshold後も収まらない列があれば FD のみ追加スケール
+  // Step1: 裏向きオフセットのグローバルスケール
   let fdScale = 1.0;
   if (availH > CARD_H) {
     state.columns.forEach(col => {
@@ -2135,12 +2136,24 @@ function renderColumns() {
       }
     });
   }
+
+  // Step2: 裏向き圧縮後もはみ出す列は表向きも圧縮（MIN_FUを下限に）
+  function getFuOffset(col) {
+    const nfu = col.filter(c => c.faceUp).length;
+    if (nfu <= 1) return FACE_UP_OFFSET;
+    const nfd = col.filter(c => !c.faceUp).length;
+    const FD = Math.max(MIN_FD, Math.round(thresholdFd(col.length) * fdScale));
+    const remainForFu = availH - CARD_H - nfd * FD;
+    if (remainForFu >= nfu * FACE_UP_OFFSET) return FACE_UP_OFFSET;
+    return Math.max(MIN_FU, Math.floor(remainForFu / nfu));
+  }
   // --- end dynamic offset ---
 
   el.innerHTML = '';
 
   state.columns.forEach((col, ci) => {
     const FD = Math.max(MIN_FD, Math.round(thresholdFd(col.length) * fdScale));
+    const FU = getFuOffset(col);
 
     const colEl = document.createElement('div');
     colEl.className = 'column';
@@ -2189,7 +2202,7 @@ function renderColumns() {
         cardEl.addEventListener('pointerdown', e => onPointerDown(e, ci, ki));
       }
 
-      top += card.faceUp ? FACE_UP_OFFSET : FD;
+      top += card.faceUp ? FU : FD;
       colEl.appendChild(cardEl);
     });
 
