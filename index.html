@@ -667,6 +667,10 @@ const I18N_PAGE = {
   };
 
   applyLang();
+  if (location.hash === '#play') {
+    history.replaceState(null, '', location.pathname);
+    setTimeout(() => window.showPlayOverlay?.(), 0);
+  }
 })();
 
 window.showPlayOverlay = function() {
