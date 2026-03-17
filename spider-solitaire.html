@@ -3588,6 +3588,7 @@ function retryGame() {
 }
 
 function showReview(result = 'giveup') {
+  hideModal();
   reviewAiCache = {};
   const overlay = document.getElementById('review-overlay');
   overlay.style.display = 'flex';
